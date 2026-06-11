@@ -12,24 +12,27 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
     rel="stylesheet">
 
   <style>
     :root {
-      --bg: #0d0703;
-      --cream: #ffecd6;
-      --cream-dim: #c7b39f;
-      --brown-light: #23160e;
-      --brown-deep: #150a04;
-      --line: rgba(255, 237, 215, 0.08);
-      --line-active: #dc5000;
-      --muted: #8c7d6e;
-      --sienna: #dc5000;
-      --sienna-gradient: linear-gradient(135deg, #dc5000 0%, #a03600 100%);
-      --gold: #dfab6c;
+      --bg: #070D18;
+      --bg-rgb: 7, 13, 24;
+      --cream: #F6F2E9;
+      --cream-dim: #E7D5B5;
+      --brown-light: #0B1730;
+      --brown-light-rgb: 11, 23, 48;
+      --brown-deep: #050A14;
+      --line: rgba(184, 134, 74, 0.15);
+      --line-active: #CBA45A;
+      --muted: #B8864A;
+      --sienna: #CBA45A;
+      --sienna-rgb: 203, 164, 90;
+      --sienna-gradient: linear-gradient(135deg, #CBA45A 0%, #B8864A 100%);
+      --gold: #CBA45A;
       --font-serif: 'Playfair Display', Georgia, serif;
-      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
       --radius: 16px;
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -91,7 +94,7 @@
       right: 0;
       height: 80px;
       z-index: 100;
-      background: rgba(13, 7, 3, 0.85);
+      background: rgba(var(--bg-rgb), 0.85);
       border-bottom: 1px solid var(--line);
       display: flex;
       align-items: center;
@@ -103,7 +106,7 @@
 
     .nav.scrolled {
       height: 68px;
-      background: rgba(13, 7, 3, 0.95);
+      background: rgba(var(--bg-rgb), 0.95);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
 
@@ -184,12 +187,12 @@
       letter-spacing: 0.04em;
       text-transform: uppercase;
       transition: var(--transition);
-      box-shadow: 0 4px 15px rgba(220, 80, 0, 0.2);
+      box-shadow: 0 4px 15px rgba(var(--sienna-rgb), 0.2);
     }
 
     .btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(220, 80, 0, 0.4);
+      box-shadow: 0 8px 25px rgba(var(--sienna-rgb), 0.4);
     }
 
     .btn:active {
@@ -234,7 +237,7 @@
       width: 60vw;
       height: 80vh;
       background:
-        radial-gradient(circle at 60% 40%, rgba(220, 80, 0, 0.12), transparent 45%),
+        radial-gradient(circle at 60% 40%, rgba(var(--sienna-rgb), 0.12), transparent 45%),
         radial-gradient(circle at 40% 60%, rgba(223, 171, 108, 0.08), transparent 45%);
       pointer-events: none;
       z-index: 0;
@@ -333,7 +336,7 @@
       height: 600px;
       border: 1px solid rgba(255, 237, 215, 0.15);
       border-radius: 24px;
-      background: linear-gradient(180deg, rgba(35, 22, 14, 0.6) 0%, rgba(13, 7, 3, 0.8) 100%);
+      background: linear-gradient(180deg, rgba(var(--brown-light-rgb), 0.6) 0%, rgba(var(--bg-rgb), 0.8) 100%);
       backdrop-filter: blur(15px);
       position: relative;
       overflow: hidden;
@@ -472,7 +475,7 @@
       border-radius: 12px;
       position: relative;
       overflow: hidden;
-      background: radial-gradient(circle at 50% 50%, rgba(220, 80, 0, 0.05), transparent 70%);
+      background: radial-gradient(circle at 50% 50%, rgba(var(--sienna-rgb), 0.05), transparent 70%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -530,7 +533,7 @@
       height: 32px;
       border: 1px solid var(--sienna);
       border-radius: 50%;
-      background: rgba(220, 80, 0, 0.12);
+      background: rgba(var(--sienna-rgb), 0.12);
       transform: scale(0.9);
       animation: pulseMark 2s infinite alternate;
     }
@@ -561,12 +564,12 @@
     @keyframes pulseMark {
       0% {
         transform: scale(0.85);
-        box-shadow: 0 0 0 0 rgba(220, 80, 0, 0.4);
+        box-shadow: 0 0 0 0 rgba(var(--sienna-rgb), 0.4);
       }
 
       100% {
         transform: scale(1.05);
-        box-shadow: 0 0 8px 4px rgba(220, 80, 0, 0);
+        box-shadow: 0 0 8px 4px rgba(var(--sienna-rgb), 0);
       }
     }
 
@@ -590,7 +593,7 @@
       border: 1px solid var(--line);
       border-radius: 10px;
       padding: 10px;
-      background: rgba(35, 22, 14, 0.3);
+      background: rgba(var(--brown-light-rgb), 0.3);
       text-align: center;
       font-size: 10px;
       text-transform: uppercase;
@@ -607,13 +610,13 @@
       justify-content: center;
       font-size: 20px;
       color: var(--muted);
-      background: rgba(13, 7, 3, 0.4);
+      background: rgba(var(--bg-rgb), 0.4);
     }
 
     .sim-result-card {
       border: 1px solid var(--cream);
       border-radius: 12px;
-      background: rgba(35, 22, 14, 0.4);
+      background: rgba(var(--brown-light-rgb), 0.4);
       padding: 20px;
       margin: auto 0;
       backdrop-filter: blur(10px);
@@ -702,16 +705,16 @@
       border: 1px solid var(--line);
       border-radius: var(--radius);
       padding: 28px;
-      background: rgba(35, 22, 14, 0.2);
+      background: rgba(var(--brown-light-rgb), 0.2);
       transition: var(--transition);
       position: relative;
       overflow: hidden;
     }
 
     .warning-card:hover {
-      border-color: rgba(220, 80, 0, 0.3);
+      border-color: rgba(var(--sienna-rgb), 0.3);
       transform: translateX(5px);
-      background: rgba(35, 22, 14, 0.4);
+      background: rgba(var(--brown-light-rgb), 0.4);
     }
 
     .warning-card::before {
@@ -813,7 +816,7 @@
       background: var(--sienna);
       border-color: var(--sienna);
       color: var(--cream);
-      box-shadow: 0 0 15px rgba(220, 80, 0, 0.4);
+      box-shadow: 0 0 15px rgba(var(--sienna-rgb), 0.4);
     }
 
     .wizard-step.completed {
@@ -826,7 +829,7 @@
     .form-panel {
       border: 1px solid var(--line);
       border-radius: 20px;
-      background: rgba(35, 22, 14, 0.25);
+      background: rgba(var(--brown-light-rgb), 0.25);
       padding: 40px;
       backdrop-filter: blur(10px);
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
@@ -888,7 +891,7 @@
       position: relative;
       overflow: hidden;
       cursor: pointer;
-      background: rgba(13, 7, 3, 0.3);
+      background: rgba(var(--bg-rgb), 0.3);
       transition: var(--transition);
       padding: 16px;
       text-align: center;
@@ -896,7 +899,7 @@
 
     .photo-slot:hover {
       border-color: var(--sienna);
-      background: rgba(220, 80, 0, 0.03);
+      background: rgba(var(--sienna-rgb), 0.03);
     }
 
     .photo-slot input[type="file"] {
@@ -950,7 +953,7 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background: rgba(13, 7, 3, 0.75);
+      background: rgba(var(--bg-rgb), 0.75);
       font-size: 11px;
       padding: 6px;
       z-index: 3;
@@ -995,7 +998,7 @@
     .field select,
     .field textarea {
       width: 100%;
-      background: rgba(13, 7, 3, 0.5);
+      background: rgba(var(--bg-rgb), 0.5);
       border: 1px solid var(--line);
       border-radius: 10px;
       color: var(--cream);
@@ -1009,8 +1012,8 @@
     .field select:focus,
     .field textarea:focus {
       border-color: var(--sienna);
-      background: rgba(13, 7, 3, 0.8);
-      box-shadow: 0 0 12px rgba(220, 80, 0, 0.15);
+      background: rgba(var(--bg-rgb), 0.8);
+      box-shadow: 0 0 12px rgba(var(--sienna-rgb), 0.15);
     }
 
     .field input::placeholder,
@@ -1041,7 +1044,7 @@
       gap: 12px;
       align-items: center;
       cursor: pointer;
-      background: rgba(13, 7, 3, 0.2);
+      background: rgba(var(--bg-rgb), 0.2);
       transition: var(--transition);
       user-select: none;
       height: 100%;
@@ -1063,7 +1066,7 @@
 
     .check-pill.checked {
       border-color: var(--sienna);
-      background: rgba(220, 80, 0, 0.05);
+      background: rgba(var(--sienna-rgb), 0.05);
       color: var(--cream);
     }
 
@@ -1096,7 +1099,7 @@
     .status-box-inner {
       border: 1px solid var(--gold);
       border-radius: 20px;
-      background: rgba(35, 22, 14, 0.3);
+      background: rgba(var(--brown-light-rgb), 0.3);
       padding: 48px;
       text-align: center;
       backdrop-filter: blur(10px);
@@ -1150,7 +1153,7 @@
     .contact-card {
       border: 1px solid var(--gold);
       border-radius: 24px;
-      background: radial-gradient(circle at 10% 10%, rgba(35, 22, 14, 0.6) 0%, rgba(13, 7, 3, 0.9) 100%);
+      background: radial-gradient(circle at 10% 10%, rgba(var(--brown-light-rgb), 0.6) 0%, rgba(var(--bg-rgb), 0.9) 100%);
       padding: 60px;
       display: grid;
       grid-template-columns: 1.2fr 0.8fr;
@@ -1186,8 +1189,8 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgba(220, 80, 0, 0.15);
-      border: 1px solid rgba(220, 80, 0, 0.3);
+      background: rgba(var(--sienna-rgb), 0.15);
+      border: 1px solid rgba(var(--sienna-rgb), 0.3);
       border-radius: 99px;
       padding: 8px 18px;
       font-size: 11px;
@@ -1216,7 +1219,7 @@
       font-size: 16px;
       position: relative;
       background: var(--sienna-gradient);
-      box-shadow: 0 10px 30px rgba(220, 80, 0, 0.3);
+      box-shadow: 0 10px 30px rgba(var(--sienna-rgb), 0.3);
     }
 
     .btn.cta-large::before {
@@ -1224,7 +1227,7 @@
       position: absolute;
       inset: -6px;
       border-radius: 99px;
-      border: 1.5px solid rgba(220, 80, 0, 0.3);
+      border: 1.5px solid rgba(var(--sienna-rgb), 0.3);
       animation: rippleEffect 2s linear infinite;
     }
 
@@ -1233,7 +1236,7 @@
       position: absolute;
       inset: -12px;
       border-radius: 99px;
-      border: 1px solid rgba(220, 80, 0, 0.15);
+      border: 1px solid rgba(var(--sienna-rgb), 0.15);
       animation: rippleEffect 2s linear infinite 0.6s;
     }
 
@@ -1389,8 +1392,8 @@
 
     .card-option.active {
       border-color: var(--sienna);
-      background: rgba(220, 80, 0, 0.06);
-      box-shadow: 0 0 15px rgba(220, 80, 0, 0.15);
+      background: rgba(var(--sienna-rgb), 0.06);
+      box-shadow: 0 0 15px rgba(var(--sienna-rgb), 0.15);
     }
 
     .card-option.active::after {
@@ -1433,7 +1436,7 @@
       position: fixed;
       inset: 0;
       z-index: 200;
-      background: rgba(13, 7, 3, 0.85);
+      background: rgba(var(--bg-rgb), 0.85);
       backdrop-filter: blur(15px);
       display: flex;
       align-items: center;
@@ -1452,7 +1455,7 @@
     .camera-modal-content, .source-modal-content {
       width: 100%;
       max-width: 520px;
-      background: #150a04;
+      background: var(--brown-deep);
       border: 1px solid var(--gold);
       border-radius: 20px;
       overflow: hidden;
@@ -1543,8 +1546,8 @@
       bottom: 20px;
       left: 20px;
       right: 20px;
-      background: rgba(13, 7, 3, 0.75);
-      border: 1px solid rgba(220, 80, 0, 0.3);
+      background: rgba(var(--bg-rgb), 0.75);
+      border: 1px solid rgba(var(--sienna-rgb), 0.3);
       padding: 10px 16px;
       border-radius: 99px;
       text-align: center;
@@ -1572,7 +1575,7 @@
     }
 
     .source-btn {
-      background: rgba(13, 7, 3, 0.3);
+      background: rgba(var(--bg-rgb), 0.3);
       border: 1px solid var(--line);
       border-radius: 12px;
       padding: 16px 20px;
@@ -1588,7 +1591,7 @@
 
     .source-btn:hover {
       border-color: var(--sienna);
-      background: rgba(220, 80, 0, 0.03);
+      background: rgba(var(--sienna-rgb), 0.03);
     }
 
     .source-btn-icon {
@@ -1640,7 +1643,7 @@
     }
 
     .brightness-badge.too-dark {
-      background: rgba(220, 80, 0, 0.9);
+      background: rgba(var(--sienna-rgb), 0.9);
       border: 1px solid rgba(255, 237, 215, 0.2);
       color: var(--cream);
     }
@@ -1667,7 +1670,7 @@
       font-weight: 700;
       z-index: 10;
       pointer-events: none;
-      background: rgba(13, 7, 3, 0.85);
+      background: rgba(var(--bg-rgb), 0.85);
       border: 1px solid var(--line);
       color: var(--cream-dim);
       transition: all 0.3s ease;
@@ -1680,8 +1683,8 @@
     }
 
     @keyframes pulseAlert {
-      from { box-shadow: 0 0 0 0 rgba(220, 80, 0, 0.4); }
-      to { box-shadow: 0 0 10px 4px rgba(220, 80, 0, 0.2); }
+      from { box-shadow: 0 0 0 0 rgba(var(--sienna-rgb), 0.4); }
+      to { box-shadow: 0 0 10px 4px rgba(var(--sienna-rgb), 0.2); }
     }
 
     /* Oval guidelines state and animations */
@@ -1701,7 +1704,7 @@
       stroke: #dc5000 !important;
       stroke-width: 1.5px !important;
       animation: pulseError 0.8s infinite alternate;
-      filter: drop-shadow(0px 0px 3px rgba(220, 80, 0, 0.6));
+      filter: drop-shadow(0px 0px 3px rgba(var(--sienna-rgb), 0.6));
     }
 
     @keyframes pulseOk {
@@ -1736,7 +1739,7 @@
       border-radius: 50% / 40%;
       border: 2px dashed rgba(223, 171, 108, 0.3);
       overflow: hidden;
-      background: rgba(35, 22, 14, 0.2);
+      background: rgba(var(--brown-light-rgb), 0.2);
     }
     .scanner-face-silhouette {
       font-size: 100px;
@@ -1750,8 +1753,8 @@
       left: 0;
       width: 100%;
       height: 4px;
-      background: linear-gradient(to right, transparent, #dc5000, #dfab6c, #dc5000, transparent);
-      box-shadow: 0 0 12px #dc5000;
+      background: linear-gradient(to right, transparent, var(--gold), var(--cream-dim), var(--gold), transparent);
+      box-shadow: 0 0 12px var(--gold);
       animation: scanMotion 2s linear infinite;
     }
     @keyframes scanMotion {
@@ -1762,7 +1765,7 @@
     .scanner-status-title {
       font-size: 20px;
       font-weight: 700;
-      color: #ffecd6;
+      color: var(--cream);
       margin-bottom: 12px;
       letter-spacing: 0.5px;
     }
@@ -1803,8 +1806,8 @@
       border-bottom: 1px solid rgba(255, 237, 215, 0.08);
     }
     .result-header .ai-badge {
-      background: rgba(220, 80, 0, 0.1);
-      border: 1px solid rgba(220, 80, 0, 0.3);
+      background: rgba(var(--sienna-rgb), 0.1);
+      border: 1px solid rgba(var(--sienna-rgb), 0.3);
       color: #dc5000;
       padding: 4px 10px;
       border-radius: 20px;
@@ -1815,7 +1818,7 @@
     }
     .result-header h3 {
       font-size: 20px;
-      color: #ffecd6;
+      color: var(--cream);
       font-weight: 700;
       margin: 0;
     }
@@ -1842,13 +1845,13 @@
     }
     .result-value.summary-text {
       font-size: 14px;
-      color: #ffecd6;
+      color: var(--cream);
       line-height: 1.6;
       opacity: 0.95;
     }
     .result-value.next-steps-list {
       font-size: 14px;
-      color: #ffecd6;
+      color: var(--cream);
       line-height: 1.6;
       opacity: 0.95;
     }
@@ -2068,7 +2071,7 @@
             <p class="form-step-subtitle">Chụp ảnh camera thường, không dùng bộ lọc hoặc trang điểm. Ưu tiên ánh sáng tự nhiên cạnh cửa sổ.</p>
 
             <!-- Quy chuẩn chụp ảnh da -->
-            <div style="background: rgba(220, 80, 0, 0.04); border: 1px solid rgba(220, 80, 0, 0.15); border-radius: 12px; padding: 18px; margin-bottom: 24px; font-size: 13px;">
+            <div style="background: rgba(var(--sienna-rgb), 0.04); border: 1px solid rgba(var(--sienna-rgb), 0.15); border-radius: 12px; padding: 18px; margin-bottom: 24px; font-size: 13px;">
               <div style="font-weight: 700; color: var(--gold); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
                 <span>💡</span> QUY CHUẨN CHỤP ẢNH DA ĐẠT CHUẨN CHẨN ĐOÁN
               </div>
@@ -2478,7 +2481,7 @@
         <!-- Transparent cutout overlay -->
         <div id="cameraOverlay" class="camera-face-overlay">
           <svg viewBox="0 0 100 100" class="overlay-svg">
-            <path id="overlayPath" fill="rgba(13, 7, 3, 0.75)" fill-rule="evenodd" d="M0,0 H100 V100 H0 Z M50,16 A22,34 0 1,0 50,84 A22,34 0 1,0 50,16" />
+            <path id="overlayPath" fill="rgba(var(--bg-rgb), 0.75)" fill-rule="evenodd" d="M0,0 H100 V100 H0 Z M50,16 A22,34 0 1,0 50,84 A22,34 0 1,0 50,16" />
             
             <!-- Guides inside the oval -->
             <ellipse id="overlayOval" cx="50" cy="50" rx="22" ry="34" fill="none" stroke="rgba(223, 171, 108, 0.4)" stroke-width="0.8" stroke-dasharray="2,2" />

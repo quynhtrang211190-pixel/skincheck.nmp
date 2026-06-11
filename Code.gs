@@ -400,7 +400,7 @@ function sendReportEmail(toEmail, toName, profileId, report, imageUrls) {
     
     let imageSectionHtml = '';
     if (imageUrls && (imageUrls.frontDirect || imageUrls.leftDirect || imageUrls.rightDirect)) {
-      imageSectionHtml = '<tr><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-weight:bold;color:#0d0703;font-size:13px;text-transform:uppercase;vertical-align:top;">Hình ảnh chẩn đoán</td>'
+      imageSectionHtml = '<tr><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-weight:bold;color:#0b1730;font-size:13px;text-transform:uppercase;vertical-align:top;">Hình ảnh chẩn đoán</td>'
         + '<td style="padding:18px;border-bottom:1px solid #f0e6dd;">'
         + '<div style="margin: 0 0 12px 0; font-size: 13px; color: #666; font-style: italic;">Hình ảnh thực tế được sử dụng để phân tích (nhấp vào hình ảnh để xem ảnh gốc trên Drive):</div>'
         + '<table cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse;"><tr>';
@@ -415,8 +415,8 @@ function sendReportEmail(toEmail, toName, profileId, report, imageUrls) {
         if (slot.direct) {
           imageSectionHtml += '<td align="center" style="width:33.3%; padding:4px;">'
             + '<a href="' + slot.view + '" target="_blank" style="text-decoration:none; display:block;">'
-            + '<img src="' + slot.direct + '" style="width:100%; max-width:130px; height:auto; border-radius:8px; border:2px solid #f0e6dd; object-fit:cover; aspect-ratio:1;" alt="' + slot.label + '">'
-            + '<div style="font-size:12px; color:#dc5000; font-weight:bold; margin-top:6px;">' + slot.label + '</div>'
+            + '<img src="' + slot.direct + '" style="width:100%; max-width:130px; height:auto; border-radius:8px; border:2px solid #b8864a; object-fit:cover; aspect-ratio:1;" alt="' + slot.label + '">'
+            + '<div style="font-size:12px; color:#b8864a; font-weight:bold; margin-top:6px;">' + slot.label + '</div>'
             + '</a>'
             + '</td>';
         } else {
@@ -430,31 +430,31 @@ function sendReportEmail(toEmail, toName, profileId, report, imageUrls) {
     }
 
     const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>'
-      + '<body style="margin:0;padding:0;background-color:#f7f3f0;font-family:Arial,sans-serif;font-size:16px;color:#333;">'
-      + '<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f7f3f0;padding:32px 16px;"><tr><td align="center">'
+      + '<body style="margin:0;padding:0;background-color:#f6f2e9;font-family:Arial,sans-serif;font-size:16px;color:#333;">'
+      + '<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f6f2e9;padding:32px 16px;"><tr><td align="center">'
       + '<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);">'
-      + '<tr><td style="background:linear-gradient(135deg,#1f1107,#0d0703);padding:40px 32px;text-align:center;">'
-      + '<h1 style="color:#ffecd6;margin:0;font-size:28px;font-weight:800;letter-spacing:1px;">PharmesHub</h1>'
-      + '<p style="color:#dc5000;margin:6px 0 0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:2px;">MelanoCheck Skin Diagnostics</p>'
+      + '<tr><td style="background:linear-gradient(135deg,#0b1730,#070d18);padding:40px 32px;text-align:center;">'
+      + '<h1 style="color:#CBA45A;margin:0;font-size:28px;font-weight:800;letter-spacing:1px;">PharmesHub</h1>'
+      + '<p style="color:#D6BA7A;margin:6px 0 0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:2px;">MelanoCheck Skin Diagnostics</p>'
       + '</td></tr>'
       + '<tr><td style="padding:40px 32px;">'
-      + '<h2 style="color:#0d0703;font-size:22px;font-weight:700;margin:0 0 16px;">Chào ' + escapeHtml(toName) + ',</h2>'
+      + '<h2 style="color:#070d18;font-size:22px;font-weight:700;margin:0 0 16px;">Chào ' + escapeHtml(toName) + ',</h2>'
       + '<p style="color:#555555;font-size:15px;line-height:1.6;margin:0 0 24px;">'
       + 'Cảm ơn bạn đã tin tưởng sử dụng công cụ tự chẩn đoán da MelanoCheck của chúng tôi. '
       + 'Dưới đây là <b>Báo cáo phân tích sơ bộ</b> dựa trên hồ sơ da bạn đã đăng tải:'
       + '</p>'
       + '<table width="100%" style="background-color:#fdfaf7;border:1px solid #f0e6dd;border-radius:12px;margin-bottom:28px;border-collapse:collapse;">'
-      + '<tr><td style="padding:18px;border-bottom:1px solid #f0e6dd;width:30%;font-weight:bold;color:#0d0703;font-size:13px;text-transform:uppercase;">Mã hồ sơ</td><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-family:monospace;font-size:14px;color:#dc5000;font-weight:bold;">' + profileId + '</td></tr>'
-      + '<tr><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-weight:bold;color:#0d0703;font-size:13px;text-transform:uppercase;">Nhận định sắc tố</td><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-size:14px;color:#dc5000;font-weight:bold;line-height:1.5;">' + report.pigment + '</td></tr>'
+      + '<tr><td style="padding:18px;border-bottom:1px solid #f0e6dd;width:30%;font-weight:bold;color:#0b1730;font-size:13px;text-transform:uppercase;">Mã hồ sơ</td><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-family:monospace;font-size:14px;color:#CBA45A;font-weight:bold;">' + profileId + '</td></tr>'
+      + '<tr><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-weight:bold;color:#0b1730;font-size:13px;text-transform:uppercase;">Nhận định sắc tố</td><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-size:14px;color:#CBA45A;font-weight:bold;line-height:1.5;">' + report.pigment + '</td></tr>'
       + imageSectionHtml
-      + '<tr><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-weight:bold;color:#0d0703;font-size:13px;text-transform:uppercase;">Tóm tắt tình trạng</td><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-size:14px;color:#555555;line-height:1.6;">' + formatReportText(report.summary) + '</td></tr>'
-      + '<tr><td style="padding:18px;font-weight:bold;color:#0d0703;font-size:13px;text-transform:uppercase;">Hướng xử lý ban đầu</td><td style="padding:18px;font-size:14px;color:#0d0703;font-weight:bold;line-height:1.6;">' + formatReportText(report.next) + '</td></tr>'
+      + '<tr><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-weight:bold;color:#0b1730;font-size:13px;text-transform:uppercase;">Tóm tắt tình trạng</td><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-size:14px;color:#555555;line-height:1.6;">' + formatReportText(report.summary) + '</td></tr>'
+      + '<tr><td style="padding:18px;font-weight:bold;color:#0b1730;font-size:13px;text-transform:uppercase;">Hướng xử lý ban đầu</td><td style="padding:18px;font-size:14px;color:#070d18;font-weight:bold;line-height:1.6;">' + formatReportText(report.next) + '</td></tr>'
       + '</table>'
       + '<p style="color:#555555;font-size:15px;line-height:1.6;margin:0 0 28px;">'
       + 'Để nhận được tư vấn chuyên sâu hơn trực tiếp từ chuyên gia và thiết lập một phác đồ bôi thoa an toàn, tránh biến chứng tái sạm hoặc làm yếu hàng rào bảo vệ da, bạn có thể click nút dưới đây để kết nối trực tiếp với đội ngũ chuyên khoa.'
       + '</p>'
       + '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;"><tr><td align="center">'
-      + '<a href="' + CONFIG.ZALO_CTA_URL + '" style="display:inline-block;background-color:#dc5000;color:#ffffff;text-decoration:none;padding:16px 36px;border-radius:30px;font-weight:bold;font-size:14px;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 6px 20px rgba(220,80,0,0.25);">'
+      + '<a href="' + CONFIG.ZALO_CTA_URL + '" style="display:inline-block;background-color:#C86E4A;color:#ffffff;text-decoration:none;padding:16px 36px;border-radius:30px;font-weight:bold;font-size:14px;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 6px 20px rgba(200,110,74,0.25);">'
       + '💬 Nhận tư vấn phác đồ da Zalo</a>'
       + '</td></tr></table>'
       + '<p style="margin:0;color:#888888;font-size:13px;line-height:1.5;font-style:italic;">'
