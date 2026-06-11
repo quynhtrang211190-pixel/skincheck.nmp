@@ -3399,26 +3399,41 @@
           finalReport = payload.internalReport;
         }
 
+        // Helper to format report text with markdown bolding and bullet lists
+        function formatReportText(text) {
+          if (!text) return '';
+          let formatted = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+          const lines = formatted.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+          let html = '';
+          let inList = false;
+          
+          lines.forEach(line => {
+            const isBullet = line.startsWith('-') || line.startsWith('•') || line.startsWith('*') || line.match(/^\d+\./);
+            if (isBullet) {
+              if (!inList) {
+                html += '<ul style="margin: 0; padding-left: 20px; text-align: left;">';
+                inList = true;
+              }
+              const cleanLine = line.replace(/^[•\-*\s]+/, '').replace(/^\d+\.\s*/, '');
+              html += `<li style="margin-bottom: 8px;">${cleanLine}</li>`;
+            } else {
+              if (inList) {
+                html += '</ul>';
+                inList = false;
+              }
+              html += `<p style="margin: 0 0 10px 0; text-align: left;">${line}</p>`;
+            }
+          });
+          if (inList) {
+            html += '</ul>';
+          }
+          return html;
+        }
+
         // Render diagnosis results onto the result card
         $('#resPigment').innerHTML = finalReport.pigment;
-        $('#resSummary').innerHTML = finalReport.summary;
-
-        // Render recommended next steps formatted as bullet list if applicable
-        let nextStepsHtml = '';
-        if (finalReport.next) {
-          const lines = finalReport.next.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-          if (lines.length > 1 || lines[0].startsWith('•') || lines[0].startsWith('-') || lines[0].startsWith('*') || lines[0].match(/^\d+\./)) {
-            nextStepsHtml = '<ul>';
-            lines.forEach(line => {
-              const cleanLine = line.replace(/^[•\-*\s]+/, '').replace(/^\d+\.\s*/, '');
-              nextStepsHtml += `<li>${cleanLine}</li>`;
-            });
-            nextStepsHtml += '</ul>';
-          } else {
-            nextStepsHtml = finalReport.next.replace(/\n/g, '<br>');
-          }
-        }
-        $('#resNextSteps').innerHTML = nextStepsHtml;
+        $('#resSummary').innerHTML = formatReportText(finalReport.summary);
+        $('#resNextSteps').innerHTML = formatReportText(finalReport.next);
 
         // Show AI diagnostic result card
         $('#aiResultBox').classList.add('active');

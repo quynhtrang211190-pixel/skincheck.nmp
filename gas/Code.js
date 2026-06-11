@@ -208,7 +208,15 @@ function handleNewProfile(body) {
   sheet.setRowHeight(lastRow, 80);
 
   // Gửi email báo cáo HTML chẩn đoán tự động cho khách hàng
-  sendReportEmail(customer.email, customer.name, profileId, report);
+  const imageUrls = {
+    frontView: frontUrl,
+    frontDirect: frontImg.directUrl,
+    leftView: leftUrl,
+    leftDirect: leftImg.directUrl,
+    rightView: rightUrl,
+    rightDirect: rightImg.directUrl
+  };
+  sendReportEmail(customer.email, customer.name, profileId, report, imageUrls);
 
   // Gửi thông báo Telegram cho chuyên gia
   const paidAt = Utilities.formatDate(now, 'Asia/Ho_Chi_Minh', 'HH:mm - dd/MM/yyyy');
@@ -308,7 +316,38 @@ function handleResendReport(profileId) {
         next: data[i][COLS.NEXT_STEPS - 1]
       };
 
-      sendReportEmail(email, name, profileId, report);
+      // Trích xuất link ảnh từ công thức trên Sheet
+      const frontFormula = sheet.getRange(i + 1, COLS.IMG_FRONT).getFormula();
+      const leftFormula = sheet.getRange(i + 1, COLS.IMG_LEFT).getFormula();
+      const rightFormula = sheet.getRange(i + 1, COLS.IMG_RIGHT).getFormula();
+
+      function extractUrlsFromFormula(formula) {
+        if (!formula) return { view: '', direct: '' };
+        const match = formula.match(/=HYPERLINK\("([^"]+)",\s*IMAGE\("([^"]+)"\)\)/i);
+        if (match) {
+          return { view: match[1], direct: match[2] };
+        }
+        // Fallback nếu chỉ là text URL thông thường
+        if (formula.startsWith('http')) {
+          return { view: formula, direct: '' };
+        }
+        return { view: '', direct: '' };
+      }
+
+      const frontImgInfo = extractUrlsFromFormula(frontFormula);
+      const leftImgInfo  = extractUrlsFromFormula(leftFormula);
+      const rightImgInfo = extractUrlsFromFormula(rightFormula);
+
+      const imageUrls = {
+        frontView: frontImgInfo.view,
+        frontDirect: frontImgInfo.direct,
+        leftView: leftImgInfo.view,
+        leftDirect: leftImgInfo.direct,
+        rightView: rightImgInfo.view,
+        rightDirect: rightImgInfo.direct
+      };
+
+      sendReportEmail(email, name, profileId, report, imageUrls);
       return jsonResponse({ success: true, email: email, ref: profileId, status: 'BÁO CÁO ĐÃ ĐƯỢC GỬI LẠI' });
     }
   }
@@ -319,10 +358,77 @@ function handleResendReport(profileId) {
 // ============================================================
 // EMAIL SENDER
 // ============================================================
-function sendReportEmail(toEmail, toName, profileId, report) {
+function formatReportText(text) {
+  if (!text) return '';
+  
+  // Thay thế **text** thành <b>text</b>
+  let formatted = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+  
+  const lines = formatted.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  let html = '';
+  let inList = false;
+  
+  lines.forEach(line => {
+    const isBullet = line.startsWith('-') || line.startsWith('•') || line.startsWith('*') || line.match(/^\d+\./);
+    
+    if (isBullet) {
+      if (!inList) {
+        html += '<ul style="margin: 0 0 12px 0; padding-left: 20px; line-height: 1.6; color: #555555; font-size: 14px;">';
+        inList = true;
+      }
+      const cleanLine = line.replace(/^[•\-*\s]+/, '').replace(/^\d+\.\s*/, '');
+      html += '<li style="margin-bottom: 8px;">' + cleanLine + '</li>';
+    } else {
+      if (inList) {
+        html += '</ul>';
+        inList = false;
+      }
+      html += '<p style="margin: 0 0 12px 0; line-height: 1.6; color: #555555; font-size: 14px;">' + line + '</p>';
+    }
+  });
+  
+  if (inList) {
+    html += '</ul>';
+  }
+  
+  return html;
+}
+
+function sendReportEmail(toEmail, toName, profileId, report, imageUrls) {
   try {
     const subject = '🩺 Báo cáo chẩn đoán nền da nám MelanoCheck · ' + profileId;
     
+    let imageSectionHtml = '';
+    if (imageUrls && (imageUrls.frontDirect || imageUrls.leftDirect || imageUrls.rightDirect)) {
+      imageSectionHtml = '<tr><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-weight:bold;color:#0d0703;font-size:13px;text-transform:uppercase;vertical-align:top;">Hình ảnh chẩn đoán</td>'
+        + '<td style="padding:18px;border-bottom:1px solid #f0e6dd;">'
+        + '<div style="margin: 0 0 12px 0; font-size: 13px; color: #666; font-style: italic;">Hình ảnh thực tế được sử dụng để phân tích (nhấp vào hình ảnh để xem ảnh gốc trên Drive):</div>'
+        + '<table cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse;"><tr>';
+      
+      const slots = [
+        { label: 'Chính diện', direct: imageUrls.frontDirect, view: imageUrls.frontView },
+        { label: 'Nghiêng trái', direct: imageUrls.leftDirect, view: imageUrls.leftView },
+        { label: 'Nghiêng phải', direct: imageUrls.rightDirect, view: imageUrls.rightView }
+      ];
+      
+      slots.forEach(slot => {
+        if (slot.direct) {
+          imageSectionHtml += '<td align="center" style="width:33.3%; padding:4px;">'
+            + '<a href="' + slot.view + '" target="_blank" style="text-decoration:none; display:block;">'
+            + '<img src="' + slot.direct + '" style="width:100%; max-width:130px; height:auto; border-radius:8px; border:2px solid #f0e6dd; object-fit:cover; aspect-ratio:1;" alt="' + slot.label + '">'
+            + '<div style="font-size:12px; color:#dc5000; font-weight:bold; margin-top:6px;">' + slot.label + '</div>'
+            + '</a>'
+            + '</td>';
+        } else {
+          imageSectionHtml += '<td align="center" style="width:33.3%; padding:4px; color:#b0a59a; font-size:12px; font-style:italic; border:1px dashed #f0e6dd; border-radius:8px; height:130px; vertical-align:middle;">'
+            + 'Không có ảnh ' + slot.label.toLowerCase()
+            + '</td>';
+        }
+      });
+      
+      imageSectionHtml += '</tr></table></td></tr>';
+    }
+
     const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>'
       + '<body style="margin:0;padding:0;background-color:#f7f3f0;font-family:Arial,sans-serif;font-size:16px;color:#333;">'
       + '<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f7f3f0;padding:32px 16px;"><tr><td align="center">'
@@ -340,8 +446,9 @@ function sendReportEmail(toEmail, toName, profileId, report) {
       + '<table width="100%" style="background-color:#fdfaf7;border:1px solid #f0e6dd;border-radius:12px;margin-bottom:28px;border-collapse:collapse;">'
       + '<tr><td style="padding:18px;border-bottom:1px solid #f0e6dd;width:30%;font-weight:bold;color:#0d0703;font-size:13px;text-transform:uppercase;">Mã hồ sơ</td><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-family:monospace;font-size:14px;color:#dc5000;font-weight:bold;">' + profileId + '</td></tr>'
       + '<tr><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-weight:bold;color:#0d0703;font-size:13px;text-transform:uppercase;">Nhận định sắc tố</td><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-size:14px;color:#dc5000;font-weight:bold;line-height:1.5;">' + report.pigment + '</td></tr>'
-      + '<tr><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-weight:bold;color:#0d0703;font-size:13px;text-transform:uppercase;">Tóm tắt tình trạng</td><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-size:14px;color:#555555;line-height:1.6;">' + report.summary + '</td></tr>'
-      + '<tr><td style="padding:18px;font-weight:bold;color:#0d0703;font-size:13px;text-transform:uppercase;">Hướng xử lý ban đầu</td><td style="padding:18px;font-size:14px;color:#0d0703;font-weight:bold;line-height:1.6;">' + report.next + '</td></tr>'
+      + imageSectionHtml
+      + '<tr><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-weight:bold;color:#0d0703;font-size:13px;text-transform:uppercase;">Tóm tắt tình trạng</td><td style="padding:18px;border-bottom:1px solid #f0e6dd;font-size:14px;color:#555555;line-height:1.6;">' + formatReportText(report.summary) + '</td></tr>'
+      + '<tr><td style="padding:18px;font-weight:bold;color:#0d0703;font-size:13px;text-transform:uppercase;">Hướng xử lý ban đầu</td><td style="padding:18px;font-size:14px;color:#0d0703;font-weight:bold;line-height:1.6;">' + formatReportText(report.next) + '</td></tr>'
       + '</table>'
       + '<p style="color:#555555;font-size:15px;line-height:1.6;margin:0 0 28px;">'
       + 'Để nhận được tư vấn chuyên sâu hơn trực tiếp từ chuyên gia và thiết lập một phác đồ bôi thoa an toàn, tránh biến chứng tái sạm hoặc làm yếu hàng rào bảo vệ da, bạn có thể click nút dưới đây để kết nối trực tiếp với đội ngũ chuyên khoa.'
@@ -437,18 +544,28 @@ function analyzeSkinWithGemini(images, customerInfo, surveyData) {
     "- Kem trộn/trắng da cấp tốc: " + (surveyData.rapidWhitening || 'Không sử dụng') + "\n" +
     "- Nền da hiện tại (triệu chứng): " + (surveyData.symptoms || 'Bình thường') + "\n" +
     "- Yếu tố nội tiết/di truyền: " + (surveyData.context || 'Không') + "\n\n" +
-    "YÊU CẦU PHÂN TÍCH:\n" +
-    "1. Đọc hình ảnh da (chính diện, má trái, má phải) để phát hiện loại nám/sắc tố (Nám mảng, Nám đinh/chân sâu, Nám hỗn hợp, Tàn nhang, Sạm da do hóa chất, Tăng sắc tố sau viêm PIH, v.v.).\n" +
-    "2. Đánh giá sức khỏe nền da (Mỏng đỏ, giãn mao mạch, yếu do kem trộn, bùng phát sắc tố hay nền da khỏe khỏe).\n" +
-    "3. Đưa ra phác đồ gợi ý (các chất bôi thoa phục hồi hoặc đặc trị khuyên dùng, lưu ý chống nắng).\n\n" +
-    "ĐỊNH DẠNG ĐẦU RA (MỤC TIÊU BẮT BUỘC):\n" +
-    "Trả về một đối tượng JSON hợp lệ gồm 3 thuộc tính chính xác bằng Tiếng Việt:\n" +
+    "YÊU CẦU PHÂN TÍCH HÌNH ẢNH DA (Chính diện, Má trái, Má phải):\n" +
+    "Hãy quan sát kỹ các góc ảnh để phát hiện, đánh giá và định vị (khoanh vùng mô tả vị trí) các vấn đề da sau:\n" +
+    "1. Loại sắc tố da & Loại nám: Phân tích sắc tố thuộc loại nào (nám mảng, nám đinh, nám hỗn hợp, tàn nhang, sạm hóa chất...) và vùng phân bố.\n" +
+    "2. Sức khỏe nền da (Da yếu): Nhận diện các dấu hiệu da mỏng, đỏ, yếu, lộ mạch máu, mất hàng rào bảo vệ.\n" +
+    "3. Biểu hiện nhiễm Corticoid & Hóa chất độc hại: Nhận diện dấu hiệu da nhiễm độc do dùng kem trộn, thuốc rượu, hóa chất lột tẩy mạnh (loang lổ màu sắc, teo da, sạm dội ngược).\n" +
+    "4. Giãn mao mạch thứ phát: Chỉ rõ các mạch máu nhỏ nổi rõ đỏ/xanh xuất hiện sau khi dùng mỹ phẩm bào mòn hoặc laser/peel sai cách. Xác định rõ vị trí cụ thể trên ảnh.\n\n" +
+    "ĐỊNH DẠNG ĐẦU RA (JSON BẮT BUỘC):\n" +
+    "Trả về đối tượng JSON hợp lệ gồm 3 thuộc tính Tiếng Việt:\n" +
     "{\n" +
-    '  "pigment": "Nhận định loại sắc tố ngắn gọn (ví dụ: Nám mảng nội tiết kết hợp tàn nhang rải rác)",\n' +
-    '  "summary": "Tóm tắt tình trạng chi tiết (nêu rõ nguyên nhân, mức độ tổn thương cấu trúc da và sức khỏe nền da hiện tại, khoảng 100-150 từ)",\n' +
-    '  "next": "Các bước chăm sóc tiếp theo khuyên dùng (danh sách gạch đầu dòng rõ ràng, cụ thể các hoạt chất khuyên dùng/tránh dùng và hướng bảo vệ da)"\n' +
+    '  "pigment": "Nhận định sắc tố ngắn gọn (ví dụ: Nám hỗn hợp trên nền da mỏng yếu, có dấu hiệu nhiễm Corticoid và giãn mao mạch)",\n' +
+    '  "summary": "Mô tả chi tiết phân tích hình ảnh và khoanh vùng tổn thương. BẮT BUỘC trình bày thành các gạch đầu dòng `-` rõ ràng như sau:\n' +
+    '    - **Loại sắc tố & Vùng phân bố**: [Mô tả loại nám/sắc tố và vị trí phân bố trên ảnh]\n' +
+    '    - **Tình trạng sức khỏe & Nền da yếu**: [Đánh giá độ yếu, mỏng đỏ, yếu tố tổn thương hàng rào]\n' +
+    '    - **Biểu hiện nhiễm Corticoid & Hóa chất**: [Chỉ ra dấu hiệu nhiễm độc corticoid, kem trộn hoặc hóa chất độc hại nếu có]\n' +
+    '    - **Hiện tượng giãn mao mạch thứ phát**: [Mô tả chi tiết mức độ và vị trí giãn mạch máu đỏ/xanh nổi trên ảnh]\n' +
+    '    - **Khoanh vùng tổn thương chi tiết**: [Chỉ rõ vị trí cần chú ý đặc biệt trên các bức ảnh: ảnh chính diện, ảnh má trái, ảnh má phải]",\n' +
+    '  "next": "Các bước chăm sóc tiếp theo khuyên dùng. BẮT BUỘC trình bày thành các gạch đầu dòng `-` rõ ràng:\n' +
+    '    - **Hoạt chất khuyên dùng**: [Các chất phục hồi B5, Ceramide, HA... hoặc hoạt chất sáng da an toàn như Arbutin, Tranexamic Acid...]\n' +
+    '    - **Hoạt chất cần tránh**: [Danh sách hoạt chất lột tẩy, corticoid, acid nồng độ cao cần tránh lúc này]\n' +
+    '    - **Lưu ý bảo vệ & phục hồi**: [Chống nắng phổ rộng, ngưng kem trộn từ từ, chế độ phục hồi sinh hoạt...]"\n' +
     "}\n\n" +
-    "Lưu ý: Không thêm bất kỳ văn bản nào ngoài JSON. Không bao quanh JSON bằng ```json và ```.";
+    "Lưu ý quan trọng: Không thêm bất kỳ chữ nào ngoài JSON. Không bao quanh JSON bằng ```json và ```.";
 
   const parts = [{ text: promptText }];
 
