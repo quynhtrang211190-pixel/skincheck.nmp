@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 40" fill="none">
+  <!-- Icon mark: calendar grid -->
+  <rect x="0" y="0" width="40" height="40" rx="10" fill="url(#iconBg)"/>
+  <!-- Calendar top bar -->
+  <rect x="7" y="8" width="26" height="4" rx="2" fill="white" opacity="0.9"/>
+  <!-- Calendar grid 3x3 -->
+  <rect x="7" y="14" width="7" height="6" rx="1.5" fill="white" opacity="0.5"/>
+  <rect x="16.5" y="14" width="7" height="6" rx="1.5" fill="white" opacity="0.5"/>
+  <rect x="26" y="14" width="7" height="6" rx="1.5" fill="white" opacity="0.5"/>
+  <rect x="7" y="22" width="7" height="6" rx="1.5" fill="white" opacity="0.5"/>
+  <rect x="16.5" y="22" width="7" height="6" rx="1.5" fill="#ffb72b" opacity="0.85"/>
+  <rect x="26" y="22" width="7" height="6" rx="1.5" fill="white" opacity="0.5"/>
+  <rect x="7" y="30" width="7" height="4" rx="1.5" fill="white" opacity="0.3"/>
+  <rect x="16.5" y="30" width="7" height="4" rx="1.5" fill="white" opacity="0.3"/>
+  <rect x="26" y="30" width="7" height="4" rx="1.5" fill="white" opacity="0.3"/>
+  <!-- Gold spark/lightning accent -->
+  <path d="M29 4 L25 10 H28 L24 16 L31 9 H27.5 Z" fill="#ffb72b"/>
+  
+  <!-- Wordmark: Content Calendar -->
+  <text x="48" y="17" font-family="Inter, -apple-system, sans-serif" font-size="12" font-weight="800" fill="white" letter-spacing="-0.3">Content Calendar</text>
+  <!-- Tagline: 30D badge -->
+  <rect x="48" y="22" width="20" height="12" rx="4" fill="#ffb72b"/>
+  <text x="58" y="31" font-family="Inter, -apple-system, sans-serif" font-size="8" font-weight="900" fill="#08172f" text-anchor="middle" letter-spacing="0.3">30D</text>
+  <!-- Tagline text -->
+  <text x="72" y="31" font-family="Inter, -apple-system, sans-serif" font-size="8.5" font-weight="500" fill="rgba(255,255,255,0.6)" letter-spacing="0">Biến Content Thành Đơn Hàng</text>
+
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="iconBg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1d6fe3"/>
+      <stop offset="100%" stop-color="#06142f"/>
+    </linearGradient>
+  </defs>
+</svg>

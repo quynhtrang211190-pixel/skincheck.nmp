@@ -1,0 +1,3229 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MelanoCheck by PharmesHub — Tự Chẩn Đoán Nền Da Nám</title>
+  <meta name="description"
+    content="MelanoCheck giúp bạn kiểm tra bước đầu tình trạng sắc tố, nền da và những yếu tố ảnh hưởng trực tiếp đến hiệu quả điều trị nám." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0d0703;
+      --cream: #ffecd6;
+      --cream-dim: #c7b39f;
+      --brown-light: #23160e;
+      --brown-deep: #150a04;
+      --line: rgba(255, 237, 215, 0.08);
+      --line-active: #dc5000;
+      --muted: #8c7d6e;
+      --sienna: #dc5000;
+      --sienna-gradient: linear-gradient(135deg, #dc5000 0%, #a03600 100%);
+      --gold: #dfab6c;
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --radius: 16px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--cream);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+      transition: var(--transition);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--brown-light);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--muted);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Navigation */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      z-index: 100;
+      background: rgba(13, 7, 3, 0.85);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      backdrop-filter: blur(20px);
+      transition: var(--transition);
+    }
+
+    .nav.scrolled {
+      height: 68px;
+      background: rgba(13, 7, 3, 0.95);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .brand-main {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--cream);
+      text-transform: uppercase;
+      font-family: var(--font-sans);
+    }
+
+    .brand-sub {
+      color: var(--sienna);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-top: 3px;
+    }
+
+    .navlinks {
+      display: flex;
+      gap: 32px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .navlinks a {
+      color: var(--cream-dim);
+      position: relative;
+      padding: 8px 0;
+    }
+
+    .navlinks a:hover,
+    .navlinks a.active {
+      color: var(--cream);
+    }
+
+    .navlinks a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--sienna);
+      transition: var(--transition);
+    }
+
+    .navlinks a:hover::after,
+    .navlinks a.active::after {
+      width: 100%;
+    }
+
+    /* Buttons */
+    .btn {
+      border: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 99px;
+      padding: 14px 28px;
+      background: var(--sienna-gradient);
+      color: var(--cream);
+      font-size: 14px;
+      font-weight: 700;
+      font-family: var(--font-sans);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: var(--transition);
+      box-shadow: 0 4px 15px rgba(220, 80, 0, 0.2);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(220, 80, 0, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn.secondary {
+      background: transparent;
+      border: 1.5px solid var(--cream-dim);
+      color: var(--cream);
+      box-shadow: none;
+    }
+
+    .btn.secondary:hover {
+      background: rgba(255, 237, 215, 0.05);
+      border-color: var(--cream);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      padding: 140px 0 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      position: relative;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      right: -10%;
+      top: 10%;
+      width: 60vw;
+      height: 80vh;
+      background:
+        radial-gradient(circle at 60% 40%, rgba(220, 80, 0, 0.12), transparent 45%),
+        radial-gradient(circle at 40% 60%, rgba(223, 171, 108, 0.08), transparent 45%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .eyebrow {
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--sienna);
+      letter-spacing: 0.25em;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 32px;
+      height: 1.5px;
+      background: var(--sienna);
+      display: block;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(40px, 5vw, 64px);
+      font-weight: 400;
+      line-height: 1.15;
+      margin: 0 0 28px;
+      color: var(--cream);
+    }
+
+    h1 span {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .lead {
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--cream-dim);
+      margin: 0 0 36px;
+      max-width: 540px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+
+    .steps-quick {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      border-top: 1px solid var(--line);
+      padding-top: 24px;
+    }
+
+    .step-item {
+      font-size: 13px;
+      color: var(--cream-dim);
+      line-height: 1.5;
+    }
+
+    .step-item span {
+      display: block;
+      color: var(--sienna);
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      letter-spacing: 0.1em;
+    }
+
+    /* Device Simulator */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .device {
+      width: 100%;
+      max-width: 440px;
+      height: 600px;
+      border: 1px solid rgba(255, 237, 215, 0.15);
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(35, 22, 14, 0.6) 0%, rgba(13, 7, 3, 0.8) 100%);
+      backdrop-filter: blur(15px);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    .device::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px dashed rgba(255, 237, 215, 0.06);
+      border-radius: 16px;
+      pointer-events: none;
+    }
+
+    .demo-top {
+      height: 54px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      position: relative;
+      z-index: 10;
+    }
+
+    .demo-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      color: var(--sienna);
+    }
+
+    .demo-indicator::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: var(--sienna);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(0.95);
+        opacity: 0.5;
+      }
+
+      50% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(0.95);
+        opacity: 0.5;
+      }
+    }
+
+    .screen {
+      position: absolute;
+      inset: 54px 20px 20px;
+      overflow: hidden;
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      animation: sceneCycle 16s infinite;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px 8px 8px;
+    }
+
+    .scene:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .scene:nth-child(2) {
+      animation-delay: 4s;
+    }
+
+    .scene:nth-child(3) {
+      animation-delay: 8s;
+    }
+
+    .scene:nth-child(4) {
+      animation-delay: 12s;
+    }
+
+    @keyframes sceneCycle {
+
+      0%,
+      3% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      8%,
+      23% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      28%,
+      100% {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+    }
+
+    .scene-title {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .scene-title b {
+      color: var(--cream);
+    }
+
+    .camera-frame {
+      flex: 1;
+      border: 1px solid rgba(255, 237, 215, 0.1);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 50%, rgba(220, 80, 0, 0.05), transparent 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .face-outline {
+      width: 160px;
+      height: 220px;
+      border: 1.5px dashed rgba(255, 237, 215, 0.4);
+      border-radius: 100px 100px 90px 90px;
+      position: relative;
+    }
+
+    .face-outline::before {
+      content: "";
+      position: absolute;
+      top: 42%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      background: var(--sienna);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--sienna);
+    }
+
+    .scanning-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--sienna), transparent);
+      box-shadow: 0 0 12px var(--sienna);
+      animation: scan 2.5s ease-in-out infinite;
+      z-index: 5;
+    }
+
+    @keyframes scan {
+      0% {
+        top: 10%;
+      }
+
+      50% {
+        top: 90%;
+      }
+
+      100% {
+        top: 10%;
+      }
+    }
+
+    .mark-point {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--sienna);
+      border-radius: 50%;
+      background: rgba(220, 80, 0, 0.12);
+      transform: scale(0.9);
+      animation: pulseMark 2s infinite alternate;
+    }
+
+    .mark-point::after {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      background: var(--sienna);
+      border-radius: 50%;
+    }
+
+    .p1 {
+      top: 80px;
+      left: 35px;
+    }
+
+    .p2 {
+      top: 95px;
+      right: 40px;
+    }
+
+    .p3 {
+      top: 140px;
+      left: 75px;
+    }
+
+    @keyframes pulseMark {
+      0% {
+        transform: scale(0.85);
+        box-shadow: 0 0 0 0 rgba(220, 80, 0, 0.4);
+      }
+
+      100% {
+        transform: scale(1.05);
+        box-shadow: 0 0 8px 4px rgba(220, 80, 0, 0);
+      }
+    }
+
+    .scene-caption {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--cream-dim);
+      text-align: center;
+      line-height: 1.4;
+      padding: 0 12px;
+    }
+
+    .sim-upload-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: auto 0;
+    }
+
+    .sim-upload-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: rgba(35, 22, 14, 0.3);
+      text-align: center;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sim-thumb {
+      height: 90px;
+      border: 1px dashed rgba(255, 237, 215, 0.2);
+      border-radius: 6px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--muted);
+      background: rgba(13, 7, 3, 0.4);
+    }
+
+    .sim-result-card {
+      border: 1px solid var(--cream);
+      border-radius: 12px;
+      background: rgba(35, 22, 14, 0.4);
+      padding: 20px;
+      margin: auto 0;
+      backdrop-filter: blur(10px);
+    }
+
+    .sim-result-header {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .sim-result-header span {
+      color: var(--sienna);
+      font-weight: 700;
+    }
+
+    .sim-result-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--line);
+      font-size: 12px;
+    }
+
+    .sim-result-row:last-child {
+      border-bottom: 0;
+    }
+
+    .sim-result-row label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sim-result-row value {
+      font-weight: 600;
+      color: var(--cream);
+    }
+
+    /* Section Commons */
+    .section {
+      padding: 120px 0;
+      border-top: 1px solid var(--line);
+      position: relative;
+    }
+
+    h2 {
+      font-family: var(--font-serif);
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 400;
+      line-height: 1.2;
+      margin: 0 0 24px;
+      color: var(--cream);
+    }
+
+    h2 span {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    /* Warnings Section */
+    .warnings {
+      background: linear-gradient(180deg, var(--bg) 0%, var(--brown-deep) 100%);
+    }
+
+    .warnings-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .warning-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .warning-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px;
+      background: rgba(35, 22, 14, 0.2);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .warning-card:hover {
+      border-color: rgba(220, 80, 0, 0.3);
+      transform: translateX(5px);
+      background: rgba(35, 22, 14, 0.4);
+    }
+
+    .warning-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--sienna);
+      opacity: 0.5;
+    }
+
+    .warning-card:hover::before {
+      opacity: 1;
+    }
+
+    .warning-card q {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      color: var(--gold);
+      display: block;
+      margin: 0 0 10px;
+      font-style: italic;
+    }
+
+    .warning-card p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--cream-dim);
+      line-height: 1.5;
+    }
+
+    /* Tool Diagnostic Section */
+    .tool-section {
+      background: #090401;
+    }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 60px;
+      align-items: start;
+    }
+
+    .tool-intro {
+      position: sticky;
+      top: 120px;
+    }
+
+    /* Steps Wizard Navigation */
+    .wizard-progress {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      position: relative;
+      padding: 0 10px;
+    }
+
+    .wizard-progress::before {
+      content: "";
+      position: absolute;
+      top: 15px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--line);
+      z-index: 1;
+    }
+
+    .progress-bar-fill {
+      position: absolute;
+      top: 15px;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: var(--sienna);
+      z-index: 2;
+      transition: var(--transition);
+    }
+
+    .wizard-step {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--brown-deep);
+      border: 2px solid var(--line);
+      color: var(--cream-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      z-index: 3;
+      transition: var(--transition);
+    }
+
+    .wizard-step.active {
+      background: var(--sienna);
+      border-color: var(--sienna);
+      color: var(--cream);
+      box-shadow: 0 0 15px rgba(220, 80, 0, 0.4);
+    }
+
+    .wizard-step.completed {
+      background: var(--brown-light);
+      border-color: var(--sienna);
+      color: var(--sienna);
+    }
+
+    /* Form Container styling */
+    .form-panel {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(35, 22, 14, 0.25);
+      padding: 40px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    .form-step-pane {
+      display: none;
+    }
+
+    .form-step-pane.active {
+      display: block;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .form-step-pane h3 {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 400;
+      margin: 0 0 8px;
+      color: var(--gold);
+    }
+
+    .form-step-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 16px;
+    }
+
+    /* Photo Upload Grid */
+    .photo-uploader {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .photo-slot {
+      height: 160px;
+      border: 1.5px dashed var(--line);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      background: rgba(13, 7, 3, 0.3);
+      transition: var(--transition);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .photo-slot:hover {
+      border-color: var(--sienna);
+      background: rgba(220, 80, 0, 0.03);
+    }
+
+    .photo-slot input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 5;
+    }
+
+    .photo-slot-icon {
+      font-size: 28px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      transition: var(--transition);
+    }
+
+    .photo-slot:hover .photo-slot-icon {
+      color: var(--sienna);
+      transform: scale(1.1);
+    }
+
+    .photo-slot span {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--cream-dim);
+    }
+
+    .photo-slot img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 2;
+      transition: var(--transition);
+    }
+
+    .photo-slot.has-image {
+      border-style: solid;
+      border-color: var(--gold);
+    }
+
+    .photo-slot.has-image .photo-slot-icon,
+    .photo-slot.has-image span {
+      display: none;
+    }
+
+    .photo-slot-label-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(13, 7, 3, 0.75);
+      font-size: 11px;
+      padding: 6px;
+      z-index: 3;
+      color: var(--cream);
+      display: none;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .photo-slot.has-image .photo-slot-label-overlay {
+      display: block;
+    }
+
+    /* Form Fields */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--cream-dim);
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      background: rgba(13, 7, 3, 0.5);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--cream);
+      padding: 14px 16px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      transition: var(--transition);
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--sienna);
+      background: rgba(13, 7, 3, 0.8);
+      box-shadow: 0 0 12px rgba(220, 80, 0, 0.15);
+    }
+
+    .field input::placeholder,
+    .field textarea::placeholder {
+      color: var(--muted);
+    }
+
+    .field textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    /* Check Pills Grid */
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .check-pill {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: var(--cream-dim);
+      font-size: 13px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      cursor: pointer;
+      background: rgba(13, 7, 3, 0.2);
+      transition: var(--transition);
+      user-select: none;
+      height: 100%;
+    }
+
+    .check-pill:hover {
+      border-color: rgba(255, 237, 215, 0.2);
+      background: rgba(255, 237, 215, 0.02);
+    }
+
+    .check-pill input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--sienna);
+      margin: 0;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .check-pill.checked {
+      border-color: var(--sienna);
+      background: rgba(220, 80, 0, 0.05);
+      color: var(--cream);
+    }
+
+    /* Wizard actions */
+    .wizard-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 32px;
+      border-top: 1px solid var(--line);
+      padding-top: 24px;
+    }
+
+    .required-info {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 16px;
+    }
+
+    /* Success & Error State Panels */
+    .status-box {
+      display: none;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .status-box.active {
+      display: block;
+    }
+
+    .status-box-inner {
+      border: 1px solid var(--gold);
+      border-radius: 20px;
+      background: rgba(35, 22, 14, 0.3);
+      padding: 48px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .status-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(223, 171, 108, 0.1);
+      border: 1.5px solid var(--gold);
+      color: var(--gold);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin-bottom: 24px;
+    }
+
+    .status-box-inner h3 {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      color: var(--cream);
+      margin: 0 0 16px;
+    }
+
+    .status-box-inner p {
+      color: var(--cream-dim);
+      font-size: 15px;
+      line-height: 1.6;
+      max-width: 500px;
+      margin: 0 auto 32px;
+    }
+
+    .error-message {
+      color: #ff8585;
+      background: rgba(255, 133, 133, 0.08);
+      border: 1px solid rgba(255, 133, 133, 0.2);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      margin-top: 20px;
+      display: none;
+    }
+
+    /* Contact Section */
+    .contact-section {
+      background: linear-gradient(180deg, var(--bg) 0%, var(--brown-deep) 100%);
+    }
+
+    .contact-card {
+      border: 1px solid var(--gold);
+      border-radius: 24px;
+      background: radial-gradient(circle at 10% 10%, rgba(35, 22, 14, 0.6) 0%, rgba(13, 7, 3, 0.9) 100%);
+      padding: 60px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 60px;
+      align-items: center;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .contact-details h2 {
+      margin-bottom: 16px;
+    }
+
+    .contact-details p {
+      color: var(--cream-dim);
+      font-size: 16px;
+      margin-bottom: 0;
+    }
+
+    .contact-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .cta-glow-wrapper {
+      position: relative;
+      z-index: 5;
+    }
+
+    .cta-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(220, 80, 0, 0.15);
+      border: 1px solid rgba(220, 80, 0, 0.3);
+      border-radius: 99px;
+      padding: 8px 18px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--cream);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 20px;
+      animation: hintFloat 2s ease-in-out infinite;
+    }
+
+    @keyframes hintFloat {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-6px);
+      }
+    }
+
+    .btn.cta-large {
+      padding: 20px 40px;
+      font-size: 16px;
+      position: relative;
+      background: var(--sienna-gradient);
+      box-shadow: 0 10px 30px rgba(220, 80, 0, 0.3);
+    }
+
+    .btn.cta-large::before {
+      content: "";
+      position: absolute;
+      inset: -6px;
+      border-radius: 99px;
+      border: 1.5px solid rgba(220, 80, 0, 0.3);
+      animation: rippleEffect 2s linear infinite;
+    }
+
+    .btn.cta-large::after {
+      content: "";
+      position: absolute;
+      inset: -12px;
+      border-radius: 99px;
+      border: 1px solid rgba(220, 80, 0, 0.15);
+      animation: rippleEffect 2s linear infinite 0.6s;
+    }
+
+    @keyframes rippleEffect {
+      0% {
+        transform: scale(0.96);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1.08);
+        opacity: 0;
+      }
+    }
+
+    .footer-warning {
+      border-top: 1px solid var(--line);
+      padding-top: 24px;
+      margin-top: 40px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    .footer {
+      background: #060301;
+      padding: 40px 0;
+      border-top: 1px solid var(--line);
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+      .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding-top: 120px;
+        gap: 40px;
+      }
+
+      .eyebrow {
+        justify-content: center;
+      }
+
+      .eyebrow::before {
+        display: none;
+      }
+
+      .lead {
+        margin: 0 auto 36px;
+      }
+
+      .actions {
+        justify-content: center;
+      }
+
+      .steps-quick {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .warnings-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tool-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tool-intro {
+        position: static;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .contact-card {
+        grid-template-columns: 1fr;
+        padding: 40px;
+        gap: 40px;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav {
+        padding: 0 20px;
+      }
+
+      .navlinks {
+        display: none;
+      }
+
+      .photo-uploader {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .photo-slot {
+        height: 140px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .check-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-panel {
+        padding: 24px;
+      }
+    }
+
+    /* Selection Card Grids */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .card-grid.cols-2 {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    @media (max-width: 576px) {
+      .card-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    .card-option {
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      background: rgba(21, 10, 4, 0.2);
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+    }
+
+    .card-option:hover {
+      border-color: rgba(255, 237, 215, 0.15);
+      background: rgba(255, 237, 215, 0.02);
+    }
+
+    .card-option.active {
+      border-color: var(--sienna);
+      background: rgba(220, 80, 0, 0.06);
+      box-shadow: 0 0 15px rgba(220, 80, 0, 0.15);
+    }
+
+    .card-option.active::after {
+      content: "✓";
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: var(--sienna);
+      color: var(--cream);
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .card-icon {
+      font-size: 20px;
+      margin-bottom: 2px;
+    }
+
+    .card-label {
+      font-weight: 700;
+      color: var(--gold);
+      font-size: 13.5px;
+      line-height: 1.2;
+    }
+
+    .card-desc {
+      font-size: 11px;
+      color: var(--cream-dim);
+      line-height: 1.35;
+    }
+
+    /* Camera and Source Modals */
+    .camera-modal, .source-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(13, 7, 3, 0.85);
+      backdrop-filter: blur(15px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      padding: 20px;
+    }
+
+    .camera-modal.active, .source-modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .camera-modal-content, .source-modal-content {
+      width: 100%;
+      max-width: 520px;
+      background: #150a04;
+      border: 1px solid var(--gold);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .camera-modal-header, .source-modal-content h3 {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0;
+    }
+    
+    .source-modal-content h3 {
+      border-bottom: 0;
+      padding-bottom: 5px;
+      color: var(--gold);
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 400;
+    }
+    
+    #sourceModalSubtitle {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 0 24px;
+      margin: 0 0 20px 0;
+    }
+
+    .camera-modal-header h3 {
+      color: var(--gold);
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 400;
+      margin: 0;
+    }
+
+    .camera-modal-close {
+      background: none;
+      border: 0;
+      color: var(--cream-dim);
+      font-size: 28px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+    }
+
+    .camera-modal-close:hover {
+      color: var(--cream);
+    }
+
+    .camera-stream-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #000;
+      overflow: hidden;
+    }
+
+    #cameraVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+
+    .camera-face-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .overlay-svg {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .camera-instruction {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      background: rgba(13, 7, 3, 0.75);
+      border: 1px solid rgba(220, 80, 0, 0.3);
+      padding: 10px 16px;
+      border-radius: 99px;
+      text-align: center;
+      color: var(--cream);
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 10;
+    }
+
+    .camera-modal-footer {
+      padding: 20px 24px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: rgba(21, 10, 4, 0.5);
+    }
+
+    /* Source select buttons */
+    .source-options {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 0 24px 24px 24px;
+    }
+
+    .source-btn {
+      background: rgba(13, 7, 3, 0.3);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: left;
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      align-items: center;
+      gap: 12px;
+      transition: var(--transition);
+      width: 100%;
+    }
+
+    .source-btn:hover {
+      border-color: var(--sienna);
+      background: rgba(220, 80, 0, 0.03);
+    }
+
+    .source-btn-icon {
+      font-size: 28px;
+      text-align: center;
+    }
+
+    .source-btn-title {
+      display: block;
+      font-weight: 700;
+      color: var(--gold);
+      font-size: 15px;
+    }
+
+    .source-btn-desc {
+      display: block;
+      font-size: 12px;
+      color: var(--cream-dim);
+      margin-top: 2px;
+    }
+
+    .source-close {
+      margin: 0 24px 24px auto;
+      width: fit-content;
+    }
+
+    /* Brightness Alert Badges */
+    .photo-slot {
+      position: relative;
+    }
+
+    .brightness-badge-placeholder {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      z-index: 10;
+    }
+
+    .brightness-badge {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+    }
+
+    .brightness-badge.too-dark {
+      background: rgba(220, 80, 0, 0.9);
+      border: 1px solid rgba(255, 237, 215, 0.2);
+      color: var(--cream);
+    }
+
+    .brightness-badge.too-bright {
+      background: rgba(223, 171, 108, 0.9);
+      border: 1px solid #100904;
+      color: #100904;
+    }
+
+    .brightness-badge.good {
+      background: rgba(46, 117, 89, 0.9);
+      border: 1px solid rgba(255, 237, 215, 0.2);
+      color: var(--cream);
+    }
+
+    .brightness-feedback {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      z-index: 10;
+      pointer-events: none;
+      background: rgba(13, 7, 3, 0.85);
+      border: 1px solid var(--line);
+      color: var(--cream-dim);
+      transition: all 0.3s ease;
+    }
+
+    .brightness-feedback.warning {
+      border-color: var(--sienna);
+      color: var(--sienna);
+      animation: pulseAlert 1s infinite alternate;
+    }
+
+    @keyframes pulseAlert {
+      from { box-shadow: 0 0 0 0 rgba(220, 80, 0, 0.4); }
+      to { box-shadow: 0 0 10px 4px rgba(220, 80, 0, 0.2); }
+    }
+
+    /* Oval guidelines state and animations */
+    .guideline-neutral {
+      stroke: rgba(223, 171, 108, 0.4);
+      stroke-width: 0.8px;
+    }
+    
+    .guideline-ok {
+      stroke: #76e2b2 !important;
+      stroke-width: 1.5px !important;
+      animation: pulseOk 1s infinite alternate;
+      filter: drop-shadow(0px 0px 3px rgba(118, 226, 178, 0.6));
+    }
+    
+    .guideline-error {
+      stroke: #dc5000 !important;
+      stroke-width: 1.5px !important;
+      animation: pulseError 0.8s infinite alternate;
+      filter: drop-shadow(0px 0px 3px rgba(220, 80, 0, 0.6));
+    }
+
+    @keyframes pulseOk {
+      from { stroke-opacity: 0.5; }
+      to { stroke-opacity: 1; }
+    }
+
+    @keyframes pulseError {
+      from { stroke-opacity: 0.4; }
+      to { stroke-opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav" id="navbar">
+    <a class="brand" href="#top">
+      <span class="brand-main">PharmesHub</span>
+      <span class="brand-sub">MelanoCheck</span>
+    </a>
+    <div class="navlinks">
+      <a href="#warning" class="nav-item">Cảnh Báo</a>
+      <a href="#tool" class="nav-item">Tự Chẩn Đoán</a>
+      <a href="#contact" class="nav-item">Liên Hệ</a>
+    </div>
+    <a class="btn" href="#tool">Bắt Đầu</a>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="container hero" id="top">
+    <div class="hero-content">
+      <div class="eyebrow">MelanoCheck</div>
+      <h1>Hiểu rõ <span>nền da sắc tố</span> trước khi bắt đầu điều trị</h1>
+      <p class="lead">MelanoCheck giúp bạn phân tích sơ bộ tình trạng sắc tố, kiểm tra độ nhạy cảm của nền da và phát
+        hiện những yếu tố nguy cơ có thể khiến nám tái phát dữ dội.</p>
+      <div class="actions">
+        <a class="btn" href="#tool">Bắt đầu chẩn đoán</a>
+        <a class="btn secondary" href="#warning">Yếu tố cảnh giác</a>
+      </div>
+      <div class="steps-quick">
+        <div class="step-item">
+          <span>BƯỚC 01</span>
+          Upload 3 góc ảnh da mặt chụp tự nhiên.
+        </div>
+        <div class="step-item">
+          <span>BƯỚC 02</span>
+          Cung cấp lịch sử treatment và sản phẩm đang dùng.
+        </div>
+        <div class="step-item">
+          <span>BƯỚC 03</span>
+          Nhận báo cáo sàng lọc chi tiết gửi qua email.
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="device">
+        <div class="demo-top">
+          <div>MelanoCheck Analyzer</div>
+          <div class="demo-indicator">Live Demo</div>
+        </div>
+        <div class="screen">
+
+          <!-- Scene 1: Camera Alignment -->
+          <div class="scene">
+            <div class="scene-title">
+              <span>Hệ thống camera</span>
+              <b>Bước 01 · Chụp ảnh</b>
+            </div>
+            <div class="camera-frame">
+              <div class="face-outline"></div>
+              <div class="mark-point p1"></div>
+              <div class="mark-point p2"></div>
+            </div>
+            <p class="scene-caption">Căn mặt chính diện vào khung. Yêu cầu không trang điểm, không bộ lọc ảnh và đủ ánh
+              sáng tự nhiên.</p>
+          </div>
+
+          <!-- Scene 2: Upload Grid -->
+          <div class="scene">
+            <div class="scene-title">
+              <span>Dữ liệu hình ảnh</span>
+              <b>Bước 02 · Upload 3 góc</b>
+            </div>
+            <div class="sim-upload-grid">
+              <div class="sim-upload-card">
+                <div class="sim-thumb">👤</div>
+                Chính diện
+              </div>
+              <div class="sim-upload-card">
+                <div class="sim-thumb">◀</div>
+                Nghiêng trái
+              </div>
+              <div class="sim-upload-card">
+                <div class="sim-thumb">▶</div>
+                Nghiêng phải
+              </div>
+            </div>
+            <p class="scene-caption">Ảnh chụp góc thẳng và 2 bên má giúp xác định vùng phân bổ sắc tố sâu hay nông.</p>
+          </div>
+
+          <!-- Scene 3: Scanning -->
+          <div class="scene">
+            <div class="scene-title">
+              <span>Đang chẩn đoán</span>
+              <b>Bước 03 · Quét sắc tố</b>
+            </div>
+            <div class="camera-frame">
+              <div class="face-outline"></div>
+              <div class="scanning-line"></div>
+              <div class="mark-point p1"></div>
+              <div class="mark-point p2"></div>
+              <div class="mark-point p3"></div>
+            </div>
+            <p class="scene-caption">Hệ thống phân tích các điểm sắc tố tập trung và biểu hiện giãn mạch hoặc đỏ yếu của
+              nền da.</p>
+          </div>
+
+          <!-- Scene 4: Report -->
+          <div class="scene">
+            <div class="scene-title">
+              <span>Phân tích hoàn tất</span>
+              <b>Mã hồ sơ · MC-260611</b>
+            </div>
+            <div class="sim-result-card">
+              <div class="sim-result-header">
+                Mã hồ sơ: <span>MC-260610-0987</span>
+              </div>
+              <div class="sim-result-row">
+                <label>Tình trạng sắc tố</label>
+                <value>Sắc tố hỗn hợp: Mảng sạm kèm đốm rải rác</value>
+              </div>
+              <div class="sim-result-row">
+                <label>Sức khỏe nền da</label>
+                <value>Nền da đỏ, mỏng yếu, tổn thương hàng rào</value>
+              </div>
+              <div class="sim-result-row">
+                <label>Báo cáo</label>
+                <value>Được gửi tự động qua Email đăng ký</value>
+              </div>
+            </div>
+            <p class="scene-caption">Mã hồ sơ sẽ được tạo riêng và gửi kèm báo cáo chẩn đoán chi tiết đến bạn.</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Warnings Section -->
+  <section class="section warnings" id="warning">
+    <div class="container warnings-grid">
+      <div>
+        <div class="eyebrow">Cảnh báo trước điều trị</div>
+        <h2>Đừng vội vàng tin những <span>lời cam kết siêu nhanh</span></h2>
+        <p class="lead">Nám da là vấn đề phức tạp chịu ảnh hưởng lớn từ nội tiết, ánh sáng, nhiệt độ và hàng rào bảo vệ
+          da. Việc treatment quá nhanh mà không phục hồi nền da trước sẽ dẫn đến các biến chứng nguy hiểm.</p>
+      </div>
+      <div class="warning-cards">
+        <div class="warning-card">
+          <q>Cam kết 5–6 buổi sạch nám</q>
+          <p>Không có một mốc thời gian chung an toàn cho mọi nền da. Tẩy lột quá nhanh sẽ hủy hoại lớp sừng bảo vệ da.
+          </p>
+        </div>
+        <div class="warning-card">
+          <q>Da căng bóng trắng tức thì</q>
+          <p>Cảnh giác với các thành phần bào mòn nhanh hoặc kem chứa corticoid làm mất sắc tố vĩnh viễn.</p>
+        </div>
+        <div class="warning-card">
+          <q>Điều trị không bao giờ tái phát</q>
+          <p>Nám là bệnh lý mạn tính. Nắng, nhiệt, stress hay thay đổi nội tiết đều có thể kích hoạt nám xuất hiện trở
+            lại.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tool Diagnostic Wizard -->
+  <section class="section tool-section" id="tool">
+    <div class="container tool-grid">
+      <div class="tool-intro">
+        <div class="eyebrow">MelanoCheck Online</div>
+        <h2>Công cụ phân tích <span>hồ sơ sắc tố</span> da</h2>
+        <p class="lead">Vui lòng cung cấp hình ảnh chân thực và khai báo chính xác lịch sử can thiệp để hệ thống đánh
+          giá khách quan nền da của bạn.</p>
+
+        <!-- Wizard Steps Progress -->
+        <div class="wizard-progress" id="wizardProgress">
+          <div class="progress-bar-fill" id="progressFill"></div>
+          <div class="wizard-step active" data-step="1">1</div>
+          <div class="wizard-step" data-step="2">2</div>
+          <div class="wizard-step" data-step="3">3</div>
+          <div class="wizard-step" data-step="4">4</div>
+        </div>
+      </div>
+
+      <div class="form-panel" id="formPanel">
+        <form id="melanoForm" novalidate>
+
+          <!-- STEP 1: Upload Photos -->
+          <div class="form-step-pane active" data-step="1">
+            <h3>Hình ảnh da mặt thực tế</h3>
+            <p class="form-step-subtitle">Chụp ảnh camera thường, không dùng bộ lọc hoặc trang điểm. Ưu tiên ánh sáng tự nhiên cạnh cửa sổ.</p>
+
+            <!-- Quy chuẩn chụp ảnh da -->
+            <div style="background: rgba(220, 80, 0, 0.04); border: 1px solid rgba(220, 80, 0, 0.15); border-radius: 12px; padding: 18px; margin-bottom: 24px; font-size: 13px;">
+              <div style="font-weight: 700; color: var(--gold); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                <span>💡</span> QUY CHUẨN CHỤP ẢNH DA ĐẠT CHUẨN CHẨN ĐOÁN
+              </div>
+              <ul style="margin: 0; padding-left: 18px; color: var(--cream-dim); display: flex; flex-direction: column; gap: 8px; line-height: 1.5; text-align: left;">
+                <li><strong>Ánh sáng tự nhiên:</strong> Ngồi đối diện cửa sổ ban ngày. Tránh chụp ngược sáng hoặc dưới bóng đèn tuýp làm đổi màu da.</li>
+                <li><strong>Cam thường 100%:</strong> Không sử dụng bất kỳ filter, ứng dụng làm mịn hay trang điểm (kem chống nắng/kem nền).</li>
+                <li><strong>Góc chụp & khoảng cách:</strong> Giữ điện thoại cách mặt 30–40 cm, camera ngang tầm mắt. Chụp rõ 3 góc: thẳng mặt và nghiêng hẳn 45-90 độ sang 2 bên má.</li>
+                <li><strong>Lấy nét rõ ràng:</strong> Chạm màn hình lấy nét vào vùng nám để nhìn rõ cấu trúc da, lỗ chân lông và mao mạch.</li>
+              </ul>
+            </div>
+
+
+            <div class="photo-uploader">
+              <div class="photo-slot" id="slot-front" data-slot="front">
+                <span class="photo-slot-icon">📷</span>
+                <span>Chính diện</span>
+                <input type="file" id="input-front" accept="image/*" style="display:none;" />
+                <span class="photo-slot-label-overlay">Ảnh Chính Diện</span>
+                <div class="brightness-badge-placeholder"></div>
+              </div>
+
+              <div class="photo-slot" id="slot-left" data-slot="left">
+                <span class="photo-slot-icon">📷</span>
+                <span>Má trái</span>
+                <input type="file" id="input-left" accept="image/*" style="display:none;" />
+                <span class="photo-slot-label-overlay">Ảnh Má Trái</span>
+                <div class="brightness-badge-placeholder"></div>
+              </div>
+
+              <div class="photo-slot" id="slot-right" data-slot="right">
+                <span class="photo-slot-icon">📷</span>
+                <span>Má phải</span>
+                <input type="file" id="input-right" accept="image/*" style="display:none;" />
+                <span class="photo-slot-label-overlay">Ảnh Má Phải</span>
+                <div class="brightness-badge-placeholder"></div>
+              </div>
+            </div>
+
+            <p class="required-info">Yêu cầu đăng tải đủ 3 góc ảnh da để tiến hành phân tích.</p>
+          </div>
+
+          <!-- STEP 2: Customer Info -->
+          <div class="form-step-pane" data-step="2">
+            <h3>Thông tin liên hệ & Đặc điểm</h3>
+            <p class="form-step-subtitle">Các thông tin cá nhân giúp chúng tôi định danh hồ sơ và gửi báo cáo chẩn đoán.
+            </p>
+
+            <div class="form-grid">
+              <div class="field">
+                <label>Họ tên khách hàng *</label>
+                <input name="name" type="text" required placeholder="Ví dụ: Nguyễn Thị Lan" />
+              </div>
+              <div class="field">
+                <label>Email nhận báo cáo *</label>
+                <input name="email" type="email" required placeholder="lan.nguyen@example.com" />
+              </div>
+              <div class="field">
+                <label>Số điện thoại / Zalo *</label>
+                <input name="phone" type="tel" required placeholder="09xxxxxxxx" />
+              </div>
+              <div class="field">
+                <label>Năm sinh *</label>
+                <input name="birthYear" type="number" min="1930" max="2026" required placeholder="VD: 1988" />
+              </div>
+              <div class="field">
+                <label>Nghề nghiệp chính *</label>
+                <input name="job" type="text" required placeholder="Ví dụ: Văn phòng, Bán hàng, Làm bếp..." />
+              </div>
+              <div class="field">
+                <label>Tỉnh/Thành đang sinh sống *</label>
+                <input name="city" type="text" required placeholder="Ví dụ: Hà Nội, TP. Hồ Chí Minh" />
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 3: History & Expression -->
+          <div class="form-step-pane" data-step="3">
+            <h3>Lịch sử chăm sóc & Sắc tố</h3>
+            <p class="form-step-subtitle">Khai báo chi tiết các phương pháp xâm lấn đã từng thực hiện để bảo vệ làn da
+              của bạn.</p>
+
+            <div class="field">
+              <label>Thời gian bắt đầu xuất hiện sắc tố *</label>
+              <input type="hidden" name="duration" required />
+              <div class="card-grid" data-select="duration">
+                <div class="card-option" data-value="Dưới 3 tháng">
+                  <span class="card-icon">⏱️</span>
+                  <div class="card-label">Dưới 3 tháng</div>
+                  <div class="card-desc">Sắc tố mới xuất hiện gần đây</div>
+                </div>
+                <div class="card-option" data-value="3-12 tháng">
+                  <span class="card-icon">📅</span>
+                  <div class="card-label">3 - 12 tháng</div>
+                  <div class="card-desc">Sắc tố xuất hiện dưới 1 năm</div>
+                </div>
+                <div class="card-option" data-value="1-3 năm">
+                  <span class="card-icon">⏳</span>
+                  <div class="card-label">1 - 3 năm</div>
+                  <div class="card-desc">Nám trung hạn, đã bám rễ sâu</div>
+                </div>
+                <div class="card-option" data-value="Trên 3 năm">
+                  <span class="card-icon">🕰️</span>
+                  <div class="card-label">Trên 3 năm</div>
+                  <div class="card-desc">Nám lâu năm, chân sắc tố bám chặt</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Dạng sắc tố biểu hiện rõ nhất *</label>
+              <input type="hidden" name="pattern" required />
+              <div class="card-grid cols-2" data-select="pattern">
+                <div class="card-option" data-value="Đốm nâu rải rác">
+                  <span class="card-icon">░</span>
+                  <div class="card-label">Đốm sắc tố rải rác</div>
+                  <div class="card-desc">Đốm nhỏ li ti (Tàn nhang, nám đốm chân sâu, đồi mồi)</div>
+                </div>
+                <div class="card-option" data-value="Mảng nâu">
+                  <span class="card-icon">█</span>
+                  <div class="card-label">Nám mảng đối xứng</div>
+                  <div class="card-desc">Mảng sạm đối xứng 2 gò má, sống mũi, trán hoặc thái dương</div>
+                </div>
+                <div class="card-option" data-value="Vừa mảng vừa đốm">
+                  <span class="card-icon">▒</span>
+                  <div class="card-label">Nám hỗn hợp</div>
+                  <div class="card-desc">Sự kết hợp của cả các mảng sạm màu và các nốt chân sâu</div>
+                </div>
+                <div class="card-option" data-value="Thâm/sạm sau mụn, peel hoặc laser">
+                  <span class="card-icon">🩹</span>
+                  <div class="card-label">Tăng sắc tố sau viêm</div>
+                  <div class="card-desc">Da sạm tối màu hẳn đi sau tổn thương mụn, lột tẩy hỏng, peel da hoặc bắn laser</div>
+                </div>
+                <div class="card-option" data-value="Không chắc">
+                  <span class="card-icon">🤷</span>
+                  <div class="card-label">Tôi không tự phân biệt được</div>
+                  <div class="card-desc">Cần chuyên khoa của PharmesHub xem trực tiếp ảnh để định loại</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Khu vực tập trung nhiều sắc tố *</label>
+              <input name="areas" type="text" required placeholder="Ví dụ: Gò má, sống mũi, trán, quanh miệng..." />
+            </div>
+
+            <div class="field">
+              <label>Yếu tố di truyền trong gia đình *</label>
+              <input type="hidden" name="geneticFactor" required />
+              <div class="card-grid" data-select="geneticFactor">
+                <div class="card-option" data-value="Có người thân bị nám (mẹ, chị em gái)">
+                  <span class="card-icon">🧬</span>
+                  <div class="card-label">Có di truyền</div>
+                  <div class="card-desc">Mẹ, chị em gái ruột bị sắc tố nám tương tự</div>
+                </div>
+                <div class="card-option" data-value="Không có ai bị">
+                  <span class="card-icon">🛡️</span>
+                  <div class="card-label">Không di truyền</div>
+                  <div class="card-desc">Gia đình không có tiền sử bị nám da</div>
+                </div>
+                <div class="card-option" data-value="Không rõ">
+                  <span class="card-icon">❓</span>
+                  <div class="card-label">Không rõ thông tin</div>
+                  <div class="card-desc">Tôi không nắm rõ tiền sử nám của gia đình</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Sử dụng thuốc tránh thai / thuốc nội tiết *</label>
+              <input type="hidden" name="hormoneUsage" required />
+              <div class="card-grid" data-select="hormoneUsage">
+                <div class="card-option" data-value="Đang dùng thuốc tránh thai hàng ngày">
+                  <span class="card-icon">💊</span>
+                  <div class="card-label">Thuốc tránh thai</div>
+                  <div class="card-desc">Có, đang dùng thuốc tránh thai hàng ngày</div>
+                </div>
+                <div class="card-option" data-value="Đang dùng liệu pháp nội tiết tố khác">
+                  <span class="card-icon">🧪</span>
+                  <div class="card-label">Nội tiết tố khác</div>
+                  <div class="card-desc">Có, đang sử dụng thuốc điều hòa hoặc bổ sung nội tiết</div>
+                </div>
+                <div class="card-option" data-value="Không sử dụng">
+                  <span class="card-icon">❌</span>
+                  <div class="card-label">Không sử dụng</div>
+                  <div class="card-desc">Không uống bất kỳ loại thuốc tránh thai hay nội tiết nào</div>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="field full">
+              <label>Các phương pháp xâm lấn từng thực hiện * (Chọn ít nhất một mục)</label>
+              <div class="check-grid" id="treatments">
+                <label class="check-pill"><input type="checkbox" value="laser" />Laser trị nám</label>
+                <label class="check-pill"><input type="checkbox" value="peel" />Peel da sinh học</label>
+                <label class="check-pill"><input type="checkbox" value="lăn kim/phi kim" />Lăn kim / Phi kim</label>
+                <label class="check-pill"><input type="checkbox" value="tiêm/cấy/truyền" />Tiêm / Cấy tinh chất</label>
+                <label class="check-pill"><input type="checkbox" value="chấm nám" />Chấm axit/Chấm nám chân</label>
+                <label class="check-pill"><input type="checkbox" value="kem nám online" />Kem nám không rõ nguồn
+                  gốc</label>
+                <label class="check-pill"><input type="checkbox" value="chưa từng làm" />Chưa từng can thiệp xâm
+                  lấn</label>
+              </div>
+            </div>
+
+            <div class="field full">
+              <label>Sản phẩm đã từng sử dụng *</label>
+              <textarea name="products" required
+                placeholder="Kể tên sản phẩm trị nám hoặc dưỡng da từng dùng, mua ở đâu, dùng bao lâu, và phản ứng của da khi ngừng sử dụng..."></textarea>
+            </div>
+          </div>
+
+          <!-- STEP 4: Symptoms & Personal Context -->
+          <div class="form-step-pane" data-step="4">
+            <h3>Biểu hiện nền da & Yếu tố liên quan</h3>
+            <p class="form-step-subtitle">Các yếu tố sống hoạt và tình trạng nhạy cảm quyết định độ an toàn khi kê đơn điều trị.</p>
+
+            <div class="field full">
+              <label>Lịch sử sử dụng kem làm trắng cấp tốc / kem đông y / thuốc rượu lột tẩy *</label>
+              <input type="hidden" name="rapidWhitening" required />
+              <div class="card-grid cols-2" data-select="rapidWhitening">
+                <div class="card-option" data-value="Có - Từng trắng rất nhanh sau đó sạm nặng khi ngưng">
+                  <span class="card-icon">🚨</span>
+                  <div class="card-label">Có dùng - Đã bị sạm dội ngược</div>
+                  <div class="card-desc">Từng dùng kem thảo mộc, kem trộn trắng siêu tốc và sạm đen dội ngược nặng sau khi dừng bôi</div>
+                </div>
+                <div class="card-option" data-value="Có - Từng dùng nhưng chưa thấy biểu hiện sạm dội ngược">
+                  <span class="card-icon">⚠️</span>
+                  <div class="card-label">Có dùng - Chưa bị sạm ngược</div>
+                  <div class="card-desc">Từng dùng sản phẩm trắng nhanh, bong da nhưng tạm thời chưa thấy dội ngược sạm đen</div>
+                </div>
+                <div class="card-option" data-value="Không sử dụng">
+                  <span class="card-icon">✅</span>
+                  <div class="card-label">Không sử dụng</div>
+                  <div class="card-desc">Chưa từng bôi kem lột tẩy, chỉ dùng các hãng dược mỹ phẩm có nhãn mác rõ ràng</div>
+                </div>
+                <div class="card-option" data-value="Không chắc chắn">
+                  <span class="card-icon">🤔</span>
+                  <div class="card-label">Không chắc chắn</div>
+                  <div class="card-desc">Từng bôi một số loại kem cốt spa, kem hũ trị nám tự pha không ghi rõ thành phần</div>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="field full">
+              <label>Biểu hiện thường thấy của nền da hiện tại * (Chọn ít nhất một mục)</label>
+              <div class="check-grid" id="symptoms">
+                <label class="check-pill"><input type="checkbox" value="đỏ rát" />Dễ đỏ ửng hoặc rát khi ra nắng</label>
+                <label class="check-pill"><input type="checkbox" value="châm chích" />Châm chích khi thoa mỹ
+                  phẩm</label>
+                <label class="check-pill"><input type="checkbox" value="khô căng/bong" />Khô ráp, căng chặt hoặc dễ bong
+                  tróc</label>
+                <label class="check-pill"><input type="checkbox" value="mụn viêm/li ti" />Mụn viêm đỏ hoặc mụn nước li
+                  ti</label>
+                <label class="check-pill"><input type="checkbox" value="mỏng yếu" />Có cảm giác mỏng yếu, thấy mạch
+                  máu</label>
+                <label class="check-pill"><input type="checkbox" value="sạm lại khi ngưng sản phẩm" />Da sạm đen sẫm lại
+                  ngay khi dừng bôi kem</label>
+                <label class="check-pill"><input type="checkbox" value="chưa rõ" />Nền da ổn định, không có các biểu
+                  hiện trên</label>
+              </div>
+            </div>
+
+            <div class="field full">
+              <label>Yếu tố sinh hoạt hoặc nội tiết có thể liên quan * (Chọn ít nhất một mục)</label>
+              <div class="check-grid" id="context">
+                <label class="check-pill"><input type="checkbox" value="công việc nắng/nhiệt" />Làm việc trực tiếp dưới
+                  nắng</label>
+                <label class="check-pill"><input type="checkbox" value="bếp/ánh sáng mạnh" />Tiếp xúc nhiệt độ bếp hoặc
+                  ánh đèn cao áp</label>
+                <label class="check-pill"><input type="checkbox" value="stress/thiếu ngủ" />Stress kéo dài, ngủ muộn
+                  hoặc mất ngủ</label>
+                <label class="check-pill"><input type="checkbox" value="sau sinh/tiền mãn kinh" />Bị nám xuất hiện từ
+                  khi mang thai/sau sinh</label>
+                <label class="check-pill"><input type="checkbox" value="thuốc nội tiết/thuốc kéo dài" />Đang uống thuốc
+                  tránh thai/thuốc nội tiết</label>
+                <label class="check-pill"><input type="checkbox" value="tiêm/cấy/truyền làm trắng" />Từng cấy/truyền
+                  hoạt chất làm trắng da</label>
+                <label class="check-pill"><input type="checkbox" value="chưa rõ" />Không thuộc các yếu tố nội tiết/sinh
+                  hoạt trên</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Validation Error Box -->
+          <div class="error-message" id="errorBox"></div>
+
+          <!-- Form Action Buttons -->
+          <div class="wizard-actions">
+            <button type="button" class="btn secondary" id="prevBtn" style="visibility: hidden;">Quay lại</button>
+            <button type="button" class="btn" id="nextBtn">Tiếp tục</button>
+            <button type="submit" class="btn" id="submitBtn" style="display: none;">Gửi hồ sơ chẩn đoán →</button>
+          </div>
+        </form>
+
+        <!-- Success Message -->
+        <div class="status-box" id="successBox">
+          <div class="status-box-inner">
+            <div class="status-icon">✓</div>
+            <h3>Hồ sơ đã được gửi đi</h3>
+            <p>Hồ sơ chẩn đoán MelanoCheck đã được ghi nhận. Báo cáo sàng lọc sơ bộ cùng phân tích nền da sắc tố đang
+              được tạo lập và sẽ tự động gửi đến email của bạn trong ít phút.</p>
+            <button type="button" class="btn secondary" id="resetBtn">Tạo hồ sơ mới</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Deep Consult Section -->
+  <section class="section contact-section" id="contact">
+    <div class="container">
+
+      <!-- Box 1: Waiting to submit request -->
+      <div class="contact-card" id="deepConsultCard">
+        <div class="contact-details">
+          <div class="eyebrow">Tư vấn chuyên sâu</div>
+          <h2>Nhận báo cáo phân tích chi tiết & Phác đồ cá nhân hóa</h2>
+          <p>Mỗi hồ sơ chẩn đoán đều được đọc trực tiếp bởi đội ngũ chuyên gia da liễu tại PharmesHub. Sau khi gửi hồ
+            sơ, bạn hãy click yêu cầu nhận báo cáo chi tiết để chuyên viên liên hệ trực tiếp hỗ trợ giải pháp.</p>
+        </div>
+        <div class="contact-actions">
+          <div class="cta-glow-wrapper">
+            <div class="cta-hint">Vui lòng click nhận</div>
+            <button class="btn cta-large" type="button" id="deepConsultBtn">Liên hệ chuyên sâu ngay</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Box 2: Thank you submitted successfully -->
+      <div class="contact-card style-success" id="thankYouCard" style="display: none;">
+        <div class="contact-details" style="grid-column: 1 / -1; text-align: center;">
+          <div class="status-icon">✓</div>
+          <h2>Cảm ơn bạn đã quan tâm!</h2>
+          <p class="lead" style="margin: 0 auto 20px;">Yêu cầu nhận báo cáo chuyên sâu đã được tiếp nhận thành công.
+            Chuyên viên chuyên khoa da liễu từ PharmesHub sẽ nhanh chóng liên hệ với bạn thông qua Số điện thoại/Zalo để
+            hỗ trợ phân tích trực tiếp hình ảnh da và lịch sử treatment.</p>
+        </div>
+      </div>
+
+      <div class="footer-warning">
+        Lưu ý: MelanoCheck là công cụ sàng lọc trực tuyến thuộc PharmesHub với mục đích hỗ trợ nâng cao nhận thức của
+        người dùng trước điều trị. Kết quả báo cáo sơ bộ không thay thế việc thăm khám y khoa trực tiếp bằng máy soi da
+        tại các cơ sở chuyên sâu. Vui lòng không sao chép, chỉnh sửa hoặc sử dụng vào mục đích thương mại khi chưa có
+        văn bản đồng ý từ PharmesHub.
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 PharmesHub. All rights reserved. MelanoCheck System & Skin Diagnostics Portal.</p>
+    </div>
+  </footer>
+
+  <!-- Camera capture Modal (Step 1) -->
+  <div id="cameraModal" class="camera-modal">
+    <div class="camera-modal-content">
+      <div class="camera-modal-header">
+        <h3 id="cameraModalTitle">Chụp ảnh da mặt</h3>
+        <button type="button" class="camera-modal-close" id="closeCameraBtn">&times;</button>
+      </div>
+      <div class="camera-stream-wrapper">
+        <video id="cameraVideo" autoplay playsinline muted></video>
+        <!-- Transparent cutout overlay -->
+        <div id="cameraOverlay" class="camera-face-overlay">
+          <svg viewBox="0 0 100 100" class="overlay-svg">
+            <path id="overlayPath" fill="rgba(13, 7, 3, 0.75)" fill-rule="evenodd" d="M0,0 H100 V100 H0 Z M50,16 A22,34 0 1,0 50,84 A22,34 0 1,0 50,16" />
+            
+            <!-- Guides inside the oval -->
+            <ellipse id="overlayOval" cx="50" cy="50" rx="22" ry="34" fill="none" stroke="rgba(223, 171, 108, 0.4)" stroke-width="0.8" stroke-dasharray="2,2" />
+            <!-- Profile guide (hidden by default) -->
+            <path id="profileLeftPath" d="M 45,22 C 34,22 28,32 28,45 C 28,55 35,59 33,69 C 31,73 34,79 48,82 M 56,36 C 53,36 53,39 56,39 M 55,50 C 51,50 51,52 55,52" fill="none" stroke="rgba(223, 171, 108, 0.4)" stroke-width="0.8" stroke-dasharray="2,2" style="display:none;" />
+          </svg>
+          <div id="cameraInstructionText" class="camera-instruction">Căn khuôn mặt của bạn vào giữa khung hình</div>
+        </div>
+        <!-- Brightness Feedback Indicator -->
+        <div id="brightnessFeedback" class="brightness-feedback">Kiểm tra ánh sáng...</div>
+      </div>
+      <div class="camera-modal-footer">
+        <button type="button" class="btn secondary" id="switchCameraBtn" style="display: none;">Đổi Camera</button>
+        <button type="button" class="btn" id="captureBtn">Chụp Ảnh</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Source select Modal -->
+  <div id="sourceModal" class="source-modal">
+    <div class="source-modal-content">
+      <h3>Chọn nguồn tải ảnh</h3>
+      <p id="sourceModalSubtitle">Vui lòng tải ảnh rõ nét, không dùng filter để đạt độ chính xác chẩn đoán tốt nhất.</p>
+      <div class="source-options">
+        <button type="button" class="source-btn" id="sourceCameraBtn">
+          <span class="source-btn-icon">📸</span>
+          <span class="source-btn-title">Chụp ảnh trực tiếp</span>
+          <span class="source-btn-desc">Sử dụng Camera của thiết bị, có khung định vị chuyên nghiệp</span>
+        </button>
+        <button type="button" class="source-btn" id="sourceUploadBtn">
+          <span class="source-btn-icon">📁</span>
+          <span class="source-btn-title">Tải ảnh lên từ máy</span>
+          <span class="source-btn-desc">Chọn ảnh chụp sẵn từ thư viện ảnh thiết bị của bạn</span>
+        </button>
+      </div>
+      <button type="button" class="btn secondary source-close" id="closeSourceBtn">Đóng</button>
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzYXKZVqCPKW8jUX_tx0_OfExd8-S89AKyPNx1VaJbNZuUjGWHw0oEg9GHaRnnWb2gMlw/exec';
+
+    // State management
+    const state = {
+      currentStep: 1,
+      totalSteps: 4,
+      images: {
+        front: null,
+        left: null,
+        right: null
+      },
+      brightness: {
+        front: null,
+        left: null,
+        right: null
+      },
+      activeSlot: null,
+      facingMode: 'user'
+    };
+
+    // DOM Utilities
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => Array.from(document.querySelectorAll(selector));
+
+    // Handle custom Card selections (Step 3)
+    $$('.card-grid').forEach(grid => {
+      const fieldName = grid.dataset.select;
+      const hiddenInput = $(`input[type="hidden"][name="${fieldName}"]`);
+      const options = grid.querySelectorAll('.card-option');
+
+      options.forEach(option => {
+        option.addEventListener('click', () => {
+          // Remove active class from other options in this grid
+          options.forEach(opt => opt.classList.remove('active'));
+          
+          // Add active to current
+          option.classList.add('active');
+          
+          // Set value of hidden input
+          hiddenInput.value = option.dataset.value;
+          
+          // Hide error box if visible
+          errorBox.style.display = 'none';
+        });
+      });
+    });
+
+    // Brightness Check Utility
+    function analyzeBrightness(dataUrl) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 80;
+          canvas.height = 60;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, 80, 60);
+          
+          try {
+            const imgData = ctx.getImageData(0, 0, 80, 60);
+            const data = imgData.data;
+            let totalLuminance = 0;
+            let count = 0;
+            
+            for (let i = 0; i < data.length; i += 4) {
+              const r = data[i];
+              const g = data[i+1];
+              const b = data[i+2];
+              const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+              totalLuminance += luminance;
+              count++;
+            }
+            
+            const avg = totalLuminance / count;
+            if (avg < 60) {
+              resolve({ status: 'too-dark', value: avg });
+            } else if (avg > 220) {
+              resolve({ status: 'too-bright', value: avg });
+            } else {
+              resolve({ status: 'good', value: avg });
+            }
+          } catch (e) {
+            console.error("Brightness check failed:", e);
+            resolve({ status: 'good', value: 127 });
+          }
+        };
+        img.onerror = () => resolve({ status: 'good', value: 127 });
+        img.src = dataUrl;
+      });
+    }
+
+    // Handle Scrolled Navbar
+    window.addEventListener('scroll', () => {
+      const nav = $('#navbar');
+      if (window.scrollY > 40) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+
+      // Sync active menu link on scroll
+      const sections = $$('section, header');
+      let currentSection = 'top';
+
+      sections.forEach(sec => {
+        const top = sec.offsetTop - 120;
+        if (window.scrollY >= top) {
+          currentSection = sec.getAttribute('id') || 'top';
+        }
+      });
+
+      $$('.navlinks a').forEach(a => {
+        a.classList.remove('active');
+        const href = a.getAttribute('href');
+        if (href === '#' + currentSection || (currentSection === 'top' && href === '#top')) {
+          a.classList.add('active');
+        }
+      });
+    });
+
+    // Handle custom Checkboxes visual state
+    $$('.check-pill input[type="checkbox"]').forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+        const label = e.target.closest('.check-pill');
+        if (e.target.checked) {
+          label.classList.add('checked');
+        } else {
+          label.classList.remove('checked');
+        }
+      });
+    });
+
+    // Image Compression utility
+    function compressImage(input, maxW = 900, quality = 0.74) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, maxW / img.width);
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+
+        if (input instanceof File) {
+          const r = new FileReader();
+          r.onload = () => {
+            img.src = r.result;
+          };
+          r.onerror = reject;
+          r.readAsDataURL(input);
+        } else if (typeof input === 'string') {
+          img.src = input;
+        } else {
+          reject(new Error('Invalid compress input'));
+        }
+      });
+    }
+
+    // Handle File inputs and previews
+    $$('.photo-slot input[type="file"]').forEach(input => {
+      input.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const slot = e.target.closest('.photo-slot');
+        const key = slot.dataset.slot;
+
+        // Show loading state
+        slot.style.opacity = '0.5';
+
+        try {
+          const dataUrl = await compressImage(file);
+          state.images[key] = dataUrl;
+
+          slot.classList.add('has-image');
+          slot.querySelector('img')?.remove();
+
+          const img = document.createElement('img');
+          img.src = dataUrl;
+          slot.appendChild(img);
+
+          // Analyze brightness
+          const brightnessResult = await analyzeBrightness(dataUrl);
+          state.brightness[key] = brightnessResult.status;
+
+          const placeholder = slot.querySelector('.brightness-badge-placeholder');
+          if (placeholder) {
+            let badgeHtml = '';
+            if (brightnessResult.status === 'too-dark') {
+              badgeHtml = '<span class="brightness-badge too-dark">⚠️ Ánh sáng tối</span>';
+            } else if (brightnessResult.status === 'too-bright') {
+              badgeHtml = '<span class="brightness-badge too-bright">⚠️ Ánh sáng chói</span>';
+            } else {
+              badgeHtml = '<span class="brightness-badge good">✓ Đạt chuẩn sáng</span>';
+            }
+            placeholder.innerHTML = badgeHtml;
+          }
+        } catch (err) {
+          console.error("Compression error:", err);
+          alert('Không thể tải hoặc xử lý ảnh này. Vui lòng chọn ảnh khác.');
+        } finally {
+          slot.style.opacity = '1';
+        }
+      });
+    });
+
+    // Unified camera stream state
+    let cameraStream = null;
+    let brightnessInterval = null;
+
+    // Camera action listeners
+    $$('.photo-slot').forEach(slot => {
+      slot.addEventListener('click', (e) => {
+        if (e.target.tagName === 'INPUT' || slot.style.opacity === '0.5') return;
+        state.activeSlot = slot.dataset.slot;
+        $('#sourceModal').classList.add('active');
+      });
+    });
+
+    $('#closeSourceBtn').addEventListener('click', () => {
+      $('#sourceModal').classList.remove('active');
+    });
+
+    $('#sourceUploadBtn').addEventListener('click', () => {
+      $('#sourceModal').classList.remove('active');
+      const input = $('#input-' + state.activeSlot);
+      if (input) input.click();
+    });
+
+    $('#sourceCameraBtn').addEventListener('click', () => {
+      $('#sourceModal').classList.remove('active');
+      startCamera(state.activeSlot);
+    });
+
+    $('#closeCameraBtn').addEventListener('click', () => {
+      stopCamera();
+    });
+
+    // Camera operations
+    async function startCamera(slotKey) {
+      const video = $('#cameraVideo');
+      const instruction = $('#cameraInstructionText');
+      const overlayOval = $('#overlayOval');
+      const profileLeftPath = $('#profileLeftPath');
+      const title = $('#cameraModalTitle');
+
+      if (slotKey === 'front') {
+        title.textContent = 'Chụp ảnh da: Chính Diện';
+        instruction.textContent = 'Căn khuôn mặt thẳng đứng vào khung oval nét đứt';
+        overlayOval.style.display = 'block';
+        profileLeftPath.style.display = 'none';
+        $('#overlayPath').setAttribute('d', 'M0,0 H100 V100 H0 Z M50,16 A22,34 0 1,0 50,84 A22,34 0 1,0 50,16');
+      } else if (slotKey === 'left') {
+        title.textContent = 'Chụp ảnh da: Má Trái (Nghiêng trái)';
+        instruction.textContent = 'Ngoảnh mặt 45-90 độ sang trái, căn má trái vào khung';
+        overlayOval.style.display = 'none';
+        profileLeftPath.style.display = 'block';
+        profileLeftPath.setAttribute('transform', 'translate(0, 0)');
+        $('#overlayPath').setAttribute('d', 'M0,0 H100 V100 H0 Z M55,20 A22,34 0 1,0 55,88 A22,34 0 1,0 55,20');
+      } else if (slotKey === 'right') {
+        title.textContent = 'Chụp ảnh da: Má Phải (Nghiêng phải)';
+        instruction.textContent = 'Ngoảnh mặt 45-90 độ sang phải, căn má phải vào khung';
+        overlayOval.style.display = 'none';
+        profileLeftPath.style.display = 'block';
+        profileLeftPath.setAttribute('transform', 'translate(100, 0) scale(-1, 1)');
+        $('#overlayPath').setAttribute('d', 'M0,0 H100 V100 H0 Z M45,20 A22,34 0 1,0 45,88 A22,34 0 1,0 45,20');
+      }
+
+      // Check if switch camera is available
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        $('#switchCameraBtn').style.display = videoDevices.length > 1 ? 'inline-flex' : 'none';
+      } catch(e) {}
+
+      stopCamera();
+
+      try {
+        const constraints = {
+          video: {
+            facingMode: state.facingMode,
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
+          audio: false
+        };
+        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = cameraStream;
+        
+        // Start live brightness evaluation
+        startBrightnessInterval(slotKey);
+        
+        $('#cameraModal').classList.add('active');
+      } catch (err) {
+        console.error("Camera access error:", err);
+        alert('Không thể kết nối camera. Vui lòng cấp quyền hoặc sử dụng "Tải ảnh lên từ máy".');
+      }
+    }
+
+    function stopCamera() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+      }
+      $('#cameraVideo').srcObject = null;
+      stopBrightnessInterval();
+      $('#cameraModal').classList.remove('active');
+    }
+
+    function startBrightnessInterval(slotKey) {
+      const video = $('#cameraVideo');
+      const feedback = $('#brightnessFeedback');
+      const overlayOval = $('#overlayOval');
+      const profileLeftPath = $('#profileLeftPath');
+      const activeGuide = slotKey === 'front' ? overlayOval : profileLeftPath;
+      
+      const checkCanvas = document.createElement('canvas');
+      checkCanvas.width = 40;
+      checkCanvas.height = 30;
+      const checkCtx = checkCanvas.getContext('2d');
+      
+      brightnessInterval = setInterval(() => {
+        if (!cameraStream || video.paused || video.ended) return;
+        checkCtx.drawImage(video, 0, 0, 40, 30);
+        
+        try {
+          const imgData = checkCtx.getImageData(0, 0, 40, 30);
+          const data = imgData.data;
+          let totalLuminance = 0;
+          let count = 0;
+          
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i+1];
+            const b = data[i+2];
+            const l = 0.299 * r + 0.587 * g + 0.114 * b;
+            totalLuminance += l;
+            count++;
+          }
+          
+          const avg = totalLuminance / count;
+          
+          // Skin color check in center oval area (X: 12-28, Y: 6-24)
+          let skinPixels = 0;
+          let centerPixels = 0;
+          for (let y = 6; y < 24; y++) {
+            for (let x = 12; x < 28; x++) {
+              const idx = (y * 40 + x) * 4;
+              const r = data[idx];
+              const g = data[idx+1];
+              const b = data[idx+2];
+              
+              // Standard skin detection: R > 60, G > 35, B > 25, R > g, R > b, R-G > 10
+              const isSkin = (r > 60 && g > 35 && b > 25 && r > g && r > b && (r - g) > 10);
+              if (isSkin) skinPixels++;
+              centerPixels++;
+            }
+          }
+          
+          const skinRatio = skinPixels / centerPixels;
+          const isFaceAligned = (skinRatio > 0.12); // If > 12% is skin tone
+
+          // Reset guide classes
+          overlayOval.classList.remove('guideline-ok', 'guideline-error', 'guideline-neutral');
+          profileLeftPath.classList.remove('guideline-ok', 'guideline-error', 'guideline-neutral');
+
+          feedback.classList.remove('warning');
+          
+          if (avg >= 60 && avg <= 220 && isFaceAligned) {
+            activeGuide.classList.add('guideline-ok');
+            feedback.textContent = '✓ KHUNG HÌNH ĐẠT CHUẨN';
+            feedback.style.color = '#76e2b2';
+          } else {
+            activeGuide.classList.add('guideline-error');
+            feedback.classList.add('warning');
+            
+            if (!isFaceAligned) {
+              feedback.textContent = '⚠️ HÃY ĐƯA MẶT VÀO KHUNG';
+              feedback.style.color = '#dc5000';
+            } else if (avg < 60) {
+              feedback.textContent = '⚠️ ÁNH SÁNG TỐI';
+              feedback.style.color = '#dc5000';
+            } else {
+              feedback.textContent = '⚠️ ÁNH SÁNG QUÁ CHÓI';
+              feedback.style.color = '#dfab6c';
+            }
+          }
+        } catch (e) {}
+      }, 300);
+    }
+
+    function stopBrightnessInterval() {
+      if (brightnessInterval) {
+        clearInterval(brightnessInterval);
+        brightnessInterval = null;
+      }
+    }
+
+    $('#switchCameraBtn').addEventListener('click', () => {
+      state.facingMode = state.facingMode === 'user' ? 'environment' : 'user';
+      startCamera(state.activeSlot);
+    });
+
+    $('#captureBtn').addEventListener('click', async () => {
+      const video = $('#cameraVideo');
+      const canvas = document.createElement('canvas');
+      
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      
+      const ctx = canvas.getContext('2d');
+      
+      // If front camera, mirror back for standard photo output
+      if (state.facingMode === 'user') {
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+      }
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+      
+      // Analyze brightness first BEFORE stopping camera!
+      const brightnessResult = await analyzeBrightness(dataUrl);
+      
+      if (brightnessResult.status !== 'good') {
+        const problem = brightnessResult.status === 'too-dark' ? 'QUÁ TỐI (thiếu ánh sáng)' : 'QUÁ SÁNG (bị chói/ngược sáng)';
+        const retry = confirm(`⚠️ CẢNH BÁO ÁNH SÁNG:\nẢnh chụp CHƯA ĐẠT CHUẨN vì bị ${problem}.\n\nBạn có muốn CHỤP LẠI (Khuyên dùng) dưới ánh sáng tốt hơn không?\n\n- Bấm OK (Đồng ý) để chụp lại\n- Bấm Cancel (Hủy) để giữ ảnh này và tiếp tục`);
+        if (retry) {
+          // Keep camera running and let user adjust and recapture
+          return;
+        }
+      } else {
+        alert('✓ ĐẠT CHUẨN:\nẢnh chụp thành công và đạt tiêu chuẩn ánh sáng tốt!');
+      }
+      
+      stopCamera();
+      
+      const slotKey = state.activeSlot;
+      const slot = $('#slot-' + slotKey);
+      
+      slot.style.opacity = '0.5';
+      try {
+        const compressedUrl = await compressImage(dataUrl);
+        state.images[slotKey] = compressedUrl;
+        
+        slot.classList.add('has-image');
+        slot.querySelector('img')?.remove();
+        
+        const img = document.createElement('img');
+        img.src = compressedUrl;
+        slot.appendChild(img);
+        
+        state.brightness[slotKey] = brightnessResult.status;
+        
+        const placeholder = slot.querySelector('.brightness-badge-placeholder');
+        if (placeholder) {
+          let badgeHtml = '';
+          if (brightnessResult.status === 'too-dark') {
+            badgeHtml = '<span class="brightness-badge too-dark">⚠️ Ánh sáng tối</span>';
+          } else if (brightnessResult.status === 'too-bright') {
+            badgeHtml = '<span class="brightness-badge too-bright">⚠️ Ánh sáng chói</span>';
+          } else {
+            badgeHtml = '<span class="brightness-badge good">✓ Đạt chuẩn sáng</span>';
+          }
+          placeholder.innerHTML = badgeHtml;
+        }
+      } catch (err) {
+        console.error("Capture compression failed:", err);
+        alert('Không thể lưu ảnh chụp da. Vui lòng chụp lại.');
+      } finally {
+        slot.style.opacity = '1';
+      }
+    });
+
+    // Wizard Navigation Logic
+    const progressFill = $('#progressFill');
+    const steps = $$('.wizard-step');
+    const panes = $$('.form-step-pane');
+    const nextBtn = $('#nextBtn');
+    const prevBtn = $('#prevBtn');
+    const submitBtn = $('#submitBtn');
+    const errorBox = $('#errorBox');
+
+    function updateWizardUI() {
+      // Update step status colors
+      steps.forEach((step, idx) => {
+        const stepNum = idx + 1;
+        step.classList.remove('active', 'completed');
+        if (stepNum === state.currentStep) {
+          step.classList.add('active');
+        } else if (stepNum < state.currentStep) {
+          step.classList.add('completed');
+        }
+      });
+
+      // Update progress bar fill width
+      const fillPercentage = ((state.currentStep - 1) / (state.totalSteps - 1)) * 100;
+      progressFill.style.width = fillPercentage + '%';
+
+      // Update panes display
+      panes.forEach((pane, idx) => {
+        pane.classList.remove('active');
+        if (idx + 1 === state.currentStep) {
+          pane.classList.add('active');
+        }
+      });
+
+      // Back button visibility
+      if (state.currentStep === 1) {
+        prevBtn.style.visibility = 'hidden';
+      } else {
+        prevBtn.style.visibility = 'visible';
+      }
+
+      // Next / Submit button visibility
+      if (state.currentStep === state.totalSteps) {
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'inline-flex';
+      } else {
+        nextBtn.style.display = 'inline-flex';
+        submitBtn.style.display = 'none';
+      }
+
+      // Hide error box when moving between steps
+      errorBox.style.display = 'none';
+
+      // Scroll to the top of the form panel smoothly
+      $('#formPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Validation functions per step
+    function validateStep(step) {
+      errorBox.textContent = '';
+      errorBox.style.display = 'none';
+
+      if (step === 1) {
+        if (!state.images.front || !state.images.left || !state.images.right) {
+          return 'Vui lòng chụp hoặc tải lên đủ cả 3 góc ảnh da để tiếp tục.';
+        }
+        
+        // Evaluate brightness quality warning (non-blocking but triggers alert)
+        const badLighting = [];
+        if (state.brightness.front === 'too-dark' || state.brightness.left === 'too-dark' || state.brightness.right === 'too-dark') {
+          badLighting.push('thiếu sáng/quá tối');
+        }
+        if (state.brightness.front === 'too-bright' || state.brightness.left === 'too-bright' || state.brightness.right === 'too-bright') {
+          badLighting.push('ngược sáng/quá chói');
+        }
+        
+        if (badLighting.length > 0) {
+          const proceed = confirm(`Cảnh báo: Ảnh chụp của bạn có thể bị ${badLighting.join(' hoặc ')}. Điều này làm giảm đáng kể độ chính xác khi phân tích vùng sắc tố. Bạn có muốn tiếp tục gửi không?`);
+          if (!proceed) {
+            return 'Vui lòng thay thế ảnh da bị lỗi ánh sáng để nhận kết quả phân tích tốt nhất.';
+          }
+        }
+      }
+      else if (step === 2) {
+        const fields = ['name', 'email', 'phone', 'birthYear', 'job', 'city'];
+        for (const field of fields) {
+          const el = $(`[name="${field}"]`);
+          if (!el.value.trim()) {
+            el.focus();
+            return `Trường này là bắt buộc. Vui lòng nhập đầy đủ.`;
+          }
+          if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value)) {
+            el.focus();
+            return `Định dạng Email không hợp lệ.`;
+          }
+          if (field === 'phone' && !/^[0-9+ ]{8,15}$/.test(el.value.replace(/\s/g, ''))) {
+            el.focus();
+            return `Số điện thoại không hợp lệ.`;
+          }
+        }
+      }
+      else if (step === 3) {
+        const selects = ['duration', 'pattern', 'geneticFactor', 'hormoneUsage'];
+        for (const name of selects) {
+          const el = $(`[name="${name}"]`);
+          if (!el.value) {
+            const grid = $(`.card-grid[data-select="${name}"]`);
+            if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return `Vui lòng chọn thông tin phù hợp cho câu hỏi về sắc tố.`;
+          }
+        }
+
+        const areas = $('[name="areas"]');
+        if (!areas.value.trim()) {
+          areas.focus();
+          return `Vui lòng nhập vùng xuất hiện sắc tố.`;
+        }
+
+        const checkedTreatments = $$('#treatments input:checked');
+        if (checkedTreatments.length === 0) {
+          return 'Vui lòng chọn ít nhất một mục tại lịch sử phương pháp điều trị.';
+        }
+
+        const products = $('[name="products"]');
+        if (!products.value.trim()) {
+          products.focus();
+          return 'Vui lòng cung cấp các sản phẩm đã từng dùng.';
+        }
+      }
+      else if (step === 4) {
+        const rapidWhitening = $('[name="rapidWhitening"]');
+        if (!rapidWhitening.value) {
+          const grid = $(`.card-grid[data-select="rapidWhitening"]`);
+          if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return `Vui lòng chọn thông tin lịch sử sử dụng kem làm trắng cấp tốc.`;
+        }
+
+        const checkedSymptoms = $$('#symptoms input:checked');
+        if (checkedSymptoms.length === 0) {
+          return 'Vui lòng chọn ít nhất một mục tại biểu hiện của nền da.';
+        }
+
+        const checkedContext = $$('#context input:checked');
+        if (checkedContext.length === 0) {
+          return 'Vui lòng chọn ít nhất một mục tại yếu tố sinh hoạt liên quan.';
+        }
+      }
+
+      return '';
+    }
+
+    // Step Nav Button Listeners
+    nextBtn.addEventListener('click', () => {
+      const error = validateStep(state.currentStep);
+      if (error) {
+        errorBox.textContent = error;
+        errorBox.style.display = 'block';
+        return;
+      }
+
+      if (state.currentStep < state.totalSteps) {
+        state.currentStep++;
+        updateWizardUI();
+      }
+    });
+
+    prevBtn.addEventListener('click', () => {
+      if (state.currentStep > 1) {
+        state.currentStep--;
+        updateWizardUI();
+      }
+    });
+
+    // Helper functions for building submit data
+    function checkedValues(id) {
+      return $$(`#${id} input:checked`).map(i => i.value);
+    }
+
+    function generateProfileId(phone) {
+      const d = new Date();
+      const stamp = `${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+      const cleanPhone = (phone || Math.floor(Math.random() * 9000 + 1000).toString()).replace(/\D/g, '');
+      const tail = cleanPhone.slice(-4).padStart(4, '0');
+      return `MC-${stamp}-${tail}`;
+    }
+
+    function createInternalReport(payload) {
+      let pigment = 'Da có biểu hiện sắc tố cần được đọc kỹ hơn từ ảnh và lịch sử chăm sóc.';
+      const pattern = payload.pigmentation.pattern;
+      const rapidWhitening = payload.history.rapidWhitening;
+      const hormone = payload.pigmentation.hormoneUsage;
+      const genetic = payload.pigmentation.geneticFactor;
+
+      if (rapidWhitening && rapidWhitening.includes('trắng rất nhanh')) {
+        pigment = '🚨 CẢNH BÁO ĐỎ: Nghi ngờ sạm dội ngược do nhiễm độc Corticoid (Kem trộn/Thuốc rượu). Nền da mỏng yếu, tổn thương hàng rào bảo vệ nặng.';
+      } else if (rapidWhitening && (rapidWhitening.includes('Chưa bị sạm ngược') || rapidWhitening.includes('Không chắc chắn'))) {
+        pigment = '⚠️ CẢNH BÁO VÀNG: Có tiền sử bôi kem chứa thành phần lột tẩy mạnh hoặc không rõ xuất xứ. Nền da chịu rủi ro sạm màu dội ngược cao.';
+      } else {
+        if (pattern.includes('Vừa') || pattern.includes('hỗn hợp')) {
+          pigment = 'Nám hỗn hợp: Sắc tố dạng mảng sạm màu kết hợp các nốt đốm nâu sẫm hai bên gò má.';
+        } else if (pattern.includes('Mảng')) {
+          if (hormone && (hormone.includes('tránh thai') || hormone.includes('nội tiết'))) {
+            pigment = 'Nám nội tiết (Melasma/Chloasma) thứ phát do tăng sinh Estrogen kết hợp UV.';
+          } else {
+            pigment = 'Nám mảng biểu bì lành tính do tác động của ánh sáng mặt trời và nhiệt độ.';
+          }
+        } else if (pattern.includes('Đốm')) {
+          pigment = 'Sắc tố dạng đốm rải rác (Tàn nhang / Đốm sắc tố sâu Hori / Đồi mồi do lão hóa).';
+        } else if (pattern.includes('sau') || pattern.includes('Thâm')) {
+          pigment = 'Tăng sắc tố sau viêm (PIH) nặng xuất hiện sau tổn thương hoặc laser/peel xâm lấn sai cách.';
+        }
+      }
+
+      let summary = `Sắc tố xuất hiện khoảng ${payload.pigmentation.duration.toLowerCase()}, tập trung chủ yếu ở ${payload.pigmentation.areas}. Nghề nghiệp: ${payload.customer.job}. Đã can thiệp: ${payload.history.treatments.join(', ')}.`;
+      
+      if (genetic && genetic.includes('Có')) {
+        summary += ` Ghi nhận yếu tố di truyền trong gia đình (mẹ, chị/em gái bị nám).`;
+      }
+      if (hormone && (hormone.includes('tránh thai') || hormone.includes('nội tiết'))) {
+        summary += ` Có lịch sử sử dụng thuốc nội tiết hoặc thuốc tránh thai hàng ngày kích sắc tố.`;
+      }
+      
+      summary += ` Biểu hiện đi kèm: ${payload.skinBackground.symptoms.join(', ')}. Yếu tố kích thích: ${payload.personalContext.factors.join(', ')}.`;
+      
+      let next = 'Khách hàng cần tập trung bảo vệ hàng rào lipid và chống nắng đa tầng trước khi laser/peel. PharmesHub sẽ đọc trực tiếp ảnh chụp của bạn để tư vấn phác đồ bôi thoa kết hợp phục hồi và làm sáng an toàn.';
+      
+      if (rapidWhitening && rapidWhitening.includes('trắng rất nhanh')) {
+        next = '⚠️ TUYỆT ĐỐI KHÔNG laser hay peel xâm lấn lúc này. Ưu tiên hàng đầu là thải độc Corticoid, phục hồi màng bảo vệ da bị teo mỏng bằng Ceramide/Panthenol, ngắt kem trộn từ từ. Hãy bấm nhận tư vấn phác đồ phác đồ cai corticoid từ chuyên gia.';
+      } else if (rapidWhitening && (rapidWhitening.includes('Chưa bị sạm ngược') || rapidWhitening.includes('Không chắc chắn'))) {
+        next = 'Nên sử dụng phác đồ phục hồi hàng rào bảo vệ da trong tối thiểu 2-4 tuần trước khi bắt đầu bôi thoa các hoạt chất trị nám mạnh (như Retinol/Hydroquinone). Tránh xâm lấn nhiệt. Liên hệ tư vấn phác đồ phục hồi.';
+      } else {
+        if (hormone && (hormone.includes('tránh thai') || hormone.includes('nội tiết'))) {
+          next = 'Cần kiểm soát yếu tố nội tiết (trao đổi bác sĩ để thay thế biện pháp tránh thai nếu phù hợp), chống nắng phổ rộng kỹ càng. Kết hợp phác đồ bôi các chất ức chế Tyrosinase an toàn, không bong tróc (Tranexamic Acid, Kojic Acid, Niacinamide).';
+        }
+      }
+
+      const html = `
+        <div style="font-family:Arial,sans-serif;color:#333;line-height:1.6;max-width:600px;margin:0 auto;padding:20px;border:1px solid #eaeaea;border-radius:12px;">
+          <h2 style="color:#dc5000;border-bottom:2px solid #dc5000;padding-bottom:10px;">BÁO CÁO PHÂN TÍCH MELANOCHECK</h2>
+          <p><b>Mã hồ sơ:</b> <span style="font-family:monospace;font-size:16px;color:#dc5000;font-weight:bold;">${payload.profileId}</span></p>
+          <p><b>Khách hàng:</b> ${payload.customer.name} (${payload.customer.birthYear})</p>
+          <p><b>Địa chỉ:</b> ${payload.customer.city} | <b>Nghề nghiệp:</b> ${payload.customer.job}</p>
+          
+          <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+            <tr style="background:#f9f9f9;">
+              <td style="padding:10px;border:1px solid #eee;font-weight:bold;width:30%;">Nhận định sắc tố</td>
+              <td style="padding:10px;border:1px solid #eee;color:#a03600;font-weight:bold;">${pigment}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Tóm tắt tình trạng</td>
+              <td style="padding:10px;border:1px solid #eee;font-size:14px;">${summary}</td>
+            </tr>
+            <tr style="background:#f9f9f9;">
+              <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Sản phẩm đã dùng</td>
+              <td style="padding:10px;border:1px solid #eee;font-size:14px;font-style:italic;">${payload.history.products}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Lời khuyên ban đầu</td>
+              <td style="padding:10px;border:1px solid #eee;font-size:14px;color:#dc5000;font-weight:bold;">${next}</td>
+            </tr>
+          </table>
+          <p style="font-size:12px;color:#777;border-top:1px solid #eee;padding-top:10px;margin-top:20px;font-style:italic;">Báo cáo chẩn đoán mang tính chất định hướng ban đầu, không thay thế cho thăm khám da liễu chuyên khoa trực tiếp.</p>
+        </div>
+      `;
+
+      return { pigment, summary, next, html };
+    }
+
+    function buildPayload() {
+      const fd = new FormData($('#melanoForm'));
+
+      const payload = {
+        profileId: generateProfileId(fd.get('phone')),
+        createdAt: new Date().toISOString(),
+        customer: {
+          name: fd.get('name') || '',
+          email: fd.get('email') || '',
+          phone: fd.get('phone') || '',
+          birthYear: fd.get('birthYear') || '',
+          job: fd.get('job') || '',
+          city: fd.get('city') || ''
+        },
+        pigmentation: {
+          duration: fd.get('duration') || '',
+          pattern: fd.get('pattern') || '',
+          areas: fd.get('areas') || '',
+          geneticFactor: fd.get('geneticFactor') || '',
+          hormoneUsage: fd.get('hormoneUsage') || ''
+        },
+        history: {
+          treatments: checkedValues('treatments'),
+          products: fd.get('products') || '',
+          rapidWhitening: fd.get('rapidWhitening') || ''
+        },
+        skinBackground: {
+          symptoms: checkedValues('symptoms')
+        },
+        personalContext: {
+          factors: checkedValues('context')
+        },
+        images: state.images
+      };
+
+      payload.internalReport = createInternalReport(payload);
+      return payload;
+    }
+
+
+    async function sendToGoogleSheet(payload) {
+      if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL.includes('PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE')) {
+        localStorage.setItem('melanocheck_pending_payload', JSON.stringify(payload));
+        // Simulate local latency
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return { success: true, localOnly: true };
+      }
+
+      const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify(payload)
+      });
+      return { success: true };
+    }
+
+    // Form Submit Event
+    $('#melanoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const error = validateStep(state.currentStep);
+      if (error) {
+        errorBox.textContent = error;
+        errorBox.style.display = 'block';
+        return;
+      }
+
+      const btn = $('#submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Đang gửi hồ sơ...';
+
+      try {
+        const payload = buildPayload();
+        await sendToGoogleSheet(payload);
+
+        // Show Success panel, hide form
+        $('#melanoForm').style.display = 'none';
+        $('#successBox').classList.add('active');
+
+        // Save profile ID to connect with contact request
+        state.lastProfileId = payload.profileId;
+      } catch (err) {
+        console.error(err);
+        errorBox.textContent = 'Hồ sơ chưa gửi được do sự cố kết nối. Vui lòng kiểm tra lại mạng hoặc liên hệ qua Hotline.';
+        errorBox.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Gửi hồ sơ MelanoCheck →';
+      }
+    });
+
+    // Reset Form Listener
+    $('#resetBtn').addEventListener('click', () => {
+      // Clear form inputs
+      $('#melanoForm').reset();
+
+      // Clear checked classes
+      $$('.check-pill').forEach(pill => pill.classList.remove('checked'));
+
+      // Clear custom cards visual state and values
+      $$('.card-option').forEach(card => card.classList.remove('active'));
+      $$('input[type="hidden"]').forEach(hidden => hidden.value = '');
+
+      // Reset image state and thumbnails
+      state.images = { front: null, left: null, right: null };
+      state.brightness = { front: null, left: null, right: null };
+      $$('.photo-slot').forEach(slot => {
+        slot.classList.remove('has-image');
+        slot.querySelector('img')?.remove();
+        slot.style.opacity = '1';
+      });
+      $$('.brightness-badge-placeholder').forEach(placeholder => placeholder.innerHTML = '');
+
+      // Reset wizard
+      state.currentStep = 1;
+      $('#melanoForm').style.display = 'block';
+      $('#successBox').classList.remove('active');
+
+      updateWizardUI();
+    });
+
+    // Handle Deep Consult CTA Click
+    const deepConsultBtn = document.getElementById('deepConsultBtn');
+    if (deepConsultBtn) {
+      deepConsultBtn.addEventListener('click', async () => {
+        // Show loading state
+        deepConsultBtn.disabled = true;
+        deepConsultBtn.textContent = 'Đang tiếp nhận...';
+
+        try {
+          // If a profile was just submitted, notify the backend about the request for deep consulting
+          if (state.lastProfileId && GOOGLE_APPS_SCRIPT_URL && !GOOGLE_APPS_SCRIPT_URL.includes('PASTE_YOUR')) {
+            await fetch(GOOGLE_APPS_SCRIPT_URL, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({
+                action: 'request_consultation',
+                profileId: state.lastProfileId
+              })
+            });
+          }
+        } catch (e) {
+          console.error("Failed to notify consult action:", e);
+        }
+
+        // UI transitions
+        document.getElementById('deepConsultCard').style.display = 'none';
+        document.getElementById('thankYouCard').style.display = 'grid';
+        document.getElementById('thankYouCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+  </script>
+</body>
+
+</html>

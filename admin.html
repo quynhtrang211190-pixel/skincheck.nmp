@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Gửi Lại Báo Cáo MelanoCheck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0d0703;
+      --cream: #ffecd6;
+      --brown-light: #23160e;
+      --brown-deep: #150a04;
+      --line: rgba(255, 237, 215, 0.08);
+      --muted: #8c7d6e;
+      --sienna: #dc5000;
+      --text: #ffecd6;
+      --green: #22c55e;
+      --green-bg: rgba(34, 197, 94, 0.1);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.1);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* 403 screen */
+    .screen-403 {
+      text-align: center;
+      max-width: 400px;
+    }
+
+    .screen-403 .code {
+      font-size: 72px;
+      font-weight: 700;
+      color: var(--red);
+      line-height: 1;
+    }
+
+    .screen-403 .msg {
+      font-size: 18px;
+      color: var(--text);
+      margin-top: 12px;
+      font-weight: 500;
+    }
+
+    .screen-403 .sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    /* Admin card */
+    .card {
+      background: var(--brown-deep);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .card-header .icon {
+      width: 44px;
+      height: 44px;
+      background: var(--brown-light);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .card-header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--cream);
+    }
+
+    .card-header p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cream);
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px 14px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      color: var(--cream);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]::placeholder {
+      color: var(--muted);
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--sienna);
+    }
+
+    button {
+      padding: 12px 20px;
+      background: var(--sienna);
+      color: var(--cream);
+      border: none;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: var(--cream);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      display: none;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .result.success {
+      background: var(--green-bg);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      color: var(--green);
+      display: flex;
+    }
+
+    .result.error {
+      background: var(--red-bg);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: var(--red);
+      display: flex;
+    }
+
+    .result-icon {
+      font-size: 18px;
+      line-height: 1.2;
+      flex-shrink: 0;
+    }
+
+    .result-text {
+      line-height: 1.5;
+    }
+
+    .result-email {
+      font-weight: 700;
+      text-decoration: underline;
+    }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <script>
+    const ADMIN_KEY = 'Quynhtrang21';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzYXKZVqCPKW8jUX_tx0_OfExd8-S89AKyPNx1VaJbNZuUjGWHw0oEg9GHaRnnWb2gMlw/exec';
+    const params = new URLSearchParams(location.search);
+
+    if (params.get('key') !== ADMIN_KEY) {
+      document.getElementById('root').innerHTML = `
+    <div class="screen-403">
+      <div class="code">403</div>
+      <div class="msg">Truy cập bị từ chối</div>
+      <div class="sub">Vui lòng cung cấp mật mã quản trị (?key=...) trên thanh địa chỉ URL</div>
+    </div>`;
+    } else {
+      document.getElementById('root').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div class="icon">🩺</div>
+        <div>
+          <h1>MelanoCheck Admin</h1>
+          <p>Gửi lại báo cáo chẩn đoán cho khách hàng</p>
+        </div>
+      </div>
+
+      <label for="ref-input">Mã hồ sơ MelanoCheck</label>
+      <div class="input-row">
+        <input type="text" id="ref-input" placeholder="MC-YYMMDD-XXXX" autocomplete="off" spellcheck="false">
+        <button id="send-btn" onclick="resend()">
+          <span class="spinner" id="spinner"></span>
+          <span id="btn-label">Gửi lại</span>
+        </button>
+      </div>
+      <div class="hint">Mã hồ sơ nằm ở cột B trong Google Sheet (ví dụ: MC-260611-1234)</div>
+
+      <div class="result" id="result">
+        <span class="result-icon" id="result-icon"></span>
+        <span class="result-text" id="result-text"></span>
+      </div>
+    </div>`;
+
+      document.getElementById('ref-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') resend();
+      });
+    }
+
+    async function resend() {
+      const input = document.getElementById('ref-input');
+      const ref = input.value.trim().toUpperCase();
+
+      if (!ref) {
+        input.focus();
+        return;
+      }
+
+      const btn = document.getElementById('send-btn');
+      const spinner = document.getElementById('spinner');
+      const btnLabel = document.getElementById('btn-label');
+      const result = document.getElementById('result');
+
+      btn.disabled = true;
+      spinner.style.display = 'block';
+      btnLabel.textContent = 'Đang gửi...';
+      result.className = 'result';
+      result.style.display = 'none';
+
+      try {
+        if (GAS_URL === 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
+          throw new Error('Chưa cấu hình URL Google Apps Script Web App trong admin.html.');
+        }
+        const url = `${GAS_URL}?action=resend&ref=${encodeURIComponent(ref)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        const icon = document.getElementById('result-icon');
+        const text = document.getElementById('result-text');
+
+        if (data.success) {
+          icon.textContent = '✓';
+          text.innerHTML = `Đã gửi lại email chẩn đoán thành công đến <span class="result-email">${data.email}</span><br>Mã hồ sơ: ${data.ref} · ${data.status}`;
+          result.className = 'result success';
+        } else {
+          icon.textContent = '✕';
+          text.textContent = data.error || 'Có lỗi xảy ra khi xử lý gửi lại.';
+          result.className = 'result error';
+        }
+        result.style.display = 'flex';
+      } catch (err) {
+        const icon = document.getElementById('result-icon');
+        const text = document.getElementById('result-text');
+        icon.textContent = '✕';
+        text.textContent = err.message || 'Không thể kết nối với Apps Script Web App. Vui lòng kiểm tra lại mạng hoặc URL Apps Script.';
+        result.className = 'result error';
+        result.style.display = 'flex';
+      } finally {
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        btnLabel.textContent = 'Gửi lại';
+      }
+    }
+  </script>
+</body>
+
+</html>
