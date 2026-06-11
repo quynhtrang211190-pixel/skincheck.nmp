@@ -243,7 +243,7 @@ function handleNewProfile(body) {
 
   sendTelegramMessage(telegramMessage);
 
-  return jsonResponse({ success: true, profileId: profileId });
+  return jsonResponse({ success: true, profileId: profileId, report: report });
 }
 
 

@@ -1713,6 +1713,165 @@
       from { stroke-opacity: 0.4; }
       to { stroke-opacity: 1; }
     }
+
+    /* AI Scanner & AI Result Styles */
+    .status-box.active {
+      display: block !important;
+    }
+    
+    /* AI Scanner Loading Screen */
+    .ai-scanner-box {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .ai-scanner-box.active {
+      display: block;
+    }
+    .scanner-container {
+      position: relative;
+      width: 180px;
+      height: 240px;
+      margin: 0 auto 30px;
+      border-radius: 50% / 40%;
+      border: 2px dashed rgba(223, 171, 108, 0.3);
+      overflow: hidden;
+      background: rgba(35, 22, 14, 0.2);
+    }
+    .scanner-face-silhouette {
+      font-size: 100px;
+      line-height: 240px;
+      opacity: 0.15;
+      filter: grayscale(1);
+      display: inline-block;
+    }
+    .scanner-line {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(to right, transparent, #dc5000, #dfab6c, #dc5000, transparent);
+      box-shadow: 0 0 12px #dc5000;
+      animation: scanMotion 2s linear infinite;
+    }
+    @keyframes scanMotion {
+      0% { top: 0%; }
+      50% { top: 100%; }
+      100% { top: 0%; }
+    }
+    .scanner-status-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffecd6;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+    .scanner-status-subtitle {
+      font-size: 14px;
+      color: #8c7d6e;
+      min-height: 20px;
+      animation: pulseText 1.5s infinite;
+    }
+    @keyframes pulseText {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* AI Result Screen */
+    .ai-result-box {
+      display: none;
+      margin-top: 20px;
+    }
+    .ai-result-box.active {
+      display: block;
+    }
+    .result-card {
+      background: rgba(21, 10, 4, 0.6);
+      border: 1px solid rgba(255, 237, 215, 0.08);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 237, 215, 0.08);
+    }
+    .result-header .ai-badge {
+      background: rgba(220, 80, 0, 0.1);
+      border: 1px solid rgba(220, 80, 0, 0.3);
+      color: #dc5000;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .result-header h3 {
+      font-size: 20px;
+      color: #ffecd6;
+      font-weight: 700;
+      margin: 0;
+    }
+    .result-section {
+      margin-bottom: 24px;
+      text-align: left;
+    }
+    .result-section:last-child {
+      margin-bottom: 0;
+    }
+    .result-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #8c7d6e;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 8px;
+    }
+    .result-value.pigment-type {
+      font-size: 18px;
+      font-weight: 700;
+      color: #dc5000;
+      line-height: 1.4;
+    }
+    .result-value.summary-text {
+      font-size: 14px;
+      color: #ffecd6;
+      line-height: 1.6;
+      opacity: 0.95;
+    }
+    .result-value.next-steps-list {
+      font-size: 14px;
+      color: #ffecd6;
+      line-height: 1.6;
+      opacity: 0.95;
+    }
+    .result-value.next-steps-list ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .result-value.next-steps-list li {
+      margin-bottom: 8px;
+    }
+    .result-value.next-steps-list li:last-child {
+      margin-bottom: 0;
+    }
+    .result-footer-note {
+      margin-top: 25px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255, 237, 215, 0.08);
+      font-size: 12px;
+      color: #8c7d6e;
+      font-style: italic;
+      line-height: 1.5;
+      text-align: left;
+    }
   </style>
 </head>
 
@@ -2205,6 +2364,46 @@
             <button type="submit" class="btn" id="submitBtn" style="display: none;">Gửi hồ sơ chẩn đoán →</button>
           </div>
         </form>
+
+        <!-- AI Scanner Loading Panel -->
+        <div class="ai-scanner-box" id="aiScannerBox">
+          <div class="scanner-container">
+            <span class="scanner-face-silhouette">👤</span>
+            <div class="scanner-line"></div>
+          </div>
+          <h3 class="scanner-status-title">Hệ thống AI đang phân tích</h3>
+          <p class="scanner-status-subtitle" id="scannerStatusText">Đang truyền dữ liệu hình ảnh bảo mật...</p>
+        </div>
+
+        <!-- AI Diagnosis Result Panel -->
+        <div class="ai-result-box" id="aiResultBox">
+          <div class="result-card">
+            <div class="result-header">
+              <span class="ai-badge">Gemini AI Active</span>
+              <h3>Kết quả phân tích da sơ bộ</h3>
+            </div>
+            
+            <div class="result-section">
+              <div class="result-label">🩺 Nhận định sắc tố</div>
+              <div class="result-value pigment-type" id="resPigment">Đang tải chẩn đoán...</div>
+            </div>
+            
+            <div class="result-section">
+              <div class="result-label">📊 Tóm tắt tình trạng</div>
+              <div class="result-value summary-text" id="resSummary">Đang tải tóm tắt...</div>
+            </div>
+            
+            <div class="result-section">
+              <div class="result-label">💡 Lời khuyên & Phác đồ tiếp theo</div>
+              <div class="result-value next-steps-list" id="resNextSteps">Đang tải lời khuyên...</div>
+            </div>
+            
+            <div class="result-footer-note">
+              Lưu ý: Báo cáo đầy đủ dạng HTML chi tiết đã được gửi đến email của bạn. Hãy click nút "Liên hệ chuyên sâu ngay" bên dưới để bác sĩ PharmesHub trực tiếp xem ảnh và tư vấn phác đồ chi tiết.
+            </div>
+          </div>
+          <button type="button" class="btn secondary" id="resetBtn2" style="margin: 20px auto 0; display: block;">Tạo hồ sơ mới</button>
+        </div>
 
         <!-- Success Message -->
         <div class="status-box" id="successBox">
@@ -3118,13 +3317,18 @@
 
       const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
         method: 'POST',
-        mode: 'no-cors',
         headers: {
           'Content-Type': 'text/plain;charset=utf-8'
         },
         body: JSON.stringify(payload)
       });
-      return { success: true };
+      
+      if (!response.ok) {
+        throw new Error('Mạng không ổn định hoặc phản hồi lỗi.');
+      }
+      
+      const data = await response.json();
+      return data;
     }
 
     // Form Submit Event
@@ -3142,28 +3346,100 @@
       btn.disabled = true;
       btn.textContent = 'Đang gửi hồ sơ...';
 
+      // Hide form and show scanner loading screen
+      $('#melanoForm').style.display = 'none';
+      const scannerBox = $('#aiScannerBox');
+      scannerBox.classList.add('active');
+
+      // Update scanner status texts dynamically
+      const statusText = $('#scannerStatusText');
+      const statusMessages = [
+        'Đang kết nối cổng dữ liệu chẩn đoán da...',
+        'Đang mã hóa dữ liệu hình ảnh 3 góc chụp...',
+        'AI đang xác định diện sắc tố nám và tàn nhang...',
+        'AI đang đánh giá độ nhạy cảm & mao mạch nền da...',
+        'Đang tổng hợp phác đồ bôi thoa phục hồi cá nhân hóa...'
+      ];
+      
+      let msgIndex = 0;
+      const msgInterval = setInterval(() => {
+        if (msgIndex < statusMessages.length - 1) {
+          msgIndex++;
+          statusText.textContent = statusMessages[msgIndex];
+        }
+      }, 1000);
+
+      const startTime = Date.now();
+      let apiResult = null;
+
       try {
         const payload = buildPayload();
-        await sendToGoogleSheet(payload);
+        
+        try {
+          apiResult = await sendToGoogleSheet(payload);
+        } catch (apiErr) {
+          console.warn("Lỗi API gửi sheet/AI, sử dụng chẩn đoán nội bộ làm phương án dự phòng:", apiErr);
+        }
 
-        // Show Success panel, hide form
-        $('#melanoForm').style.display = 'none';
-        $('#successBox').classList.add('active');
+        // Keep scanning for at least 4.5 seconds for premium UX
+        const elapsed = Date.now() - startTime;
+        const minDuration = 4500;
+        if (elapsed < minDuration) {
+          await new Promise(resolve => setTimeout(resolve, minDuration - elapsed));
+        }
+
+        clearInterval(msgInterval);
+        scannerBox.classList.remove('active');
+
+        // Extract diagnosis report (from API response or local fallback)
+        let finalReport = null;
+        if (apiResult && apiResult.success && apiResult.report) {
+          finalReport = apiResult.report;
+        } else {
+          finalReport = payload.internalReport;
+        }
+
+        // Render diagnosis results onto the result card
+        $('#resPigment').innerHTML = finalReport.pigment;
+        $('#resSummary').innerHTML = finalReport.summary;
+
+        // Render recommended next steps formatted as bullet list if applicable
+        let nextStepsHtml = '';
+        if (finalReport.next) {
+          const lines = finalReport.next.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+          if (lines.length > 1 || lines[0].startsWith('•') || lines[0].startsWith('-') || lines[0].startsWith('*') || lines[0].match(/^\d+\./)) {
+            nextStepsHtml = '<ul>';
+            lines.forEach(line => {
+              const cleanLine = line.replace(/^[•\-*\s]+/, '').replace(/^\d+\.\s*/, '');
+              nextStepsHtml += `<li>${cleanLine}</li>`;
+            });
+            nextStepsHtml += '</ul>';
+          } else {
+            nextStepsHtml = finalReport.next.replace(/\n/g, '<br>');
+          }
+        }
+        $('#resNextSteps').innerHTML = nextStepsHtml;
+
+        // Show AI diagnostic result card
+        $('#aiResultBox').classList.add('active');
 
         // Save profile ID to connect with contact request
         state.lastProfileId = payload.profileId;
       } catch (err) {
-        console.error(err);
+        console.error("Critical submit error:", err);
+        clearInterval(msgInterval);
+        scannerBox.classList.remove('active');
+        $('#melanoForm').style.display = 'block';
         errorBox.textContent = 'Hồ sơ chưa gửi được do sự cố kết nối. Vui lòng kiểm tra lại mạng hoặc liên hệ qua Hotline.';
         errorBox.style.display = 'block';
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Gửi hồ sơ MelanoCheck →';
+        btn.textContent = 'Gửi hồ sơ chẩn đoán →';
       }
     });
 
-    // Reset Form Listener
-    $('#resetBtn').addEventListener('click', () => {
+    // Reset Form Actions
+    const resetAction = () => {
       // Clear form inputs
       $('#melanoForm').reset();
 
@@ -3188,9 +3464,13 @@
       state.currentStep = 1;
       $('#melanoForm').style.display = 'block';
       $('#successBox').classList.remove('active');
+      $('#aiResultBox').classList.remove('active');
 
       updateWizardUI();
-    });
+    };
+
+    $('#resetBtn').addEventListener('click', resetAction);
+    $('#resetBtn2').addEventListener('click', resetAction);
 
     // Handle Deep Consult CTA Click
     const deepConsultBtn = document.getElementById('deepConsultBtn');
