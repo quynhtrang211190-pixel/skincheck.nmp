@@ -1701,7 +1701,7 @@
     }
     
     .guideline-error {
-      stroke: #dc5000 !important;
+      stroke: var(--sienna) !important;
       stroke-width: 1.5px !important;
       animation: pulseError 0.8s infinite alternate;
       filter: drop-shadow(0px 0px 3px rgba(var(--sienna-rgb), 0.6));
@@ -1808,7 +1808,7 @@
     .result-header .ai-badge {
       background: rgba(var(--sienna-rgb), 0.1);
       border: 1px solid rgba(var(--sienna-rgb), 0.3);
-      color: #dc5000;
+      color: var(--sienna);
       padding: 4px 10px;
       border-radius: 20px;
       font-size: 11px;
@@ -1840,7 +1840,7 @@
     .result-value.pigment-type {
       font-size: 18px;
       font-weight: 700;
-      color: #dc5000;
+      color: var(--sienna);
       line-height: 1.4;
     }
     .result-value.summary-text {
@@ -2907,10 +2907,10 @@
             
             if (!isFaceAligned) {
               feedback.textContent = '⚠️ HÃY ĐƯA MẶT VÀO KHUNG';
-              feedback.style.color = '#dc5000';
+              feedback.style.color = 'var(--sienna)';
             } else if (avg < 60) {
               feedback.textContent = '⚠️ ÁNH SÁNG TỐI';
-              feedback.style.color = '#dc5000';
+              feedback.style.color = 'var(--sienna)';
             } else {
               feedback.textContent = '⚠️ ÁNH SÁNG QUÁ CHÓI';
               feedback.style.color = '#dfab6c';
@@ -3240,8 +3240,8 @@
 
       const html = `
         <div style="font-family:Arial,sans-serif;color:#333;line-height:1.6;max-width:600px;margin:0 auto;padding:20px;border:1px solid #eaeaea;border-radius:12px;">
-          <h2 style="color:#dc5000;border-bottom:2px solid #dc5000;padding-bottom:10px;">BÁO CÁO PHÂN TÍCH MELANOCHECK</h2>
-          <p><b>Mã hồ sơ:</b> <span style="font-family:monospace;font-size:16px;color:#dc5000;font-weight:bold;">${payload.profileId}</span></p>
+          <h2 style="color:var(--sienna);border-bottom:2px solid var(--sienna);padding-bottom:10px;">BÁO CÁO PHÂN TÍCH MELANOCHECK</h2>
+          <p><b>Mã hồ sơ:</b> <span style="font-family:monospace;font-size:16px;color:var(--sienna);font-weight:bold;">${payload.profileId}</span></p>
           <p><b>Khách hàng:</b> ${payload.customer.name} (${payload.customer.birthYear})</p>
           <p><b>Địa chỉ:</b> ${payload.customer.city} | <b>Nghề nghiệp:</b> ${payload.customer.job}</p>
           
@@ -3260,7 +3260,7 @@
             </tr>
             <tr>
               <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Lời khuyên ban đầu</td>
-              <td style="padding:10px;border:1px solid #eee;font-size:14px;color:#dc5000;font-weight:bold;">${next}</td>
+              <td style="padding:10px;border:1px solid #eee;font-size:14px;color:var(--sienna);font-weight:bold;">${next}</td>
             </tr>
           </table>
           <p style="font-size:12px;color:#777;border-top:1px solid #eee;padding-top:10px;margin-top:20px;font-style:italic;">Báo cáo chẩn đoán mang tính chất định hướng ban đầu, không thay thế cho thăm khám da liễu chuyên khoa trực tiếp.</p>
