@@ -192,13 +192,13 @@ function handleNewProfile(body) {
   // Thiết lập công thức hiển thị ảnh thu nhỏ có thể click mở xem ảnh gốc
   const lastRow = sheet.getLastRow();
   if (frontImg.viewUrl && frontImg.directUrl) {
-    sheet.getRange(lastRow, COLS.IMG_FRONT).setFormulaLocal('=HYPERLINK("' + frontImg.viewUrl + '"; IMAGE("' + frontImg.directUrl + '"))');
+    sheet.getRange(lastRow, COLS.IMG_FRONT).setFormula('=HYPERLINK("' + frontImg.viewUrl + '", IMAGE("' + frontImg.directUrl + '"))');
   }
   if (leftImg.viewUrl && leftImg.directUrl) {
-    sheet.getRange(lastRow, COLS.IMG_LEFT).setFormulaLocal('=HYPERLINK("' + leftImg.viewUrl + '"; IMAGE("' + leftImg.directUrl + '"))');
+    sheet.getRange(lastRow, COLS.IMG_LEFT).setFormula('=HYPERLINK("' + leftImg.viewUrl + '", IMAGE("' + leftImg.directUrl + '"))');
   }
   if (rightImg.viewUrl && rightImg.directUrl) {
-    sheet.getRange(lastRow, COLS.IMG_RIGHT).setFormulaLocal('=HYPERLINK("' + rightImg.viewUrl + '"; IMAGE("' + rightImg.directUrl + '"))');
+    sheet.getRange(lastRow, COLS.IMG_RIGHT).setFormula('=HYPERLINK("' + rightImg.viewUrl + '", IMAGE("' + rightImg.directUrl + '"))');
   }
 
   // Căn chỉnh ảnh và nâng chiều cao dòng lên 80px để hiển thị ảnh rõ nét
