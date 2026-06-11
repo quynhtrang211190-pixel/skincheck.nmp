@@ -3451,8 +3451,8 @@
         $('#resSummary').innerHTML = formatReportText(finalReport.summary);
         $('#resNextSteps').innerHTML = formatReportText(finalReport.next);
 
-        // Show AI diagnostic result card
-        $('#aiResultBox').classList.add('active');
+        // Show Success Message (instead of showing results on page)
+        $('#successBox').classList.add('active');
 
         // Save profile ID to connect with contact request
         state.lastProfileId = payload.profileId;
