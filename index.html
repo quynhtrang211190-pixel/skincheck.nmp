@@ -2510,10 +2510,7 @@
               <div class="result-value next-steps-list" id="resNextSteps">Đang tải lời khuyên...</div>
             </div>
 
-            <div class="result-section" style="margin-top: 24px; padding-top: 20px; border-top: 1px dashed rgba(255, 237, 215, 0.15);">
-              <div class="result-label" style="color: var(--gold); font-weight: 800; font-size: 13px; letter-spacing: 1.5px; margin-bottom: 8px;">🏥 Liệu trình PharmesHub đề xuất</div>
-              <div class="result-value next-steps-list" id="resTreatment">Đang phân tích liệu trình phù hợp...</div>
-            </div>
+
             
             <div class="result-footer-note">
               Lưu ý: Báo cáo đầy đủ dạng HTML chi tiết đã được gửi đến email của bạn. Hãy click nút "Liên hệ chuyên sâu ngay" bên dưới để bác sĩ PharmesHub trực tiếp xem ảnh và tư vấn phác đồ chi tiết.
@@ -3518,14 +3515,14 @@
             const variance = skinPixels.reduce((sum, p) => sum + Math.pow(p.lum - avgLum, 2), 0) / skinCount;
             const stdDevLum = Math.sqrt(variance);
             
-            // 3. SPOTS (Epidermal Pigmentation contrast search)
+            // 3. SPOTS (Epidermal Pigmentation contrast search - stricter threshold to avoid shadows)
             let spotCount = 0;
             skinPixels.forEach(p => {
-              if (p.lum < avgLum * 0.86) {
+              if (p.lum < avgLum * 0.72) {
                 spotCount++;
               }
             });
-            const spotsScore = Math.min(100, Math.round((spotCount / skinCount) * 100 * 2.8));
+            const spotsScore = Math.min(100, Math.round((spotCount / skinCount) * 100 * 2.0));
             
             // 4. UV MELANIN (Independent Melanin index using log scale)
             let totalMelaninIdx = 0;
@@ -3537,11 +3534,11 @@
             const avgMelanin = totalMelaninIdx / skinCount;
             let uvMelaninCount = 0;
             mIndices.forEach(m => {
-              if (m > avgMelanin * 1.12) {
+              if (m > avgMelanin * 1.25) {
                 uvMelaninCount++;
               }
             });
-            const uvMelaninScore = Math.min(100, Math.round((uvMelaninCount / skinCount) * 100 * 2.4));
+            const uvMelaninScore = Math.min(100, Math.round((uvMelaninCount / skinCount) * 100 * 1.8));
             
             // 5. TEXTURE (Spatial derivative / High frequency roughness detection)
             let edgeSum = 0;
@@ -3561,7 +3558,7 @@
               }
             });
             const avgGrad = edgeCount > 0 ? edgeSum / edgeCount : 2.0;
-            const textureScore = Math.min(100, Math.max(0, Math.round((avgGrad - 1.8) * 15)));
+            const textureScore = Math.min(100, Math.max(0, Math.round((avgGrad - 2.5) * 8)));
             
             // 6. PORES (Local minima dark indentations)
             let poreCount = 0;
@@ -3574,12 +3571,12 @@
               const validNeighbors = neighbors.filter(v => v !== undefined);
               if (validNeighbors.length >= 5) {
                 const avgNeighborLum = validNeighbors.reduce((sum, v) => sum + v, 0) / validNeighbors.length;
-                if (p.lum < avgNeighborLum * 0.92) {
+                if (p.lum < avgNeighborLum * 0.85) {
                   poreCount++;
                 }
               }
             });
-            const poresScore = Math.min(100, Math.round((poreCount / skinCount) * 100 * 4.0));
+            const poresScore = Math.min(100, Math.round((poreCount / skinCount) * 100 * 2.5));
             
             resolve({
               redness: rednessRatio,
@@ -3703,14 +3700,23 @@
       }
 
       // Fusion logic: 70% sensor calculation + 30% survey baseline
-      // This ensures scientific sensor validation while preventing extreme contradictions with survey answers
+      // Trust the sensor more if the skin is visually very clear (calcSpots < 15) to prevent false positives
       const calcSpots = imageMetrics.spots !== undefined ? imageMetrics.spots : baseSpots;
       const calcUVPigment = imageMetrics.uvPigment !== undefined ? imageMetrics.uvPigment : baseUVPigment;
       const calcTexture = imageMetrics.texture !== undefined ? imageMetrics.texture : baseTexture;
       const calcPores = imageMetrics.pores !== undefined ? imageMetrics.pores : basePores;
 
-      imageMetrics.spots = Math.round(calcSpots * 0.7 + baseSpots * 0.3);
-      imageMetrics.uvPigment = Math.round(calcUVPigment * 0.7 + baseUVPigment * 0.3);
+      let spotsWeight = 0.7;
+      let uvWeight = 0.7;
+      if (calcSpots < 15) {
+        spotsWeight = 0.95; // 95% camera, 5% survey baseline (override false positive)
+      }
+      if (calcUVPigment < 20) {
+        uvWeight = 0.90;
+      }
+
+      imageMetrics.spots = Math.round(calcSpots * spotsWeight + baseSpots * (1 - spotsWeight));
+      imageMetrics.uvPigment = Math.round(calcUVPigment * uvWeight + baseUVPigment * (1 - uvWeight));
       imageMetrics.texture = Math.round(calcTexture * 0.7 + baseTexture * 0.3);
       imageMetrics.pores = Math.round(calcPores * 0.7 + basePores * 0.3);
 
@@ -3733,7 +3739,7 @@
       let treatment = '';
       
       // Visia-style diagnostic status definitions
-      const rednessStatus = imageMetrics.redness > 1.25 ? '🔴 CAO (Mao mạch yếu, dễ đỏ rát)' : (imageMetrics.redness > 1.15 ? '🟡 TRUNG BÌNH (Da mỏng yếu, hơi nhạy cảm)' : '🟢 TỐT (Nền da khỏe mạnh, ổn định)');
+      const rednessStatus = imageMetrics.redness > 1.28 ? '🔴 CAO (Mao mạch yếu, dễ đỏ rát)' : (imageMetrics.redness > 1.16 ? '🟡 TRUNG BÌNH (Da mỏng yếu, hơi nhạy cảm)' : '🟢 TỐT (Nền da khỏe mạnh, ổn định)');
       const spotsStatus = imageMetrics.spots > 55 ? '🔴 CAO (Mảng sắc tố đậm và rộng)' : (imageMetrics.spots > 30 ? '🟡 TRUNG BÌNH (Sắc tố loang lổ nhẹ)' : '🟢 THẤP (Không đáng kể, da khá đều màu)');
       const uvStatus = imageMetrics.uvPigment > 60 ? '🔴 MẬT ĐỘ CAO (Hắc tố tích tụ sâu trung bì)' : (imageMetrics.uvPigment > 35 ? '🟡 TRUNG BÌNH (Có chân sắc tố ẩn dưới da)' : '🟢 THẤP (Không phát hiện sắc tố sâu)');
       const textureStatus = imageMetrics.texture > 50 ? '🔴 SẦN SÙI (Thô ráp, thiếu ẩm & sừng hóa)' : (imageMetrics.texture > 25 ? '🟡 TRUNG BÌNH (Hơi kém mịn màng nhẹ)' : '🟢 MỊN MÀNG (Cấu trúc da săn chắc, căng bóng)');
@@ -3742,15 +3748,15 @@
       const baseAnalysis = 
         `**📊 BÁO CÁO PHÂN TÍCH NỀN DA CHUYÊN SÂU (VISIA-STYLE ANALYSIS):**
 ` +
-        `- **🔴 Chỉ số Mao mạch / Đỏ da (Redness)**: **${imageMetrics.redness.toFixed(2)}** $\rightarrow$ ${rednessStatus}
+        `- **🔴 Chỉ số Mao mạch / Đỏ da (Redness)**: **${imageMetrics.redness.toFixed(2)}** &rarr; ${rednessStatus}
 ` +
-        `- **🟤 Chỉ số Đốm sắc tố biểu bì (Spots)**: **${imageMetrics.spots.toFixed(0)}%** $\rightarrow$ ${spotsStatus}
+        `- **🟤 Chỉ số Đốm sắc tố biểu bì (Spots)**: **${imageMetrics.spots.toFixed(0)}%** &rarr; ${spotsStatus}
 ` +
-        `- **🟣 Chỉ số Sắc tố sâu UV (UV Melanin)**: **${imageMetrics.uvPigment.toFixed(0)}%** $\rightarrow$ ${uvStatus}
+        `- **🟣 Chỉ số Sắc tố sâu UV (UV Melanin)**: **${imageMetrics.uvPigment.toFixed(0)}%** &rarr; ${uvStatus}
 ` +
-        `- **🟢 Chỉ số Kết cấu / Độ mịn (Texture)**: **${imageMetrics.texture.toFixed(0)}%** $\rightarrow$ ${textureStatus}
+        `- **🟢 Chỉ số Kết cấu / Độ mịn (Texture)**: **${imageMetrics.texture.toFixed(0)}%** &rarr; ${textureStatus}
 ` +
-        `- **⚫ Chỉ số Lỗ chân lông (Pores)**: **${imageMetrics.pores.toFixed(0)}%** $\rightarrow$ ${poresStatus}
+        `- **⚫ Chỉ số Lỗ chân lông (Pores)**: **${imageMetrics.pores.toFixed(0)}%** &rarr; ${poresStatus}
 
 `;
 
@@ -4092,12 +4098,10 @@
         // Render diagnosis results onto the result card
         $('#resPigment').innerHTML = finalReport.pigment;
         $('#resSummary').innerHTML = formatReportText(finalReport.summary);
-        $('#resNextSteps').innerHTML = formatReportText(finalReport.next);
         
-        // Render suggested treatment
-        if ($('#resTreatment')) {
-          $('#resTreatment').innerHTML = formatReportText(finalReport.treatment || 'Cần chuyên gia trực tiếp xem ảnh chụp để chỉ định liệu trình phù hợp.');
-        }
+        // Merge next steps (Homecare) and treatment (Clinic) to display together without duplication
+        const mergedNext = finalReport.treatment ? (finalReport.next + '\n\n' + finalReport.treatment) : finalReport.next;
+        $('#resNextSteps').innerHTML = formatReportText(mergedNext);
 
         // Show AI diagnostic result card directly (with success banner inside)
         $('#aiResultBox').classList.add('active');
