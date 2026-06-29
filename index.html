@@ -3578,6 +3578,21 @@
         imageMetrics = { redness: 1.18, unevenness: 4.8, spots: 18.0, uvPigment: 22.0, texture: 15.0, pores: 12.0, averageLuminance: 120, hasImages: false };
       }
       
+      // Ensure Visia metrics are always calculated safely to prevent UI crash
+      if (imageMetrics.spots === undefined) {
+        imageMetrics.spots = Math.min(100, Math.max(0, (imageMetrics.unevenness || 4.8) * 6.0));
+      }
+      if (imageMetrics.uvPigment === undefined) {
+        const hasLongDuration = (payload.pigmentation.pattern || '').includes('hỗn hợp') || (payload.pigmentation.pattern || '').includes('Đốm');
+        imageMetrics.uvPigment = Math.min(100, Math.max(0, (imageMetrics.unevenness || 4.8) * 5.0 + (hasLongDuration ? 20 : 5)));
+      }
+      if (imageMetrics.texture === undefined) {
+        imageMetrics.texture = Math.min(100, Math.max(0, ((imageMetrics.unevenness || 4.8) * 3.5) + ((imageMetrics.redness || 1.18) * 8)));
+      }
+      if (imageMetrics.pores === undefined) {
+        imageMetrics.pores = Math.min(100, Math.max(0, ((imageMetrics.unevenness || 4.8) * 2.5) + ((imageMetrics.redness || 1.18) * 5)));
+      }
+      
       const pattern = payload.pigmentation.pattern || '';
       const rapidWhitening = payload.history.rapidWhitening || '';
       const hormone = payload.pigmentation.hormoneUsage || '';
