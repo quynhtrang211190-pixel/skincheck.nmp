@@ -22,7 +22,7 @@ Deploy:
 
 - CLI ở `~/.npm-global/bin/vercel` (v53+), đã login sẵn account `khaikhoinghiep-4133`
 - Project đã linked (`.vercel/project.json`), không cần cấu hình thêm
-- Production domain: `https://30.contentdna.studio`
+- Production domain: `https://melanocheck-u544.vercel.app` (hoặc `https://30.contentdna.studio`)
 
 ## Webhook SePay
 

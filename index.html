@@ -2501,6 +2501,11 @@
             </div>
             
             <div class="result-section">
+              <div class="result-label">🛡️ Nhận định nền da</div>
+              <div class="result-value skin-status" id="resSkinStatus">Đang tải nhận định nền da...</div>
+            </div>
+            
+            <div class="result-section">
               <div class="result-label">📊 Tóm tắt tình trạng</div>
               <div class="result-value summary-text" id="resSummary">Đang tải tóm tắt...</div>
             </div>
@@ -3748,8 +3753,32 @@
       const rednessStatus = imageMetrics.redness > 1.28 ? '🔴 CAO (Mao mạch yếu, dễ đỏ rát)' : (imageMetrics.redness > 1.16 ? '🟡 TRUNG BÌNH (Da mỏng yếu, hơi nhạy cảm)' : '🟢 TỐT (Nền da khỏe mạnh, ổn định)');
       const spotsStatus = imageMetrics.spots > 55 ? '🔴 CAO (Mảng sắc tố đậm và rộng)' : (imageMetrics.spots > 30 ? '🟡 TRUNG BÌNH (Sắc tố loang lổ nhẹ)' : '🟢 THẤP (Không đáng kể, da khá đều màu)');
       const uvStatus = imageMetrics.uvPigment > 60 ? '🔴 MẬT ĐỘ CAO (Hắc tố tích tụ sâu trung bì)' : (imageMetrics.uvPigment > 35 ? '🟡 TRUNG BÌNH (Có chân sắc tố ẩn dưới da)' : '🟢 THẤP (Không phát hiện sắc tố sâu)');
-      const textureStatus = imageMetrics.texture > 50 ? '🔴 SẦN SÙI (Thô ráp, thiếu ẩm & sừng hóa)' : (imageMetrics.texture > 25 ? '🟡 TRUNG BÌNH (Hơi kém mịn màng nhẹ)' : '🟢 MỊN MÀNG (Cấu trúc da săn chắc, căng bóng)');
+      // Sửa lại chỉ số độ mịn da: Đảo ngược thang thô ráp sang độ mịn (Smoothness = 100 - texture)
+      const smoothnessScore = 100 - imageMetrics.texture;
+      const textureStatus = smoothnessScore >= 75 ? '🟢 MỊN MÀNG (Cấu trúc da săn chắc, căng bóng)' : (smoothnessScore >= 50 ? '🟡 TRUNG BÌNH (Hơi kém mịn màng nhẹ)' : '🔴 SẦN SÙI (Thô ráp, thiếu ẩm & sừng hóa)');
       const poresStatus = imageMetrics.pores > 45 ? '🔴 GIÃN NỞ (Lỗ chân lông mở rộng)' : (imageMetrics.pores > 25 ? '🟡 TRUNG BÌNH (Giãn nhẹ vùng chữ T)' : '🟢 SE KHÍT (Lỗ chân lông nhỏ mịn)');
+
+      // Tầng 1: Hàng rào bảo vệ (lâm sàng qua khảo sát)
+      let barrierLevel = '';
+      if (symptoms.includes('mỏng yếu') || symptoms.includes('CÓ CẢM GIÁC MỎNG YẾU, THẤY MẠCH MÁU') || symptoms.includes('đỏ rát') || symptoms.includes('châm chích')) {
+        barrierLevel = 'Hàng rào bảo vệ mỏng yếu, dễ kích ứng';
+      } else if (symptoms.includes('Khô ráp') || symptoms.includes('Khô ráp, căng chặt') || symptoms.includes('KHÔ RÁP, CĂNG CHẶT HOẶC DỄ BONG TRÓC') || symptoms.includes('dễ bong tróc') || symptoms.includes('Dễ bong tróc')) {
+        barrierLevel = 'Mất nước bề mặt, thô ráp lớp sừng';
+      } else {
+        barrierLevel = 'Hàng rào bảo vệ ổn định, khỏe mạnh';
+      }
+
+      // Tầng 2: Hệ mao mạch & độ nhạy cảm (phân tích ảnh)
+      let rednessLevel = '';
+      if (imageMetrics.redness > 1.28) {
+        rednessLevel = 'Hệ mao mạch giãn, nguy cơ đỏ rát cao';
+      } else if (imageMetrics.redness > 1.16) {
+        rednessLevel = 'Nền da hơi nhạy cảm, dễ đỏ rát nhẹ';
+      } else {
+        rednessLevel = 'Hệ mạch máu và mao mạch ổn định';
+      }
+
+      const skinStatus = `• **Tầng 1 (Hàng rào bảo vệ)**: ${barrierLevel}\n• **Tầng 2 (Độ nhạy cảm mao mạch)**: ${rednessLevel}`;
 
       const baseAnalysis = 
         `**📊 BÁO CÁO PHÂN TÍCH NỀN DA CHUYÊN SÂU (VISIA-STYLE ANALYSIS):**
@@ -3760,7 +3789,7 @@
 ` +
         `- **🟣 Chỉ số Sắc tố sâu UV (UV Melanin)**: **${imageMetrics.uvPigment.toFixed(0)}%** &rarr; ${uvStatus}
 ` +
-        `- **🟢 Chỉ số Kết cấu / Độ mịn (Texture)**: **${imageMetrics.texture.toFixed(0)}%** &rarr; ${textureStatus}
+        `- **🟢 Chỉ số Kết cấu / Độ mịn (Texture)**: **${smoothnessScore.toFixed(0)}%** &rarr; ${textureStatus}
 ` +
         `- **⚫ Chỉ số Lỗ chân lông (Pores)**: **${imageMetrics.pores.toFixed(0)}%** &rarr; ${poresStatus}
 
@@ -3953,18 +3982,22 @@
               <td style="padding:10px;border:1px solid #eee;color:#a03600;font-weight:bold;">${pigment}</td>
             </tr>
             <tr>
+              <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Nhận định nền da</td>
+              <td style="padding:10px;border:1px solid #eee;font-size:14px;color:#0b1730;line-height:1.5;">${formatReportText(skinStatus)}</td>
+            </tr>
+            <tr style="background:#f9f9f9;">
               <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Tóm tắt tình trạng</td>
               <td style="padding:10px;border:1px solid #eee;font-size:14px;">${formatReportText(summary)}</td>
             </tr>
-            <tr style="background:#f9f9f9;">
+            <tr>
               <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Sản phẩm đã dùng</td>
               <td style="padding:10px;border:1px solid #eee;font-size:14px;font-style:italic;"> ${payload.history.products}</td>
             </tr>
-            <tr>
+            <tr style="background:#f9f9f9;">
               <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Lời khuyên ban đầu</td>
               <td style="padding:10px;border:1px solid #eee;font-size:14px;"> ${formatReportText(next)}</td>
             </tr>
-            <tr style="background:#f9f9f9;">
+            <tr>
               <td style="padding:10px;border:1px solid #eee;font-weight:bold;color:#CBA45A;">Liệu trình đề xuất</td>
               <td style="padding:10px;border:1px solid #eee;font-size:14px;color:#CBA45A;font-weight:bold;">${formatReportText(treatment)}</td>
             </tr>
@@ -3973,7 +4006,7 @@
         </div>
       `;
 
-      return { pigment, summary, next, treatment, html };
+      return { pigment, skinStatus, summary, next, treatment, html };
     }
 
     function buildPayload() {
@@ -4142,9 +4175,18 @@
         if (finalReport.treatment) {
           finalReport.treatment = cleanText(finalReport.treatment);
         }
+        if (finalReport.skinStatus) {
+          finalReport.skinStatus = cleanText(finalReport.skinStatus);
+        }
 
         // Render diagnosis results onto the result card
         $('#resPigment').innerHTML = finalReport.pigment;
+        
+        const finalSkinStatus = finalReport.skinStatus || payload.internalReport.skinStatus;
+        if ($('#resSkinStatus')) {
+          $('#resSkinStatus').innerHTML = formatReportText(finalSkinStatus);
+        }
+
         $('#resSummary').innerHTML = formatReportText(finalReport.summary);
         
         // Merge next steps (Homecare) and treatment (Clinic) to display together without duplication
