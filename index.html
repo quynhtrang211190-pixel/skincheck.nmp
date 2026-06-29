@@ -3677,13 +3677,15 @@
 
         const payload = buildPayload();
         
-        // Tương thích ngược: Gộp Liệu trình đề xuất vào trường 'next' để lưu trên Sheets/Email/Telegram
-        if (payload.internalReport && payload.internalReport.treatment) {
-          payload.internalReport.next = payload.internalReport.next + '\n\n' + payload.internalReport.treatment;
+        // Tương thích ngược: Chỉ gộp Liệu trình đề xuất vào trường 'next' khi gửi sang Sheets/Email/Telegram
+        // để lưu trữ đầy đủ, còn giao diện UI vẫn tách rời độc lập để tránh bị lặp lại.
+        const sheetsPayload = JSON.parse(JSON.stringify(payload));
+        if (sheetsPayload.internalReport && sheetsPayload.internalReport.treatment) {
+          sheetsPayload.internalReport.next = sheetsPayload.internalReport.next + '\n\n' + sheetsPayload.internalReport.treatment;
         }
         
         try {
-          apiResult = await sendToGoogleSheet(payload);
+          apiResult = await sendToGoogleSheet(sheetsPayload);
         } catch (apiErr) {
           console.warn("Lỗi API gửi sheet/AI, sử dụng chẩn đoán nội bộ làm phương án dự phòng:", apiErr);
         }
