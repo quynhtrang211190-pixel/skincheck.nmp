@@ -4123,6 +4123,26 @@
           finalReport = payload.internalReport;
         }
 
+        // Clean up any remaining LaTeX or mangled arrows ($rightarrow$, $\rightarrow$, $ ightarrow$)
+        const cleanText = (text) => {
+          if (!text) return '';
+          return text
+            .replace(/\$ ightarrow\$/g, '→')
+            .replace(/\$\\rightarrow\$/g, '→')
+            .replace(/\\rightarrow/g, '→')
+            .replace(/\$ ightarrow/g, '→')
+            .replace(/ightarrow/g, '→')
+            .replace(/\$arrow\$/g, '→')
+            .replace(/\$/g, ''); // strip any remaining $ formatting
+        };
+
+        finalReport.pigment = cleanText(finalReport.pigment);
+        finalReport.summary = cleanText(finalReport.summary);
+        finalReport.next = cleanText(finalReport.next);
+        if (finalReport.treatment) {
+          finalReport.treatment = cleanText(finalReport.treatment);
+        }
+
         // Render diagnosis results onto the result card
         $('#resPigment').innerHTML = finalReport.pigment;
         $('#resSummary').innerHTML = formatReportText(finalReport.summary);
