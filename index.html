@@ -3578,21 +3578,6 @@
         imageMetrics = { redness: 1.18, unevenness: 4.8, spots: 18.0, uvPigment: 22.0, texture: 15.0, pores: 12.0, averageLuminance: 120, hasImages: false };
       }
       
-      // Ensure Visia metrics are always calculated safely to prevent UI crash
-      if (imageMetrics.spots === undefined) {
-        imageMetrics.spots = Math.min(100, Math.max(0, (imageMetrics.unevenness || 4.8) * 6.0));
-      }
-      if (imageMetrics.uvPigment === undefined) {
-        const hasLongDuration = (payload.pigmentation.pattern || '').includes('hỗn hợp') || (payload.pigmentation.pattern || '').includes('Đốm');
-        imageMetrics.uvPigment = Math.min(100, Math.max(0, (imageMetrics.unevenness || 4.8) * 5.0 + (hasLongDuration ? 20 : 5)));
-      }
-      if (imageMetrics.texture === undefined) {
-        imageMetrics.texture = Math.min(100, Math.max(0, ((imageMetrics.unevenness || 4.8) * 3.5) + ((imageMetrics.redness || 1.18) * 8)));
-      }
-      if (imageMetrics.pores === undefined) {
-        imageMetrics.pores = Math.min(100, Math.max(0, ((imageMetrics.unevenness || 4.8) * 2.5) + ((imageMetrics.redness || 1.18) * 5)));
-      }
-      
       const pattern = payload.pigmentation.pattern || '';
       const rapidWhitening = payload.history.rapidWhitening || '';
       const hormone = payload.pigmentation.hormoneUsage || '';
@@ -3601,17 +3586,68 @@
       const treatments = payload.history.treatments || [];
       const context = payload.personalContext.factors || [];
 
+      // Determine baseline values based on checked answers and selected patterns
+      let baseSpots = 15;
+      let baseUVPigment = 20;
+      let baseTexture = 20;
+      let basePores = 20;
+
+      if (pattern.includes('mảng') || pattern.includes('Hỗn hợp') || pattern.includes('Vừa') || pattern.includes('hỗn hợp')) {
+        baseSpots = 45;
+      } else if (pattern.includes('Đốm') || pattern.includes('tàn nhang')) {
+        baseSpots = 35;
+      } else if (pattern.includes('Không') || pattern.includes('chưa')) {
+        baseSpots = 10;
+      }
+
+      if (pattern.includes('Đốm') || pattern.includes('chân sâu') || pattern.includes('Hỗn hợp') || pattern.includes('Vừa') || pattern.includes('hỗn hợp')) {
+        baseUVPigment = 50;
+      } else if (pattern.includes('mảng')) {
+        baseUVPigment = 30;
+      } else if (pattern.includes('Không') || pattern.includes('chưa')) {
+        baseUVPigment = 15;
+      }
+
+      if (symptoms.includes('Khô ráp') || symptoms.includes('Khô ráp, căng chặt') || symptoms.includes('Dễ bong tróc') || symptoms.includes('dễ bong tróc') || symptoms.includes('KHÔ RÁP, CĂNG CHẶT HOẶC DỄ BONG TRÓC')) {
+        baseTexture = 45;
+      }
+
+      const hasLargePores = symptoms.includes('Lỗ chân lông to') || symptoms.includes('Lỗ chân lông to, nhiều dầu');
+      if (hasLargePores) {
+        basePores = 55;
+      }
+
+      const rawUnevenness = imageMetrics.unevenness || 4.8;
+      const deviation = rawUnevenness - 12;
+
+      // Brightness bonus (higher brightness means fair, reflective, smooth skin)
+      const brightBonus = Math.max(0, (imageMetrics.averageLuminance || 120) - 120) * 0.4;
+
+      // Dynamic calculation of Visia metrics
+      imageMetrics.spots = Math.min((pattern.includes('mảng') || pattern.includes('Hỗn hợp') || pattern.includes('Vừa') || pattern.includes('hỗn hợp')) ? 95 : 60,
+                                    Math.max(5, baseSpots + deviation * 1.0 - brightBonus));
+
+      imageMetrics.uvPigment = Math.min((pattern.includes('Đốm') || pattern.includes('Hỗn hợp') || pattern.includes('Vừa') || pattern.includes('hỗn hợp')) ? 95 : 65,
+                                       Math.max(8, baseUVPigment + deviation * 0.8 - brightBonus * 0.5));
+
+      imageMetrics.texture = Math.min((symptoms.includes('Khô ráp') || symptoms.includes('Khô ráp, căng chặt') || symptoms.includes('Dễ bong tróc') || symptoms.includes('dễ bong tróc') || symptoms.includes('KHÔ RÁP, CĂNG CHẶT HOẶC DỄ BONG TRÓC')) ? 85 : 55,
+                                      Math.max(5, baseTexture + deviation * 0.6 - brightBonus));
+
+      imageMetrics.pores = Math.min(hasLargePores ? 85 : 45,
+                                    Math.max(6, basePores + deviation * 0.5));
+
       // Phân tích biểu hiện nhiễm độc Corticoid hoặc tổn thương hàng rào lipid nặng
       const hasCorticoidRisk = 
         rapidWhitening.includes('trắng rất nhanh') || 
         symptoms.includes('sạm lại khi ngưng sản phẩm') ||
-        (treatments.includes('kem nám online') && (symptoms.includes('mỏng yếu') || symptoms.includes('đỏ rát') || symptoms.includes('châm chích')));
+        symptoms.includes('da sạm đen sẫm lại ngay khi dừng bôi kem') ||
+        (treatments.includes('kem nám online') && (symptoms.includes('mỏng yếu') || symptoms.includes('đỏ rát') || symptoms.includes('châm chích') || symptoms.includes('CÓ CẢM GIÁC MỎNG YẾU, THẤY MẠCH MÁU')));
         
       // Phân tích nguy cơ tăng sắc tố sau viêm (PIH) hoặc tổn thương laser/peel
       const hasPIHRisk = 
         pattern.includes('Thâm/sạm sau mụn') || 
         ((treatments.includes('laser') || treatments.includes('peel') || treatments.includes('chấm nám')) && 
-         (symptoms.includes('đỏ rát') || symptoms.includes('mỏng yếu') || imageMetrics.redness > 1.28));
+         (symptoms.includes('đỏ rát') || symptoms.includes('mỏng yếu') || symptoms.includes('CÓ CẢM GIÁC MỎNG YẾU, THẤY MẠCH MÁU') || imageMetrics.redness > 1.28));
 
       let pigment = '';
       let summary = '';
@@ -3619,10 +3655,10 @@
       let treatment = '';
       
       // Visia-style diagnostic status definitions
-      const rednessStatus = imageMetrics.redness > 1.30 ? '🔴 RẤT CAO (Mao mạch yếu, viêm đỏ)' : (imageMetrics.redness > 1.22 ? '🟡 TRUNG BÌNH (Da mỏng yếu, dễ kích ứng)' : '🟢 TỐT (Nền da khỏe mạnh, ổn định)');
+      const rednessStatus = imageMetrics.redness > 1.25 ? '🔴 CAO (Mao mạch yếu, dễ đỏ rát)' : (imageMetrics.redness > 1.15 ? '🟡 TRUNG BÌNH (Da mỏng yếu, hơi nhạy cảm)' : '🟢 TỐT (Nền da khỏe mạnh, ổn định)');
       const spotsStatus = imageMetrics.spots > 55 ? '🔴 CAO (Mảng sắc tố đậm và rộng)' : (imageMetrics.spots > 30 ? '🟡 TRUNG BÌNH (Sắc tố loang lổ nhẹ)' : '🟢 THẤP (Không đáng kể, da khá đều màu)');
       const uvStatus = imageMetrics.uvPigment > 60 ? '🔴 MẬT ĐỘ CAO (Hắc tố tích tụ sâu trung bì)' : (imageMetrics.uvPigment > 35 ? '🟡 TRUNG BÌNH (Có chân sắc tố ẩn dưới da)' : '🟢 THẤP (Không phát hiện sắc tố sâu)');
-      const textureStatus = imageMetrics.texture > 50 ? '🔴 SẦN SÙI (Thô ráp, thiếu ẩm & collagen)' : (imageMetrics.texture > 25 ? '🟡 TRUNG BÌNH (Kém mịn màng, sừng hóa nhẹ)' : '🟢 MỊN MÀNG (Cấu trúc da săn chắc, căng bóng)');
+      const textureStatus = imageMetrics.texture > 50 ? '🔴 SẦN SÙI (Thô ráp, thiếu ẩm & sừng hóa)' : (imageMetrics.texture > 25 ? '🟡 TRUNG BÌNH (Hơi kém mịn màng nhẹ)' : '🟢 MỊN MÀNG (Cấu trúc da săn chắc, căng bóng)');
       const poresStatus = imageMetrics.pores > 45 ? '🔴 GIÃN NỞ (Lỗ chân lông mở rộng)' : (imageMetrics.pores > 25 ? '🟡 TRUNG BÌNH (Giãn nhẹ vùng chữ T)' : '🟢 SE KHÍT (Lỗ chân lông nhỏ mịn)');
 
       const baseAnalysis = 
@@ -3639,6 +3675,16 @@
         `- **⚫ Chỉ số Lỗ chân lông (Pores)**: **${imageMetrics.pores.toFixed(0)}%** $\rightarrow$ ${poresStatus}
 
 `;
+
+      // Dynamic Health Barrier Text based on user checked symptoms
+      let barrierText = '';
+      if (symptoms.includes('mỏng yếu') || symptoms.includes('CÓ CẢM GIÁC MỎNG YẾU, THẤY MẠCH MÁU') || symptoms.includes('đỏ rát') || symptoms.includes('châm chích') || imageMetrics.redness > 1.25) {
+        barrierText = `- Nền da đang mỏng yếu, nhạy cảm, dễ kích ứng, hàng rào bảo vệ tự nhiên bị tổn thương và xuất hiện dãn mao mạch nổi dưới da.`;
+      } else if (symptoms.includes('Khô ráp') || symptoms.includes('Khô ráp, căng chặt') || symptoms.includes('KHÔ RÁP, CĂNG CHẶT HOẶC DỄ BONG TRÓC') || symptoms.includes('dễ bong tróc') || symptoms.includes('Dễ bong tróc')) {
+        barrierText = `- Nền da đang bị mất nước, khô ráp sần sùi ở lớp sừng bề mặt, lớp màng ẩm lipid tự nhiên bị suy giảm nhẹ, cần cấp ẩm phục hồi.`;
+      } else {
+        barrierText = `- Hàng rào bảo vệ da tương đối ổn định, cấu trúc sừng khỏe mạnh, sẵn sàng tiếp nhận các phác đồ trị liệu sắc tố chuyên sâu.`;
+      }
 
       // Phân loại khoa học và chẩn đoán sắc tố nám
       if (hasCorticoidRisk || imageMetrics.redness > 1.34) {
@@ -3677,7 +3723,7 @@
 ` +
                   `- Hàng rào bảo vệ da bị suy yếu và đang có phản ứng viêm hoạt động kích thích sắc tố phát triển nhanh sau xâm lấn.
 ` +
-                  `- **Yếu tố nguy cơ**: Tổn thương xuất hiện sau phương pháp  ${treatments.join(', ')}. Các sản phẩm trị nám đã dùng: ${payload.history.products || 'Không rõ'}.`;
+                  `- **Yếu tố nguy cơ**: Tổn thương xuất hiện sau phương pháp ${treatments.join(', ')}. Các sản phẩm trị nám đã dùng: ${payload.history.products || 'Không rõ'}.`;
                   
         next = `**[HOMECARE] PHÁC ĐỒ CHĂM SÓC TẠI NHÀ:**
 ` +
@@ -3703,7 +3749,7 @@
         summary = baseAnalysis +
                   `**🩺 ĐÁNH GIÁ SỨC KHỎE HÀNG RÀO BẢO VỆ:**
 ` +
-                  `- Hàng rào bảo vệ da tương đối ổn định, cấu trúc sừng khỏe, sẵn sàng tiếp nhận các phác đồ trị nám chuyên sâu.
+                  barrierText + `
 ` +
                   `- **Yếu tố nguy cơ**: Thời gian sắc tố: ${payload.pigmentation.duration.toLowerCase()}. Di truyền gia đình: ${genetic}. Yếu tố nội tiết: ${hormone}.`;
                   
@@ -3726,12 +3772,12 @@
                     `  * *Củng cố và duy trì nền da*: Cấy vi điểm **Superjection** xuyên suốt quá trình điều trị giúp phục hồi màng đáy, tăng cường sức khỏe da, ngăn ngừa phản ứng viêm và hạn chế tối đa nguy cơ dội ngược sắc tố thường thấy khi làm laser nhiệt.`;
       } 
       else if (pattern.includes('Đốm') || (pattern.includes('Không chắc') && imageMetrics.unevenness > 6.5 && imageMetrics.redness < 1.22)) {
-        pigment = 'Sắc tố dạng đốm rải rác: Tàn nhang / Nám đốm chân sâu trung bì (Hori\'s Nevus) / Đốm đồi mồi lão hóa.';
+        pigment = 'Sắc tố dạng đốm rải rác: Tàn nhang / Nám đốm chân sâu trung bì (Hori's Nevus) / Đốm đồi mồi lão hóa.';
         
         summary = baseAnalysis +
                   `**🩺 ĐÁNH GIÁ SỨC KHỎE HÀNG RÀO BẢO VỆ:**
 ` +
-                  `- Nền da khỏe mạnh, không bị bào mòn, có độ đàn hồi tốt, cần tập trung bảo vệ chống tia UV.
+                  barrierText + `
 ` +
                   `- **Yếu tố nguy cơ**: Di truyền gia đình: ${genetic}. Đã can thiệp phương pháp: ${treatments.join(', ')}.`;
                   
@@ -3749,7 +3795,7 @@
 ` +
                     `- **Khuyến nghị đặc biệt từ PharmesHub**:
 ` +
-                    `  * *Ức chế và đào thải sắc tố đốm không nhiệt*: Ứng dụng liệu trình **MelanoRx** giúp ức chế chọn lọc tế bào melanocyte tại màng đáy, đào thải đốm sắc tố nông dịu nhẹ mà không bào mòn hay để lại sẹo lõm.
+                    `  * *Ức chế và đào thái sắc tố đốm không nhiệt*: Ứng dụng liệu trình **MelanoRx** giúp ức chế chọn lọc tế bào melanocyte tại màng đáy, đào thải đốm sắc tố nông dịu nhẹ mà không bào mòn hay để lại sẹo lõm.
 ` +
                     `  * *Phục hồi liên kết biểu bì - trung bì*: Kết hợp cấy vi điểm **Superjection** trước và trong quá trình điều trị để làm dày khỏe màng đáy da, tăng collagen, giữ nước và tái cấu trúc vùng trung bì bị suy giảm.`;
       } 
@@ -3760,9 +3806,9 @@
         summary = baseAnalysis +
                   `**🩺 ĐÁNH GIÁ SỨC KHỎE HÀNG RÀO BẢO VỆ:**
 ` +
-                  `- Hàng rào bảo vệ da tương đối tốt, ít bị tổn thương cơ học nhưng dễ bị ảnh hưởng bởi nhiệt độ và ánh nắng.
+                  barrierText + `
 ` +
-                  `- **Yếu tố nguy cơ**: Thời gian bị:  ${payload.pigmentation.duration.toLowerCase()}. Sản phẩm đã dùng: ${payload.history.products || 'Trống'}.`;
+                  `- **Yếu tố nguy cơ**: Thời gian bị: ${payload.pigmentation.duration.toLowerCase()}. Sản phẩm đã dùng: ${payload.history.products || 'Trống'}.`;
                   
         next = `**[HOMECARE] PHÁC ĐỒ CHĂM SÓC TẠI NHÀ:**
 ` +
@@ -3781,8 +3827,7 @@
                     `  * *Xử lý sắc tố mảng nông*: Áp dụng liệu pháp điều trị sắc tố không bong tróc nhiệt **MelanoRx** (đây là giải pháp tối ưu giúp phân giải hắc tố Melanin ở lớp sừng cực kỳ hiệu quả, dưỡng sáng da đồng đều tức thì).
 ` +
                     `  * *Phục hồi và làm bóng da song song*: Tiêm cấy hoạt chất **Superjection** xen kẽ để phục hồi tế bào sừng sạm màu, cung cấp dinh dưỡng nuôi dưỡng cấu trúc biểu bì căng bóng, tăng sinh collagen tự nhiên.`;
-      }
-      
+      }      
       const html = `
         <div style="font-family:Arial,sans-serif;color:#333;line-height:1.6;max-width:600px;margin:0 auto;padding:20px;border:1px solid #eaeaea;border-radius:12px;">
           <h2 style="color:#CBA45A;border-bottom:2px solid #CBA45A;padding-bottom:10px;margin-top:0;">BÁO CÁO PHÂN TÍCH MELANOCHECK</h2>
