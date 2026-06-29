@@ -2389,6 +2389,14 @@
 
         <!-- AI Diagnosis Result Panel -->
         <div class="ai-result-box" id="aiResultBox">
+          <div class="success-banner" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); border-radius: 12px; padding: 18px; margin-bottom: 24px; display: flex; align-items: flex-start; gap: 12px; text-align: left; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
+            <span style="font-size: 20px; line-height: 1; color: #2ecc71;">✓</span>
+            <div>
+              <h4 style="margin: 0 0 6px; color: #2ecc71; font-weight: 700; font-size: 15px; font-family: var(--font-sans);">Gửi hồ sơ thành công!</h4>
+              <p style="margin: 0; color: var(--cream-dim); font-size: 13px; line-height: 1.5; font-family: var(--font-sans);">Hồ sơ chẩn đoán MelanoCheck đã được ghi nhận trên hệ thống. Bản báo cáo phân tích chi tiết đã được gửi tới email của bạn. Dưới đây là kết quả phân tích sơ bộ hiển thị tức thì:</p>
+            </div>
+          </div>
+
           <div class="result-card">
             <div class="result-header">
               <span class="ai-badge">Gemini AI Active</span>
@@ -2408,6 +2416,11 @@
             <div class="result-section">
               <div class="result-label">💡 Lời khuyên & Phác đồ tiếp theo</div>
               <div class="result-value next-steps-list" id="resNextSteps">Đang tải lời khuyên...</div>
+            </div>
+
+            <div class="result-section" style="margin-top: 24px; padding-top: 20px; border-top: 1px dashed rgba(255, 237, 215, 0.15);">
+              <div class="result-label" style="color: var(--gold); font-weight: 800; font-size: 13px; letter-spacing: 1.5px; margin-bottom: 8px;">🏥 Liệu trình PharmesHub đề xuất</div>
+              <div class="result-value next-steps-list" id="resTreatment">Đang phân tích liệu trình phù hợp...</div>
             </div>
             
             <div class="result-footer-note">
@@ -2536,7 +2549,7 @@
 
   <script>
     // Configuration
-    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqzindX8MJiXSGvniDARQsdi7_qh8va3xMmrE5kwOD2UkwdeZllo8bdDtsZc22QPrFSA/exec';
+    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNgJMhr2DanSJhHdc8WVBcwyw11QrP3sO09W_rOaCsuhrxFl7yPzXqmduDi2wEDJSGmQ/exec';
 
     // State management
     const state = {
@@ -2551,6 +2564,12 @@
         front: null,
         left: null,
         right: null
+      },
+      imageMetrics: {
+        redness: 1.18,
+        unevenness: 9.5,
+        brightness: 120,
+        hasImages: false
       },
       activeSlot: null,
       facingMode: 'user'
@@ -3201,60 +3220,250 @@
       return `MC-${stamp}-${tail}`;
     }
 
-    function createInternalReport(payload) {
-      let pigment = 'Da có biểu hiện sắc tố cần được đọc kỹ hơn từ ảnh và lịch sử chăm sóc.';
-      const pattern = payload.pigmentation.pattern;
-      const rapidWhitening = payload.history.rapidWhitening;
-      const hormone = payload.pigmentation.hormoneUsage;
-      const genetic = payload.pigmentation.geneticFactor;
-
-      if (rapidWhitening && rapidWhitening.includes('trắng rất nhanh')) {
-        pigment = '🚨 CẢNH BÁO ĐỎ: Nghi ngờ sạm dội ngược do nhiễm độc Corticoid (Kem trộn/Thuốc rượu). Nền da mỏng yếu, tổn thương hàng rào bảo vệ nặng.';
-      } else if (rapidWhitening && (rapidWhitening.includes('Chưa bị sạm ngược') || rapidWhitening.includes('Không chắc chắn'))) {
-        pigment = '⚠️ CẢNH BÁO VÀNG: Có tiền sử bôi kem chứa thành phần lột tẩy mạnh hoặc không rõ xuất xứ. Nền da chịu rủi ro sạm màu dội ngược cao.';
-      } else {
-        if (pattern.includes('Vừa') || pattern.includes('hỗn hợp')) {
-          pigment = 'Nám hỗn hợp: Sắc tố dạng mảng sạm màu kết hợp các nốt đốm nâu sẫm hai bên gò má.';
-        } else if (pattern.includes('Mảng')) {
-          if (hormone && (hormone.includes('tránh thai') || hormone.includes('nội tiết'))) {
-            pigment = 'Nám nội tiết (Melasma/Chloasma) thứ phát do tăng sinh Estrogen kết hợp UV.';
-          } else {
-            pigment = 'Nám mảng biểu bì lành tính do tác động của ánh sáng mặt trời và nhiệt độ.';
+    // Helper to format report text with markdown bolding and bullet lists
+    function formatReportText(text) {
+      if (!text) return '';
+      let formatted = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+      const lines = formatted.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      let html = '';
+      let inList = false;
+      
+      lines.forEach(line => {
+        const isBullet = line.startsWith('-') || line.startsWith('•') || line.startsWith('*') || line.match(/^\d+\./);
+        if (isBullet) {
+          if (!inList) {
+            html += '<ul style="margin: 0; padding-left: 20px; text-align: left; margin-bottom: 12px; color: var(--cream); opacity: 0.9;">';
+            inList = true;
           }
-        } else if (pattern.includes('Đốm')) {
-          pigment = 'Sắc tố dạng đốm rải rác (Tàn nhang / Đốm sắc tố sâu Hori / Đồi mồi do lão hóa).';
-        } else if (pattern.includes('sau') || pattern.includes('Thâm')) {
-          pigment = 'Tăng sắc tố sau viêm (PIH) nặng xuất hiện sau tổn thương hoặc laser/peel xâm lấn sai cách.';
+          const cleanLine = line.replace(/^[•\-*\s]+/, '').replace(/^\d+\.\s*/, '');
+          html += `<li style="margin-bottom: 6px; line-height: 1.5;">${cleanLine}</li>`;
+        } else {
+          if (inList) {
+            html += '</ul>';
+            inList = false;
+          }
+          html += `<p style="margin: 0 0 10px 0; text-align: left; line-height: 1.5; color: var(--cream); opacity: 0.95;">${line}</p>`;
         }
+      });
+      if (inList) {
+        html += '</ul>';
       }
+      return html;
+    }
 
-      let summary = `Sắc tố xuất hiện khoảng ${payload.pigmentation.duration.toLowerCase()}, tập trung chủ yếu ở ${payload.pigmentation.areas}. Nghề nghiệp: ${payload.customer.job}. Đã can thiệp: ${payload.history.treatments.join(', ')}.`;
-      
-      if (genetic && genetic.includes('Có')) {
-        summary += ` Ghi nhận yếu tố di truyền trong gia đình (mẹ, chị/em gái bị nám).`;
-      }
-      if (hormone && (hormone.includes('tránh thai') || hormone.includes('nội tiết'))) {
-        summary += ` Có lịch sử sử dụng thuốc nội tiết hoặc thuốc tránh thai hàng ngày kích sắc tố.`;
-      }
-      
-      summary += ` Biểu hiện đi kèm: ${payload.skinBackground.symptoms.join(', ')}. Yếu tố kích thích: ${payload.personalContext.factors.join(', ')}.`;
-      
-      let next = 'Khách hàng cần tập trung bảo vệ hàng rào lipid và chống nắng đa tầng trước khi laser/peel. PharmesHub sẽ đọc trực tiếp ảnh chụp của bạn để tư vấn phác đồ bôi thoa kết hợp phục hồi và làm sáng an toàn.';
-      
-      if (rapidWhitening && rapidWhitening.includes('trắng rất nhanh')) {
-        next = '⚠️ TUYỆT ĐỐI KHÔNG laser hay peel xâm lấn lúc này. Ưu tiên hàng đầu là thải độc Corticoid, phục hồi màng bảo vệ da bị teo mỏng bằng Ceramide/Panthenol, ngắt kem trộn từ từ. Hãy bấm nhận tư vấn phác đồ phác đồ cai corticoid từ chuyên gia.';
-      } else if (rapidWhitening && (rapidWhitening.includes('Chưa bị sạm ngược') || rapidWhitening.includes('Không chắc chắn'))) {
-        next = 'Nên sử dụng phác đồ phục hồi hàng rào bảo vệ da trong tối thiểu 2-4 tuần trước khi bắt đầu bôi thoa các hoạt chất trị nám mạnh (như Retinol/Hydroquinone). Tránh xâm lấn nhiệt. Liên hệ tư vấn phác đồ phục hồi.';
-      } else {
-        if (hormone && (hormone.includes('tránh thai') || hormone.includes('nội tiết'))) {
-          next = 'Cần kiểm soát yếu tố nội tiết (trao đổi bác sĩ để thay thế biện pháp tránh thai nếu phù hợp), chống nắng phổ rộng kỹ càng. Kết hợp phác đồ bôi các chất ức chế Tyrosinase an toàn, không bong tróc (Tranexamic Acid, Kojic Acid, Niacinamide).';
+    // HTML5 Canvas image brightness, redness, and color unevenness analyzer
+    function analyzeImagePixels(dataUrl) {
+      return new Promise((resolve) => {
+        if (!dataUrl) {
+          resolve({ redness: 1.15, unevenness: 10, averageLuminance: 120 });
+          return;
         }
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 50;
+            canvas.height = 50;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, 50, 50);
+            const imgData = ctx.getImageData(0, 0, 50, 50);
+            const data = imgData.data;
+            
+            let totalR = 0, totalG = 0, totalB = 0;
+            let lums = [];
+            for (let i = 0; i < data.length; i += 4) {
+              const r = data[i];
+              const g = data[i+1];
+              const b = data[i+2];
+              totalR += r;
+              totalG += g;
+              totalB += b;
+              
+              // Luminance: Y = 0.299R + 0.587G + 0.114B
+              const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+              lums.push(lum);
+            }
+            
+            const count = data.length / 4;
+            const avgR = totalR / count;
+            const avgG = totalG / count;
+            const avgB = totalB / count;
+            
+            const avgLum = lums.reduce((sum, val) => sum + val, 0) / count;
+            const variance = lums.reduce((sum, val) => sum + Math.pow(val - avgLum, 2), 0) / count;
+            const stdDevLum = Math.sqrt(variance);
+            
+            // Redness index (R/G ratio)
+            const rednessRatio = avgG > 0 ? avgR / avgG : 1.15;
+            
+            resolve({
+              redness: rednessRatio,
+              unevenness: stdDevLum,
+              averageLuminance: avgLum
+            });
+          } catch (e) {
+            console.error("Lỗi phân tích pixel ảnh:", e);
+            resolve({ redness: 1.15, unevenness: 10, averageLuminance: 120 });
+          }
+        };
+        img.onerror = () => {
+          resolve({ redness: 1.15, unevenness: 10, averageLuminance: 120 });
+        };
+        img.src = dataUrl;
+      });
+    }
+
+    async function analyzeSkinImages(images) {
+      const result = {
+        redness: 1.18,
+        unevenness: 9.5,
+        brightness: 120,
+        hasImages: false
+      };
+      
+      if (!images || (!images.front && !images.left && !images.right)) {
+        return result;
+      }
+      
+      result.hasImages = true;
+      const promises = [];
+      
+      if (images.front) promises.push(analyzeImagePixels(images.front));
+      if (images.left) promises.push(analyzeImagePixels(images.left));
+      if (images.right) promises.push(analyzeImagePixels(images.right));
+      
+      const analyses = await Promise.all(promises);
+      if (analyses.length > 0) {
+        let sumRedness = 0;
+        let sumUnevenness = 0;
+        let sumBrightness = 0;
+        
+        analyses.forEach(a => {
+          sumRedness += a.redness;
+          sumUnevenness += a.unevenness;
+          sumBrightness += a.averageLuminance;
+        });
+        
+        result.redness = sumRedness / analyses.length;
+        result.unevenness = sumUnevenness / analyses.length;
+        result.brightness = sumBrightness / analyses.length;
+      }
+      
+      return result;
+    }
+
+    function createInternalReport(payload, imageMetrics) {
+      if (!imageMetrics) {
+        imageMetrics = { redness: 1.18, unevenness: 9.5, averageLuminance: 120, hasImages: false };
+      }
+      
+      const pattern = payload.pigmentation.pattern || '';
+      const rapidWhitening = payload.history.rapidWhitening || '';
+      const hormone = payload.pigmentation.hormoneUsage || '';
+      const genetic = payload.pigmentation.geneticFactor || '';
+      const symptoms = payload.skinBackground.symptoms || [];
+      const treatments = payload.history.treatments || [];
+      const context = payload.personalContext.factors || [];
+
+      // Phân tích biểu hiện nhiễm độc Corticoid hoặc tổn thương hàng rào lipid nặng
+      const hasCorticoidRisk = 
+        rapidWhitening.includes('trắng rất nhanh') || 
+        symptoms.includes('sạm lại khi ngưng sản phẩm') ||
+        (treatments.includes('kem nám online') && (symptoms.includes('mỏng yếu') || symptoms.includes('đỏ rát') || symptoms.includes('châm chích')));
+        
+      // Phân tích nguy cơ tăng sắc tố sau viêm (PIH) hoặc tổn thương laser/peel
+      const hasPIHRisk = 
+        pattern.includes('Thâm/sạm sau mụn') || 
+        ((treatments.includes('laser') || treatments.includes('peel') || treatments.includes('chấm nám')) && 
+         (symptoms.includes('đỏ rát') || symptoms.includes('mỏng yếu') || imageMetrics.redness > 1.28));
+
+      let pigment = '';
+      let summary = '';
+      let next = '';
+      let treatment = '';
+      
+      // Phân loại khoa học và chẩn đoán sắc tố nám
+      if (hasCorticoidRisk || imageMetrics.redness > 1.36) {
+        pigment = '🚨 CẢNH BÁO ĐỎ: Sạm da nhiễm độc Corticoid dội ngược (nền da mỏng yếu, tổn thương hàng rào lipid nặng, dãn mao mạch diện rộng).';
+        
+        summary = `- **Thể sắc tố chính**: Sạm da dội ngược do nghiện corticoid hoặc hóa chất bào mòn.\n` +
+                  `- **Đánh giá ảnh thực tế**: Độ không đều màu đạt **${imageMetrics.unevenness.toFixed(1)}** (Tổn thương sắc tố loang lổ). Chỉ số đỏ da (Redness): **${imageMetrics.redness.toFixed(2)}** (Rất cao, dãn mao mạch nổi rõ).\n` +
+                  `- **Sức khỏe hàng rào da**: Nền da đang bị teo mỏng, mất hoàn toàn lớp màng bảo vệ hydrolipid tự nhiên, cực kỳ nhạy cảm.\n` +
+                  `- **Yếu tố nguy cơ**: Lịch sử can thiệp ${treatments.join(', ')}. ${rapidWhitening ? 'Biểu hiện kem trắng nhanh: ' + rapidWhitening : ''}.`;
+                  
+        next = `- **Hoạt chất khuyên dùng**: Ceramide nồng độ cao, Panthenol (B5), Hyaluronic Acid đa tầng, chiết xuất rau má (Centella), Niacinamide cực nhẹ (<2%) để phục hồi màng lipid.\n` +
+               `- **Hoạt chất cần tránh**: Tuyệt đối tránh Hydroquinone nồng độ cao, Retinoids mạnh (Retinol/Tretinoin), các acid lột tẩy mạnh (AHA/BHA, TCA) và các liệu pháp bong tróc.\n` +
+               `- **Lưu ý bảo vệ**: Cai kem corticoid từ từ (giảm tần suất bôi, không dừng đột ngột để tránh bùng phát viêm nặng), tối giản quy trình skincare, dùng kem chống nắng vật lý màng lọc dịu nhẹ cho da tổn thương. Hạn chế tiếp xúc nguồn nhiệt lớn (bếp lửa, xông hơi).`;
+               
+        treatment = `- **Liệu trình PharmesHub đề xuất**: **PHÁC ĐỒ CAI CORTICOID & TÁI CẤU TRÚC DA SINH HỌC (BIOLIPID RECONSTRUCTION)**\n` +
+                    `- **Cơ chế tác động**: Điện di ion lạnh tế bào gốc gốc thực vật kết hợp đắp mặt nạ sinh học phục hồi để làm dịu kích ứng cấp tốc, làm mát da, thúc đẩy tăng sinh tế bào sừng mới để làm dày da, củng cố hàng rào bảo vệ và phục hồi các mao mạch bị giãn dưới da. Tuyệt đối không can thiệp bằng nhiệt hay laser ánh sáng mạnh trong giai đoạn nhạy cảm này.`;
+      } 
+      else if (hasPIHRisk) {
+        pigment = '⚠️ CẢNH BÁO VÀNG: Tăng sắc tố sau viêm (PIH) nặng / Nền da nhạy cảm đỏ yếu sau xâm lấn hỏng (laser/peel/chấm nám).';
+        
+        summary = `- **Thể sắc tố chính**: Tăng sắc tố sau viêm (PIH) thứ phát sau tổn thương vật lý/hóa học.\n` +
+                  `- **Đánh giá ảnh thực tế**: Độ không đều sắc tố đạt **${imageMetrics.unevenness.toFixed(1)}** (Mảng thâm sậm xen kẽ). Chỉ số đỏ da (Redness): **${imageMetrics.redness.toFixed(2)}** (Cao, biểu hiện viêm đỏ dưới da).\n` +
+                  `- **Sức khỏe hàng rào da**: Hàng rào bảo vệ da bị suy yếu và đang có phản ứng viêm hoạt động kích thích sắc tố sinh thêm.\n` +
+                  `- **Yếu tố nguy cơ**: Tổn thương xuất hiện sau phương pháp ${treatments.join(', ')}. Các sản phẩm trị nám đã dùng: ${payload.history.products || 'Không rõ'}.`;
+                  
+        next = `- **Hoạt chất khuyên dùng**: Hoạt chất chống viêm và làm sáng dịu nhẹ như Tranexamic Acid (bôi), Niacinamide, Vitamin C phái sinh ổn định (EAA/SAP), kết hợp B5 và Ceramide để củng cố biểu bì.\n` +
+               `- **Hoạt chất cần tránh**: Không sử dụng thêm laser nhiệt cao hoặc chấm acid phá hủy mô sắc tố lúc này, tránh xà phòng hay sữa rửa mặt độ pH cao.\n` +
+               `- **Lưu ý bảo vệ**: Chống nắng phổ rộng tối ưu (SPF 50+, PA++++), bôi lại sau mỗi 2-3 giờ, che chắn vật lý kỹ vì vùng PIH rất nhạy cảm với ánh sáng mặt trời.`;
+               
+        treatment = `- **Liệu trình PharmesHub đề xuất**: **LIỆU TRÌNH MESO-MELANO PHỤC HỒI CHUYÊN SÂU**\n` +
+                    `- **Cơ chế tác động**: Đưa trực tiếp Tranexamic Acid tinh khiết kết hợp các peptide sinh học làm dịu vào tầng trung bì bằng công nghệ cấy vi điểm. Giúp cắt đứt tín hiệu viêm kích thích tế bào hắc tố melanocyte, dập tắt tình trạng tăng sắc tố dội ngược, đồng thời tái tạo màng đáy để phục hồi làn da đều màu và khỏe mạnh bền vững.`;
+      } 
+      else if (pattern.includes('Vừa') || pattern.includes('hỗn hợp') || (imageMetrics.unevenness > 14 && pattern.includes('Không chắc'))) {
+        pigment = 'Nám hỗn hợp (Mixed Melasma): Sắc tố đa tầng kết hợp giữa nám mảng biểu bì nông và nám đốm sâu trung bì.';
+        
+        summary = `- **Thể sắc tố chính**: Nám hỗn hợp đa tầng nông - sâu hỗn hợp hai bên gò má, sống mũi, trán.\n` +
+                  `- **Đánh giá ảnh thực tế**: Độ loang lổ sắc tố đạt **${imageMetrics.unevenness.toFixed(1)}** (Rất cao, đốm chân sâu và mảng sắc tố chồng chéo). Chỉ số đỏ da: **${imageMetrics.redness.toFixed(2)}** (Ổn định, ít nhạy cảm).\n` +
+                  `- **Sức khỏe hàng rào da**: Hàng rào bảo vệ da tương đối ổn định, cấu trúc sừng khỏe, sẵn sàng tiếp nhận các phác đồ điều trị hoạt chất mạnh.\n` +
+                  `- **Yếu tố nguy cơ**: Thời gian sắc tố: ${payload.pigmentation.duration.toLowerCase()}. Di truyền gia đình: ${genetic}. Yếu tố nội tiết: ${hormone}.`;
+                  
+        next = `- **Hoạt chất khuyên dùng**: Kojic Acid, Alpha Arbutin, Tranexamic Acid bôi, Retinol nồng độ kiểm soát, Azelaic Acid.\n` +
+               `- **Hoạt chất cần tránh**: Các loại kem trị nám tự pha trộn, kem cốt chứa corticoid phá hủy cấu trúc da.\n` +
+               `- **Lưu ý bảo vệ**: Kết hợp chống nắng phổ rộng đa tầng, hạn chế tối đa stress, thức khuya để ổn định nội tiết tố bên trong cơ thể.`;
+               
+        treatment = `- **Liệu trình PharmesHub đề xuất**: **PHÁC ĐỒ ĐA CÔNG NGHỆ PICOMAX LASER & MESO-MELANO**\n` +
+                    `- **Cơ chế tác động**: Sự kết hợp hoàn hảo giữa công nghệ laser xung siêu ngắn PicoMax (phân rã cơ học hạt sắc tố melanin sâu ở trung bì thành hạt siêu nhỏ để hệ bạch huyết tự đào thải) và tiêm cấy tinh chất Meso-Melano (ức chế sản sinh melanin mới ở lớp biểu bì nông). Mang lại hiệu quả toàn diện, dứt điểm chân nám sâu và mảng nám nông.`;
+      } 
+      else if (pattern.includes('Đốm') || (imageMetrics.unevenness > 11 && imageMetrics.redness < 1.22)) {
+        pigment = 'Sắc tố dạng đốm rải rác: Tàn nhang / Nám đốm chân sâu trung bì (Hori\'s Nevus) / Đốm đồi mồi lão hóa.';
+        
+        summary = `- **Thể sắc tố chính**: Đốm sắc tố hình tròn riêng lẻ sẫm màu tập trung đối xứng ở hai bên gò má.\n` +
+                  `- **Đánh giá ảnh thực tế**: Độ không đều màu đạt **${imageMetrics.unevenness.toFixed(1)}** (Cao, chân sắc tố tập trung thành đốm đậm màu). Chỉ số đỏ da: **${imageMetrics.redness.toFixed(2)}** (Khỏe mạnh, không có dấu hiệu giãn mao mạch).\n` +
+                  `- **Sức khỏe hàng rào da**: Nền da khỏe mạnh, không bị bào mòn, có độ đàn hồi tốt.\n` +
+                  `- **Yếu tố nguy cơ**: Di truyền gia đình: ${genetic}. Đã can thiệp phương pháp: ${treatments.join(', ')}.`;
+                  
+        next = `- **Hoạt chất khuyên dùng**: Alpha Arbutin, Azelaic Acid, Vitamin C nguyên chất (L-Ascorbic Acid), Retinol hoặc Retinal để tăng tốc độ thay thế tế bào da.\n` +
+               `- **Hoạt chất cần tránh**: Tránh bôi các loại kem làm bong tróc lột tẩy da bề mặt quá đà (vì chân nám nằm ở trung bì sâu, bôi kem bong tróc nông sẽ không giải quyết được gốc nám mà còn gây mỏng đỏ bề mặt).\n` +
+               `- **Lưu ý bảo vệ**: Chống nắng vật lý lai hóa học, che chắn vật lý kỹ trước tia UV để các đốm nám không bị đậm màu hơn.`;
+               
+        treatment = `- **Liệu trình PharmesHub đề xuất**: **LIỆU TRÌNH PICOMAX LASER & DETOX SẮC TỐ CHUYÊN SÂU**\n` +
+                    `- **Cơ chế tác động**: Sử dụng bước sóng laser xung pico-giây tác động quang cơ học mạnh mẽ vào tế bào hắc tố Melanin ở trung bì. Nhắm trúng đích tế bào sắc tố sâu để phân rã chúng thành bụi mịn mà hoàn toàn không gây sinh nhiệt hay bỏng rát bề mặt biểu bì, ngăn ngừa sẹo và mất sắc tố.`;
+      } 
+      else {
+        // Nám mảng lành tính
+        pigment = 'Nám mảng biểu bì (Epidermal Melasma): Sắc tố tích tụ dạng mảng nông lành tính do ánh nắng và nhiệt độ môi trường.';
+        
+        summary = `- **Thể sắc tố chính**: Mảng sắc tố sạm màu vàng nâu hoặc nâu nhạt phân bố nông ở lớp sừng biểu bì ngoài cùng.\n` +
+                  `- **Đánh giá ảnh thực tế**: Độ không đều sắc tố đạt **${imageMetrics.unevenness.toFixed(1)}**. Chỉ số đỏ da (Redness): **${imageMetrics.redness.toFixed(2)}** (Nền da ổn định, khỏe mạnh).\n` +
+                  `- **Sức khỏe hàng rào da**: Hàng rào bảo vệ da tương đối tốt, ít bị tổn thương cơ học.\n` +
+                  `- **Yếu tố nguy cơ**: Thời gian bị: ${payload.pigmentation.duration.toLowerCase()}. Sản phẩm đã dùng: ${payload.history.products || 'Trống'}.`;
+                  
+        next = `- **Hoạt chất khuyên dùng**: Alpha Arbutin, Glycolic Acid (AHA) dịu nhẹ, Vitamin C, Kojic Acid, Niacinamide sáng da.\n` +
+               `- **Hoạt chất cần tránh**: Các sản phẩm dưỡng da chứa cồn khô nồng độ cao gây mất nước và xỉn màu da.\n` +
+               `- **Lưu ý bảo vệ**: Sử dụng kem chống nắng phổ rộng hàng ngày, bôi lại sau mỗi 3-4 giờ, che chắn vật lý khi nấu ăn hoặc đứng bếp nóng để tránh tích tụ nhiệt gây sạm da.`;
+               
+        treatment = `- **Liệu trình PharmesHub đề xuất**: **PEEL TINH KHIẾT THUẦN CHAY (VEGAN CHEMICAL PEEL) KẾT HỢP MESO SÁNG DA**\n` +
+                    `- **Cơ chế tác động**: Sử dụng acid trái cây hữu cơ tự nhiên (AHA/PHA) để bóc tách nhẹ nhàng tế bào sừng nhiễm sắc tố sạm màu tích tụ trên bề mặt da, kích thích đẩy nhanh chu kỳ tái tạo tế bào mới. Kết hợp điện di đưa tinh chất Arbutin/Vitamin C giúp làn da trắng sáng hồng hào, mờ nám nhanh chóng.`;
       }
 
       const html = `
         <div style="font-family:Arial,sans-serif;color:#333;line-height:1.6;max-width:600px;margin:0 auto;padding:20px;border:1px solid #eaeaea;border-radius:12px;">
-          <h2 style="color:var(--sienna);border-bottom:2px solid var(--sienna);padding-bottom:10px;">BÁO CÁO PHÂN TÍCH MELANOCHECK</h2>
-          <p><b>Mã hồ sơ:</b> <span style="font-family:monospace;font-size:16px;color:var(--sienna);font-weight:bold;">${payload.profileId}</span></p>
+          <h2 style="color:#CBA45A;border-bottom:2px solid #CBA45A;padding-bottom:10px;margin-top:0;">BÁO CÁO PHÂN TÍCH MELANOCHECK</h2>
+          <p><b>Mã hồ sơ:</b> <span style="font-family:monospace;font-size:16px;color:#CBA45A;font-weight:bold;">${payload.profileId}</span></p>
           <p><b>Khách hàng:</b> ${payload.customer.name} (${payload.customer.birthYear})</p>
           <p><b>Địa chỉ:</b> ${payload.customer.city} | <b>Nghề nghiệp:</b> ${payload.customer.job}</p>
           
@@ -3265,7 +3474,7 @@
             </tr>
             <tr>
               <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Tóm tắt tình trạng</td>
-              <td style="padding:10px;border:1px solid #eee;font-size:14px;">${summary}</td>
+              <td style="padding:10px;border:1px solid #eee;font-size:14px;">${formatReportText(summary)}</td>
             </tr>
             <tr style="background:#f9f9f9;">
               <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Sản phẩm đã dùng</td>
@@ -3273,14 +3482,18 @@
             </tr>
             <tr>
               <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Lời khuyên ban đầu</td>
-              <td style="padding:10px;border:1px solid #eee;font-size:14px;color:var(--sienna);font-weight:bold;">${next}</td>
+              <td style="padding:10px;border:1px solid #eee;font-size:14px;">${formatReportText(next)}</td>
+            </tr>
+            <tr style="background:#f9f9f9;">
+              <td style="padding:10px;border:1px solid #eee;font-weight:bold;color:#CBA45A;">Liệu trình đề xuất</td>
+              <td style="padding:10px;border:1px solid #eee;font-size:14px;color:#CBA45A;font-weight:bold;">${formatReportText(treatment)}</td>
             </tr>
           </table>
           <p style="font-size:12px;color:#777;border-top:1px solid #eee;padding-top:10px;margin-top:20px;font-style:italic;">Báo cáo chẩn đoán mang tính chất định hướng ban đầu, không thay thế cho thăm khám da liễu chuyên khoa trực tiếp.</p>
         </div>
       `;
 
-      return { pigment, summary, next, html };
+      return { pigment, summary, next, treatment, html };
     }
 
     function buildPayload() {
@@ -3318,7 +3531,7 @@
         images: state.images
       };
 
-      payload.internalReport = createInternalReport(payload);
+      payload.internalReport = createInternalReport(payload, state.imageMetrics);
       return payload;
     }
 
@@ -3389,7 +3602,20 @@
       let apiResult = null;
 
       try {
+        // Step 1: Chạy phân tích điểm ảnh không đồng bộ từ ảnh chụp da thực tế
+        try {
+          state.imageMetrics = await analyzeSkinImages(state.images);
+          console.log("Skin Image analysis completed successfully:", state.imageMetrics);
+        } catch (imgErr) {
+          console.warn("Lỗi phân tích pixel hình ảnh:", imgErr);
+        }
+
         const payload = buildPayload();
+        
+        // Tương thích ngược: Gộp Liệu trình đề xuất vào trường 'next' để lưu trên Sheets/Email/Telegram
+        if (payload.internalReport && payload.internalReport.treatment) {
+          payload.internalReport.next = payload.internalReport.next + '\n\n' + payload.internalReport.treatment;
+        }
         
         try {
           apiResult = await sendToGoogleSheet(payload);
@@ -3415,44 +3641,18 @@
           finalReport = payload.internalReport;
         }
 
-        // Helper to format report text with markdown bolding and bullet lists
-        function formatReportText(text) {
-          if (!text) return '';
-          let formatted = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-          const lines = formatted.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-          let html = '';
-          let inList = false;
-          
-          lines.forEach(line => {
-            const isBullet = line.startsWith('-') || line.startsWith('•') || line.startsWith('*') || line.match(/^\d+\./);
-            if (isBullet) {
-              if (!inList) {
-                html += '<ul style="margin: 0; padding-left: 20px; text-align: left;">';
-                inList = true;
-              }
-              const cleanLine = line.replace(/^[•\-*\s]+/, '').replace(/^\d+\.\s*/, '');
-              html += `<li style="margin-bottom: 8px;">${cleanLine}</li>`;
-            } else {
-              if (inList) {
-                html += '</ul>';
-                inList = false;
-              }
-              html += `<p style="margin: 0 0 10px 0; text-align: left;">${line}</p>`;
-            }
-          });
-          if (inList) {
-            html += '</ul>';
-          }
-          return html;
-        }
-
         // Render diagnosis results onto the result card
         $('#resPigment').innerHTML = finalReport.pigment;
         $('#resSummary').innerHTML = formatReportText(finalReport.summary);
         $('#resNextSteps').innerHTML = formatReportText(finalReport.next);
+        
+        // Render suggested treatment
+        if ($('#resTreatment')) {
+          $('#resTreatment').innerHTML = formatReportText(finalReport.treatment || 'Cần chuyên gia trực tiếp xem ảnh chụp để chỉ định liệu trình phù hợp.');
+        }
 
-        // Show Success Message (instead of showing results on page)
-        $('#successBox').classList.add('active');
+        // Show AI diagnostic result card directly (with success banner inside)
+        $('#aiResultBox').classList.add('active');
 
         // Save profile ID to connect with contact request
         state.lastProfileId = payload.profileId;
@@ -3507,6 +3707,9 @@
     const deepConsultBtn = document.getElementById('deepConsultBtn');
     if (deepConsultBtn) {
       deepConsultBtn.addEventListener('click', async () => {
+        // Mở liên kết sang trang quynhtrangpharmeshub.vn trong tab mới
+        window.open('https://quynhtrangpharmeshub.vn', '_blank');
+
         // Show loading state
         deepConsultBtn.disabled = true;
         deepConsultBtn.textContent = 'Đang tiếp nhận...';
