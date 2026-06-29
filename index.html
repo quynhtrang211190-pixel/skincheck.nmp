@@ -3255,7 +3255,7 @@
     function analyzeImagePixels(dataUrl) {
       return new Promise((resolve) => {
         if (!dataUrl) {
-          resolve({ redness: 1.15, unevenness: 10, averageLuminance: 120 });
+          resolve({ redness: 1.15, unevenness: 4.5, averageLuminance: 120 });
           return;
         }
         const img = new Image();
@@ -3271,43 +3271,61 @@
             
             let totalR = 0, totalG = 0, totalB = 0;
             let lums = [];
+            let skinPixelCount = 0;
+            
             for (let i = 0; i < data.length; i += 4) {
               const r = data[i];
               const g = data[i+1];
               const b = data[i+2];
-              totalR += r;
-              totalG += g;
-              totalB += b;
               
-              // Luminance: Y = 0.299R + 0.587G + 0.114B
-              const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-              lums.push(lum);
+              // Standard rule-based skin color detection in RGB space
+              // Filters out dark hair, eyes, eyebrows, lips, clothing, and dark backgrounds
+              const isSkin = r > 95 && g > 40 && b > 20 && 
+                             r > g && r > b && 
+                             (r - g) > 15 && 
+                             (Math.max(r, g, b) - Math.min(r, g, b) > 15);
+              
+              if (isSkin) {
+                totalR += r;
+                totalG += g;
+                totalB += b;
+                // Luminance: Y = 0.299R + 0.587G + 0.114B
+                const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                lums.push(lum);
+                skinPixelCount++;
+              }
             }
             
-            const count = data.length / 4;
-            const avgR = totalR / count;
-            const avgG = totalG / count;
-            const avgB = totalB / count;
+            // Fallback if no skin pixels detected (e.g. background only or bad lighting)
+            if (skinPixelCount < 50) {
+              resolve({ redness: 1.15, unevenness: 4.5, averageLuminance: 120, filtered: false });
+              return;
+            }
             
-            const avgLum = lums.reduce((sum, val) => sum + val, 0) / count;
-            const variance = lums.reduce((sum, val) => sum + Math.pow(val - avgLum, 2), 0) / count;
+            const avgR = totalR / skinPixelCount;
+            const avgG = totalG / skinPixelCount;
+            const avgB = totalB / skinPixelCount;
+            
+            const avgLum = lums.reduce((sum, val) => sum + val, 0) / skinPixelCount;
+            const variance = lums.reduce((sum, val) => sum + Math.pow(val - avgLum, 2), 0) / skinPixelCount;
             const stdDevLum = Math.sqrt(variance);
             
-            // Redness index (R/G ratio)
+            // Redness index (R/G ratio of skin pixels)
             const rednessRatio = avgG > 0 ? avgR / avgG : 1.15;
             
             resolve({
               redness: rednessRatio,
               unevenness: stdDevLum,
-              averageLuminance: avgLum
+              averageLuminance: avgLum,
+              filtered: true
             });
           } catch (e) {
             console.error("Lỗi phân tích pixel ảnh:", e);
-            resolve({ redness: 1.15, unevenness: 10, averageLuminance: 120 });
+            resolve({ redness: 1.15, unevenness: 4.5, averageLuminance: 120 });
           }
         };
         img.onerror = () => {
-          resolve({ redness: 1.15, unevenness: 10, averageLuminance: 120 });
+          resolve({ redness: 1.15, unevenness: 4.5, averageLuminance: 120 });
         };
         img.src = dataUrl;
       });
@@ -3316,7 +3334,7 @@
     async function analyzeSkinImages(images) {
       const result = {
         redness: 1.18,
-        unevenness: 9.5,
+        unevenness: 4.8,
         brightness: 120,
         hasImages: false
       };
@@ -3354,7 +3372,7 @@
 
     function createInternalReport(payload, imageMetrics) {
       if (!imageMetrics) {
-        imageMetrics = { redness: 1.18, unevenness: 9.5, averageLuminance: 120, hasImages: false };
+        imageMetrics = { redness: 1.18, unevenness: 4.8, averageLuminance: 120, hasImages: false };
       }
       
       const pattern = payload.pigmentation.pattern || '';
@@ -3383,11 +3401,11 @@
       let treatment = '';
       
       // Phân loại khoa học và chẩn đoán sắc tố nám
-      if (hasCorticoidRisk || imageMetrics.redness > 1.36) {
+      if (hasCorticoidRisk || imageMetrics.redness > 1.34) {
         pigment = '🚨 CẢNH BÁO ĐỎ: Sạm da nhiễm độc Corticoid dội ngược (nền da mỏng yếu, tổn thương hàng rào lipid nặng, dãn mao mạch diện rộng).';
         
         summary = `- **Thể sắc tố chính**: Sạm da dội ngược do nghiện corticoid hoặc hóa chất bào mòn.\n` +
-                  `- **Đánh giá ảnh thực tế**: Độ không đều màu đạt **${imageMetrics.unevenness.toFixed(1)}** (Tổn thương sắc tố loang lổ). Chỉ số đỏ da (Redness): **${imageMetrics.redness.toFixed(2)}** (Rất cao, dãn mao mạch nổi rõ).\n` +
+                  `- **Đánh giá ảnh thực tế**: Độ không đều màu da đạt **${imageMetrics.unevenness.toFixed(1)}** (Dựa trên vùng da thực tế). Chỉ số đỏ da (Redness): **${imageMetrics.redness.toFixed(2)}** (Rất cao, dãn mao mạch nổi rõ).\n` +
                   `- **Sức khỏe hàng rào da**: Nền da đang bị teo mỏng, mất hoàn toàn lớp màng bảo vệ hydrolipid tự nhiên, cực kỳ nhạy cảm.\n` +
                   `- **Yếu tố nguy cơ**: Lịch sử can thiệp ${treatments.join(', ')}. ${rapidWhitening ? 'Biểu hiện kem trắng nhanh: ' + rapidWhitening : ''}.`;
                   
@@ -3402,7 +3420,7 @@
         pigment = '⚠️ CẢNH BÁO VÀNG: Tăng sắc tố sau viêm (PIH) nặng / Nền da nhạy cảm đỏ yếu sau xâm lấn hỏng (laser/peel/chấm nám).';
         
         summary = `- **Thể sắc tố chính**: Tăng sắc tố sau viêm (PIH) thứ phát sau tổn thương vật lý/hóa học.\n` +
-                  `- **Đánh giá ảnh thực tế**: Độ không đều sắc tố đạt **${imageMetrics.unevenness.toFixed(1)}** (Mảng thâm sậm xen kẽ). Chỉ số đỏ da (Redness): **${imageMetrics.redness.toFixed(2)}** (Cao, biểu hiện viêm đỏ dưới da).\n` +
+                  `- **Đánh giá ảnh thực tế**: Độ không đều sắc tố da đạt **${imageMetrics.unevenness.toFixed(1)}** (Mảng thâm sậm xen kẽ). Chỉ số đỏ da (Redness): **${imageMetrics.redness.toFixed(2)}** (Cao, biểu hiện viêm đỏ dưới da).\n` +
                   `- **Sức khỏe hàng rào da**: Hàng rào bảo vệ da bị suy yếu và đang có phản ứng viêm hoạt động kích thích sắc tố sinh thêm.\n` +
                   `- **Yếu tố nguy cơ**: Tổn thương xuất hiện sau phương pháp ${treatments.join(', ')}. Các sản phẩm trị nám đã dùng: ${payload.history.products || 'Không rõ'}.`;
                   
@@ -3413,11 +3431,11 @@
         treatment = `- **Liệu trình PharmesHub đề xuất**: **LIỆU TRÌNH MESO-MELANO PHỤC HỒI CHUYÊN SÂU**\n` +
                     `- **Cơ chế tác động**: Đưa trực tiếp Tranexamic Acid tinh khiết kết hợp các peptide sinh học làm dịu vào tầng trung bì bằng công nghệ cấy vi điểm. Giúp cắt đứt tín hiệu viêm kích thích tế bào hắc tố melanocyte, dập tắt tình trạng tăng sắc tố dội ngược, đồng thời tái tạo màng đáy để phục hồi làn da đều màu và khỏe mạnh bền vững.`;
       } 
-      else if (pattern.includes('Vừa') || pattern.includes('hỗn hợp') || (imageMetrics.unevenness > 14 && pattern.includes('Không chắc'))) {
+      else if (pattern.includes('Vừa') || pattern.includes('hỗn hợp') || (pattern.includes('Không chắc') && imageMetrics.unevenness > 9.0)) {
         pigment = 'Nám hỗn hợp (Mixed Melasma): Sắc tố đa tầng kết hợp giữa nám mảng biểu bì nông và nám đốm sâu trung bì.';
         
         summary = `- **Thể sắc tố chính**: Nám hỗn hợp đa tầng nông - sâu hỗn hợp hai bên gò má, sống mũi, trán.\n` +
-                  `- **Đánh giá ảnh thực tế**: Độ loang lổ sắc tố đạt **${imageMetrics.unevenness.toFixed(1)}** (Rất cao, đốm chân sâu và mảng sắc tố chồng chéo). Chỉ số đỏ da: **${imageMetrics.redness.toFixed(2)}** (Ổn định, ít nhạy cảm).\n` +
+                  `- **Đánh giá ảnh thực tế**: Độ loang lổ sắc tố da đạt **${imageMetrics.unevenness.toFixed(1)}** (Chân sắc tố trung bì kết hợp mảng sạm biểu bì). Chỉ số đỏ da: **${imageMetrics.redness.toFixed(2)}** (Ổn định, ít nhạy cảm).\n` +
                   `- **Sức khỏe hàng rào da**: Hàng rào bảo vệ da tương đối ổn định, cấu trúc sừng khỏe, sẵn sàng tiếp nhận các phác đồ điều trị hoạt chất mạnh.\n` +
                   `- **Yếu tố nguy cơ**: Thời gian sắc tố: ${payload.pigmentation.duration.toLowerCase()}. Di truyền gia đình: ${genetic}. Yếu tố nội tiết: ${hormone}.`;
                   
@@ -3428,11 +3446,11 @@
         treatment = `- **Liệu trình PharmesHub đề xuất**: **PHÁC ĐỒ ĐA CÔNG NGHỆ PICOMAX LASER & MESO-MELANO**\n` +
                     `- **Cơ chế tác động**: Sự kết hợp hoàn hảo giữa công nghệ laser xung siêu ngắn PicoMax (phân rã cơ học hạt sắc tố melanin sâu ở trung bì thành hạt siêu nhỏ để hệ bạch huyết tự đào thải) và tiêm cấy tinh chất Meso-Melano (ức chế sản sinh melanin mới ở lớp biểu bì nông). Mang lại hiệu quả toàn diện, dứt điểm chân nám sâu và mảng nám nông.`;
       } 
-      else if (pattern.includes('Đốm') || (imageMetrics.unevenness > 11 && imageMetrics.redness < 1.22)) {
+      else if (pattern.includes('Đốm') || (pattern.includes('Không chắc') && imageMetrics.unevenness > 6.5 && imageMetrics.redness < 1.22)) {
         pigment = 'Sắc tố dạng đốm rải rác: Tàn nhang / Nám đốm chân sâu trung bì (Hori\'s Nevus) / Đốm đồi mồi lão hóa.';
         
         summary = `- **Thể sắc tố chính**: Đốm sắc tố hình tròn riêng lẻ sẫm màu tập trung đối xứng ở hai bên gò má.\n` +
-                  `- **Đánh giá ảnh thực tế**: Độ không đều màu đạt **${imageMetrics.unevenness.toFixed(1)}** (Cao, chân sắc tố tập trung thành đốm đậm màu). Chỉ số đỏ da: **${imageMetrics.redness.toFixed(2)}** (Khỏe mạnh, không có dấu hiệu giãn mao mạch).\n` +
+                  `- **Đánh giá ảnh thực tế**: Độ không đều màu da đạt **${imageMetrics.unevenness.toFixed(1)}** (Chân sắc tố tập trung thành đốm đậm màu). Chỉ số đỏ da: **${imageMetrics.redness.toFixed(2)}** (Khỏe mạnh, không có dấu hiệu giãn mao mạch).\n` +
                   `- **Sức khỏe hàng rào da**: Nền da khỏe mạnh, không bị bào mòn, có độ đàn hồi tốt.\n` +
                   `- **Yếu tố nguy cơ**: Di truyền gia đình: ${genetic}. Đã can thiệp phương pháp: ${treatments.join(', ')}.`;
                   
@@ -3448,7 +3466,8 @@
         pigment = 'Nám mảng biểu bì (Epidermal Melasma): Sắc tố tích tụ dạng mảng nông lành tính do ánh nắng và nhiệt độ môi trường.';
         
         summary = `- **Thể sắc tố chính**: Mảng sắc tố sạm màu vàng nâu hoặc nâu nhạt phân bố nông ở lớp sừng biểu bì ngoài cùng.\n` +
-                  `- **Đánh giá ảnh thực tế**: Độ không đều sắc tố đạt **${imageMetrics.unevenness.toFixed(1)}**. Chỉ số đỏ da (Redness): **${imageMetrics.redness.toFixed(2)}** (Nền da ổn định, khỏe mạnh).\n` +
+                  `- **Đánh giá ảnh thực tế**: Độ không đều sắc tố da đạt **${imageMetrics.unevenness.toFixed(1)}** (Tình trạng nhẹ/trung bình trên da thực tế).\n` +
+                  `- **Chỉ số đỏ da (Redness)**: **${imageMetrics.redness.toFixed(2)}** (Nền da ổn định, khỏe mạnh).\n` +
                   `- **Sức khỏe hàng rào da**: Hàng rào bảo vệ da tương đối tốt, ít bị tổn thương cơ học.\n` +
                   `- **Yếu tố nguy cơ**: Thời gian bị: ${payload.pigmentation.duration.toLowerCase()}. Sản phẩm đã dùng: ${payload.history.products || 'Trống'}.`;
                   
