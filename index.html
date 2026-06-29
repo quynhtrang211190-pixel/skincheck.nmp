@@ -2646,6 +2646,39 @@
       });
     }
 
+    async function processAndValidateUploadedImage(dataUrl, slotKey) {
+      const metrics = await analyzeImagePixels(dataUrl);
+      
+      if (!metrics.filtered) {
+        alert("❌ ẢNH KHÔNG ĐẠT TIÊU CHUẨN:\nHệ thống không nhận diện được vùng da mặt của bạn. Ảnh có thể bị quá mờ, thiếu sáng trầm trọng hoặc góc chụp quá xa.\n\nVui lòng chụp hoặc chọn lại ảnh cận cảnh rõ nét mặt của bạn.");
+        return false;
+      }
+      
+      if (metrics.averageLuminance < 45) {
+        alert(`❌ ẢNH QUÁ TỐI:\nẢnh chụp bị thiếu sáng (độ sáng trung bình: ${Math.round(metrics.averageLuminance)}).\n\nVui lòng di chuyển đến vùng có ánh sáng tốt hơn và chụp lại.`);
+        return false;
+      }
+      
+      if (metrics.averageLuminance > 225) {
+        alert(`❌ ẢNH BỊ CHÓI SÁNG:\nẢnh chụp quá chói hoặc lóa sáng mạnh (độ sáng trung bình: ${Math.round(metrics.averageLuminance)}).\n\nVui lòng chụp lại ở nơi có ánh sáng dịu hơn.`);
+        return false;
+      }
+      
+      // Save data
+      state.images[slotKey] = dataUrl;
+      
+      // Map to brightness status
+      let status = 'good';
+      if (metrics.averageLuminance < 75) {
+        status = 'too-dark';
+      } else if (metrics.averageLuminance > 195) {
+        status = 'too-bright';
+      }
+      state.brightness[slotKey] = status;
+      
+      return { status, metrics };
+    }
+
     // Handle Scrolled Navbar
     window.addEventListener('scroll', () => {
       const nav = $('#navbar');
@@ -2733,7 +2766,13 @@
 
         try {
           const dataUrl = await compressImage(file);
-          state.images[key] = dataUrl;
+          
+          // Validate quality and brightness of image immediately
+          const validation = await processAndValidateUploadedImage(dataUrl, key);
+          if (!validation) {
+            e.target.value = ''; // Clear file input
+            return;
+          }
 
           slot.classList.add('has-image');
           slot.querySelector('img')?.remove();
@@ -2742,16 +2781,12 @@
           img.src = dataUrl;
           slot.appendChild(img);
 
-          // Analyze brightness
-          const brightnessResult = await analyzeBrightness(dataUrl);
-          state.brightness[key] = brightnessResult.status;
-
           const placeholder = slot.querySelector('.brightness-badge-placeholder');
           if (placeholder) {
             let badgeHtml = '';
-            if (brightnessResult.status === 'too-dark') {
+            if (validation.status === 'too-dark') {
               badgeHtml = '<span class="brightness-badge too-dark">⚠️ Ánh sáng tối</span>';
-            } else if (brightnessResult.status === 'too-bright') {
+            } else if (validation.status === 'too-bright') {
               badgeHtml = '<span class="brightness-badge too-bright">⚠️ Ánh sáng chói</span>';
             } else {
               badgeHtml = '<span class="brightness-badge good">✓ Đạt chuẩn sáng</span>';
@@ -2759,7 +2794,7 @@
             placeholder.innerHTML = badgeHtml;
           }
         } catch (err) {
-          console.error("Compression error:", err);
+          console.error("Compression/Validation error:", err);
           alert('Không thể tải hoặc xử lý ảnh này. Vui lòng chọn ảnh khác.');
         } finally {
           slot.style.opacity = '1';
@@ -2981,30 +3016,23 @@
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       
       const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-      
-      // Analyze brightness first BEFORE stopping camera!
-      const brightnessResult = await analyzeBrightness(dataUrl);
-      
-      if (brightnessResult.status !== 'good') {
-        const problem = brightnessResult.status === 'too-dark' ? 'QUÁ TỐI (thiếu ánh sáng)' : 'QUÁ SÁNG (bị chói/ngược sáng)';
-        const retry = confirm(`⚠️ CẢNH BÁO ÁNH SÁNG:\nẢnh chụp CHƯA ĐẠT CHUẨN vì bị ${problem}.\n\nBạn có muốn CHỤP LẠI (Khuyên dùng) dưới ánh sáng tốt hơn không?\n\n- Bấm OK (Đồng ý) để chụp lại\n- Bấm Cancel (Hủy) để giữ ảnh này và tiếp tục`);
-        if (retry) {
-          // Keep camera running and let user adjust and recapture
-          return;
-        }
-      } else {
-        alert('✓ ĐẠT CHUẨN:\nẢnh chụp thành công và đạt tiêu chuẩn ánh sáng tốt!');
-      }
-      
-      stopCamera();
-      
       const slotKey = state.activeSlot;
       const slot = $('#slot-' + slotKey);
       
       slot.style.opacity = '0.5';
       try {
         const compressedUrl = await compressImage(dataUrl);
-        state.images[slotKey] = compressedUrl;
+        
+        // Validate quality and brightness immediately
+        const validation = await processAndValidateUploadedImage(compressedUrl, slotKey);
+        if (!validation) {
+          // Keep camera open for recapturing
+          return;
+        }
+        
+        stopCamera();
+        
+        alert('✓ ĐẠT TIÊU CHUẨN:\nẢnh chụp da đạt chất lượng ánh sáng và đã nhận diện thành công!');
         
         slot.classList.add('has-image');
         slot.querySelector('img')?.remove();
@@ -3013,14 +3041,12 @@
         img.src = compressedUrl;
         slot.appendChild(img);
         
-        state.brightness[slotKey] = brightnessResult.status;
-        
         const placeholder = slot.querySelector('.brightness-badge-placeholder');
         if (placeholder) {
           let badgeHtml = '';
-          if (brightnessResult.status === 'too-dark') {
+          if (validation.status === 'too-dark') {
             badgeHtml = '<span class="brightness-badge too-dark">⚠️ Ánh sáng tối</span>';
-          } else if (brightnessResult.status === 'too-bright') {
+          } else if (validation.status === 'too-bright') {
             badgeHtml = '<span class="brightness-badge too-bright">⚠️ Ánh sáng chói</span>';
           } else {
             badgeHtml = '<span class="brightness-badge good">✓ Đạt chuẩn sáng</span>';
@@ -3028,7 +3054,7 @@
           placeholder.innerHTML = badgeHtml;
         }
       } catch (err) {
-        console.error("Capture compression failed:", err);
+        console.error("Capture validation/compression failed:", err);
         alert('Không thể lưu ảnh chụp da. Vui lòng chụp lại.');
       } finally {
         slot.style.opacity = '1';
@@ -3443,8 +3469,8 @@
                `- **Hoạt chất cần tránh**: Các loại kem trị nám tự pha trộn, kem cốt chứa corticoid phá hủy cấu trúc da.\n` +
                `- **Lưu ý bảo vệ**: Kết hợp chống nắng phổ rộng đa tầng, hạn chế tối đa stress, thức khuya để ổn định nội tiết tố bên trong cơ thể.`;
                
-        treatment = `- **Liệu trình PharmesHub đề xuất**: **PHÁC ĐỒ ĐA CÔNG NGHỆ PICOMAX LASER & MESO-MELANO**\n` +
-                    `- **Cơ chế tác động**: Sự kết hợp hoàn hảo giữa công nghệ laser xung siêu ngắn PicoMax (phân rã cơ học hạt sắc tố melanin sâu ở trung bì thành hạt siêu nhỏ để hệ bạch huyết tự đào thải) và tiêm cấy tinh chất Meso-Melano (ức chế sản sinh melanin mới ở lớp biểu bì nông). Mang lại hiệu quả toàn diện, dứt điểm chân nám sâu và mảng nám nông.`;
+        treatment = `- **Liệu trình PharmesHub đề xuất**: **PHÁC ĐỒ PHỨC HỢP MESO-MELANO & PEEL THUẦN CHAY ĐA TẦNG (NON-THERMAL MULTI-LAYER)**\n` +
+                    `- **Cơ chế tác động**: Sự kết hợp hoàn hảo giữa công nghệ thay da sinh học hữu cơ dịu nhẹ (Vegan Peel) để lấy đi các tế bào sắc tố nông tích tụ ở lớp thượng bì và kỹ thuật cấy vi điểm Meso-Melano giúp đưa trực tiếp tinh chất ức chế sắc tố (như Tranexamic Acid, Glutathione) xuống sâu biểu bì để khóa chặt hoạt động sản sinh Melanin mới. Đảm bảo an toàn tuyệt đối, hoàn toàn không sử dụng nhiệt và ngăn ngừa nguy cơ tăng sắc tố dội ngược.\n\n*Lưu ý: Đối với các trường hợp bớt sắc tố bẩm sinh (nếu có), PharmesHub mới ứng dụng công nghệ Laser chuyên biệt.*`;
       } 
       else if (pattern.includes('Đốm') || (pattern.includes('Không chắc') && imageMetrics.unevenness > 6.5 && imageMetrics.redness < 1.22)) {
         pigment = 'Sắc tố dạng đốm rải rác: Tàn nhang / Nám đốm chân sâu trung bì (Hori\'s Nevus) / Đốm đồi mồi lão hóa.';
@@ -3458,8 +3484,8 @@
                `- **Hoạt chất cần tránh**: Tránh bôi các loại kem làm bong tróc lột tẩy da bề mặt quá đà (vì chân nám nằm ở trung bì sâu, bôi kem bong tróc nông sẽ không giải quyết được gốc nám mà còn gây mỏng đỏ bề mặt).\n` +
                `- **Lưu ý bảo vệ**: Chống nắng vật lý lai hóa học, che chắn vật lý kỹ trước tia UV để các đốm nám không bị đậm màu hơn.`;
                
-        treatment = `- **Liệu trình PharmesHub đề xuất**: **LIỆU TRÌNH PICOMAX LASER & DETOX SẮC TỐ CHUYÊN SÂU**\n` +
-                    `- **Cơ chế tác động**: Sử dụng bước sóng laser xung pico-giây tác động quang cơ học mạnh mẽ vào tế bào hắc tố Melanin ở trung bì. Nhắm trúng đích tế bào sắc tố sâu để phân rã chúng thành bụi mịn mà hoàn toàn không gây sinh nhiệt hay bỏng rát bề mặt biểu bì, ngăn ngừa sẹo và mất sắc tố.`;
+        treatment = `- **Liệu trình PharmesHub đề xuất**: **LIỆU TRÌNH MESO-DETOX SẮC TỐ PHỤC HỒI & ỨC CHẾ KHÔNG NHIỆT**\n` +
+                    `- **Cơ chế tác động**: Ứng dụng kỹ thuật đưa phức hợp tinh chất giải độc tế bào sắc tố (Detoxification) và hoạt chất ức chế sản sinh Melanin trực tiếp vào trung bì nông bằng công nghệ cấy vi điểm. Phân rã liên kết của các đốm hắc tố và đào thải tự nhiên qua hệ tuần hoàn mà hoàn toàn không dùng nhiệt, không gây bong tróc lột tẩy hay bào mòn da.`;
       } 
       else {
         // Nám mảng lành tính
