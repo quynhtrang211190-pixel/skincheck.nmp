@@ -3458,7 +3458,7 @@
     function analyzeImagePixels(dataUrl) {
       return new Promise((resolve) => {
         if (!dataUrl) {
-          resolve({ redness: 1.15, unevenness: 4.5, averageLuminance: 120 });
+          resolve({ redness: 1.15, unevenness: 4.5, spots: 12, uvPigment: 15, texture: 10, pores: 8, averageLuminance: 120 });
           return;
         }
         const img = new Image();
@@ -3472,63 +3472,132 @@
             const imgData = ctx.getImageData(0, 0, 50, 50);
             const data = imgData.data;
             
+            let skinPixels = [];
             let totalR = 0, totalG = 0, totalB = 0;
-            let lums = [];
-            let skinPixelCount = 0;
             
-            for (let i = 0; i < data.length; i += 4) {
-              const r = data[i];
-              const g = data[i+1];
-              const b = data[i+2];
-              
-              // Standard rule-based skin color detection in RGB space
-              // Filters out dark hair, eyes, eyebrows, lips, clothing, and dark backgrounds
-              const isSkin = r > 95 && g > 40 && b > 20 && 
-                             r > g && r > b && 
-                             (r - g) > 15 && 
-                             (Math.max(r, g, b) - Math.min(r, g, b) > 15);
-              
-              if (isSkin) {
-                totalR += r;
-                totalG += g;
-                totalB += b;
-                // Luminance: Y = 0.299R + 0.587G + 0.114B
+            for (let y = 0; y < 50; y++) {
+              for (let x = 0; x < 50; x++) {
+                const idx = (y * 50 + x) * 4;
+                const r = data[idx];
+                const g = data[idx+1];
+                const b = data[idx+2];
+                
                 const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-                lums.push(lum);
-                skinPixelCount++;
+                // Exclude dark background, hair, and highly saturated red lips (r/g < 1.35)
+                const isSkin = r > 95 && g > 40 && b > 20 && 
+                               r > g && r > b && 
+                               (r - g) > 15 && 
+                               (Math.max(r, g, b) - Math.min(r, g, b) > 15) &&
+                               (r / (g || 1) < 1.35) && 
+                               lum > 50;
+                               
+                if (isSkin) {
+                  skinPixels.push({ x, y, r, g, b, lum });
+                  totalR += r;
+                  totalG += g;
+                  totalB += b;
+                }
               }
             }
             
-            // Fallback if no skin pixels detected (e.g. background only or bad lighting)
-            if (skinPixelCount < 50) {
-              resolve({ redness: 1.15, unevenness: 4.5, averageLuminance: 120, filtered: false });
+            if (skinPixels.length < 100) {
+              resolve({ redness: 1.15, unevenness: 4.5, spots: 15, uvPigment: 18, texture: 12, pores: 10, averageLuminance: 120, filtered: false });
               return;
             }
             
-            const avgR = totalR / skinPixelCount;
-            const avgG = totalG / skinPixelCount;
-            const avgB = totalB / skinPixelCount;
+            const skinCount = skinPixels.length;
+            const avgR = totalR / skinCount;
+            const avgG = totalG / skinCount;
+            const avgB = totalB / skinCount;
+            const avgLum = skinPixels.reduce((sum, p) => sum + p.lum, 0) / skinCount;
             
-            const avgLum = lums.reduce((sum, val) => sum + val, 0) / skinPixelCount;
-            const variance = lums.reduce((sum, val) => sum + Math.pow(val - avgLum, 2), 0) / skinPixelCount;
+            // 1. Redness index
+            const rednessRatio = avgG > 0 ? avgR / avgG : 1.15;
+            
+            // 2. Luminance standard deviation (unevenness)
+            const variance = skinPixels.reduce((sum, p) => sum + Math.pow(p.lum - avgLum, 2), 0) / skinCount;
             const stdDevLum = Math.sqrt(variance);
             
-            // Redness index (R/G ratio of skin pixels)
-            const rednessRatio = avgG > 0 ? avgR / avgG : 1.15;
+            // 3. SPOTS (Epidermal Pigmentation contrast search)
+            let spotCount = 0;
+            skinPixels.forEach(p => {
+              if (p.lum < avgLum * 0.86) {
+                spotCount++;
+              }
+            });
+            const spotsScore = Math.min(100, Math.round((spotCount / skinCount) * 100 * 2.8));
+            
+            // 4. UV MELANIN (Independent Melanin index using log scale)
+            let totalMelaninIdx = 0;
+            const mIndices = skinPixels.map(p => {
+              const mIdx = Math.log(p.r + 1) - Math.log(p.b + 1);
+              totalMelaninIdx += mIdx;
+              return mIdx;
+            });
+            const avgMelanin = totalMelaninIdx / skinCount;
+            let uvMelaninCount = 0;
+            mIndices.forEach(m => {
+              if (m > avgMelanin * 1.12) {
+                uvMelaninCount++;
+              }
+            });
+            const uvMelaninScore = Math.min(100, Math.round((uvMelaninCount / skinCount) * 100 * 2.4));
+            
+            // 5. TEXTURE (Spatial derivative / High frequency roughness detection)
+            let edgeSum = 0;
+            let edgeCount = 0;
+            const lumMap = {};
+            skinPixels.forEach(p => {
+              lumMap[`${p.x},${p.y}`] = p.lum;
+            });
+            
+            skinPixels.forEach(p => {
+              const lx = lumMap[`${p.x + 1},${p.y}`];
+              const ly = lumMap[`${p.x},${p.y + 1}`];
+              if (lx !== undefined && ly !== undefined) {
+                const grad = Math.abs(p.lum - lx) + Math.abs(p.lum - ly);
+                edgeSum += grad;
+                edgeCount++;
+              }
+            });
+            const avgGrad = edgeCount > 0 ? edgeSum / edgeCount : 2.0;
+            const textureScore = Math.min(100, Math.max(0, Math.round((avgGrad - 1.8) * 15)));
+            
+            // 6. PORES (Local minima dark indentations)
+            let poreCount = 0;
+            skinPixels.forEach(p => {
+              const neighbors = [
+                lumMap[`${p.x-1},${p.y-1}`], lumMap[`${p.x},${p.y-1}`], lumMap[`${p.x+1},${p.y-1}`],
+                lumMap[`${p.x-1},${p.y}`],                             lumMap[`${p.x+1},${p.y}`],
+                lumMap[`${p.x-1},${p.y+1}`], lumMap[`${p.x},${p.y+1}`], lumMap[`${p.x+1},${p.y+1}`]
+              ];
+              const validNeighbors = neighbors.filter(v => v !== undefined);
+              if (validNeighbors.length >= 5) {
+                const avgNeighborLum = validNeighbors.reduce((sum, v) => sum + v, 0) / validNeighbors.length;
+                if (p.lum < avgNeighborLum * 0.92) {
+                  poreCount++;
+                }
+              }
+            });
+            const poresScore = Math.min(100, Math.round((poreCount / skinCount) * 100 * 4.0));
             
             resolve({
               redness: rednessRatio,
               unevenness: stdDevLum,
               averageLuminance: avgLum,
+              spots: spotsScore,
+              uvPigment: uvMelaninScore,
+              texture: textureScore,
+              pores: poresScore,
               filtered: true
             });
           } catch (e) {
-            console.error("Lỗi phân tích pixel ảnh:", e);
-            resolve({ redness: 1.15, unevenness: 4.5, averageLuminance: 120 });
+            console.error("Lỗi thuật toán phân tích pixel nâng cao:", e);
+            resolve({ redness: 1.15, unevenness: 4.5, spots: 12, uvPigment: 15, texture: 10, pores: 8, averageLuminance: 120 });
           }
         };
         img.onerror = () => {
-          resolve({ redness: 1.15, unevenness: 4.5, averageLuminance: 120 });
+          resolve({ redness: 1.15, unevenness: 4.5, spots: 12, uvPigment: 15, texture: 10, pores: 8, averageLuminance: 120 });
         };
         img.src = dataUrl;
       });
@@ -3539,6 +3608,10 @@
         redness: 1.18,
         unevenness: 4.8,
         brightness: 120,
+        spots: 18,
+        uvPigment: 22,
+        texture: 15,
+        pores: 12,
         hasImages: false
       };
       
@@ -3558,16 +3631,28 @@
         let sumRedness = 0;
         let sumUnevenness = 0;
         let sumBrightness = 0;
+        let sumSpots = 0;
+        let sumUVPigment = 0;
+        let sumTexture = 0;
+        let sumPores = 0;
         
         analyses.forEach(a => {
           sumRedness += a.redness;
           sumUnevenness += a.unevenness;
           sumBrightness += a.averageLuminance;
+          sumSpots += a.spots || 0;
+          sumUVPigment += a.uvPigment || 0;
+          sumTexture += a.texture || 0;
+          sumPores += a.pores || 0;
         });
         
         result.redness = sumRedness / analyses.length;
         result.unevenness = sumUnevenness / analyses.length;
         result.brightness = sumBrightness / analyses.length;
+        result.spots = sumSpots / analyses.length;
+        result.uvPigment = sumUVPigment / analyses.length;
+        result.texture = sumTexture / analyses.length;
+        result.pores = sumPores / analyses.length;
       }
       
       return result;
@@ -3593,48 +3678,41 @@
       let basePores = 20;
 
       if (pattern.includes('mảng') || pattern.includes('Hỗn hợp') || pattern.includes('Vừa') || pattern.includes('hỗn hợp')) {
-        baseSpots = 45;
+        baseSpots = 55;
       } else if (pattern.includes('Đốm') || pattern.includes('tàn nhang')) {
-        baseSpots = 35;
+        baseSpots = 40;
       } else if (pattern.includes('Không') || pattern.includes('chưa')) {
         baseSpots = 10;
       }
 
       if (pattern.includes('Đốm') || pattern.includes('chân sâu') || pattern.includes('Hỗn hợp') || pattern.includes('Vừa') || pattern.includes('hỗn hợp')) {
-        baseUVPigment = 50;
+        baseUVPigment = 65;
       } else if (pattern.includes('mảng')) {
-        baseUVPigment = 30;
+        baseUVPigment = 35;
       } else if (pattern.includes('Không') || pattern.includes('chưa')) {
         baseUVPigment = 15;
       }
 
       if (symptoms.includes('Khô ráp') || symptoms.includes('Khô ráp, căng chặt') || symptoms.includes('Dễ bong tróc') || symptoms.includes('dễ bong tróc') || symptoms.includes('KHÔ RÁP, CĂNG CHẶT HOẶC DỄ BONG TRÓC')) {
-        baseTexture = 45;
+        baseTexture = 50;
       }
 
       const hasLargePores = symptoms.includes('Lỗ chân lông to') || symptoms.includes('Lỗ chân lông to, nhiều dầu');
       if (hasLargePores) {
-        basePores = 55;
+        basePores = 60;
       }
 
-      const rawUnevenness = imageMetrics.unevenness || 4.8;
-      const deviation = rawUnevenness - 12;
+      // Fusion logic: 70% sensor calculation + 30% survey baseline
+      // This ensures scientific sensor validation while preventing extreme contradictions with survey answers
+      const calcSpots = imageMetrics.spots !== undefined ? imageMetrics.spots : baseSpots;
+      const calcUVPigment = imageMetrics.uvPigment !== undefined ? imageMetrics.uvPigment : baseUVPigment;
+      const calcTexture = imageMetrics.texture !== undefined ? imageMetrics.texture : baseTexture;
+      const calcPores = imageMetrics.pores !== undefined ? imageMetrics.pores : basePores;
 
-      // Brightness bonus (higher brightness means fair, reflective, smooth skin)
-      const brightBonus = Math.max(0, (imageMetrics.averageLuminance || 120) - 120) * 0.4;
-
-      // Dynamic calculation of Visia metrics
-      imageMetrics.spots = Math.min((pattern.includes('mảng') || pattern.includes('Hỗn hợp') || pattern.includes('Vừa') || pattern.includes('hỗn hợp')) ? 95 : 60,
-                                    Math.max(5, baseSpots + deviation * 1.0 - brightBonus));
-
-      imageMetrics.uvPigment = Math.min((pattern.includes('Đốm') || pattern.includes('Hỗn hợp') || pattern.includes('Vừa') || pattern.includes('hỗn hợp')) ? 95 : 65,
-                                       Math.max(8, baseUVPigment + deviation * 0.8 - brightBonus * 0.5));
-
-      imageMetrics.texture = Math.min((symptoms.includes('Khô ráp') || symptoms.includes('Khô ráp, căng chặt') || symptoms.includes('Dễ bong tróc') || symptoms.includes('dễ bong tróc') || symptoms.includes('KHÔ RÁP, CĂNG CHẶT HOẶC DỄ BONG TRÓC')) ? 85 : 55,
-                                      Math.max(5, baseTexture + deviation * 0.6 - brightBonus));
-
-      imageMetrics.pores = Math.min(hasLargePores ? 85 : 45,
-                                    Math.max(6, basePores + deviation * 0.5));
+      imageMetrics.spots = Math.round(calcSpots * 0.7 + baseSpots * 0.3);
+      imageMetrics.uvPigment = Math.round(calcUVPigment * 0.7 + baseUVPigment * 0.3);
+      imageMetrics.texture = Math.round(calcTexture * 0.7 + baseTexture * 0.3);
+      imageMetrics.pores = Math.round(calcPores * 0.7 + basePores * 0.3);
 
       // Phân tích biểu hiện nhiễm độc Corticoid hoặc tổn thương hàng rào lipid nặng
       const hasCorticoidRisk = 
