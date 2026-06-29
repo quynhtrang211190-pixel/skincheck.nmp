@@ -3398,7 +3398,7 @@
 
     function createInternalReport(payload, imageMetrics) {
       if (!imageMetrics) {
-        imageMetrics = { redness: 1.18, unevenness: 4.8, averageLuminance: 120, hasImages: false };
+        imageMetrics = { redness: 1.18, unevenness: 4.8, spots: 18.0, uvPigment: 22.0, texture: 15.0, pores: 12.0, averageLuminance: 120, hasImages: false };
       }
       
       const pattern = payload.pigmentation.pattern || '';
@@ -3426,105 +3426,171 @@
       let next = '';
       let treatment = '';
       
+      // Visia-style diagnostic status definitions
+      const rednessStatus = imageMetrics.redness > 1.30 ? '🔴 RẤT CAO (Mao mạch yếu, viêm đỏ)' : (imageMetrics.redness > 1.22 ? '🟡 TRUNG BÌNH (Da mỏng yếu, dễ kích ứng)' : '🟢 TỐT (Nền da khỏe mạnh, ổn định)');
+      const spotsStatus = imageMetrics.spots > 55 ? '🔴 CAO (Mảng sắc tố đậm và rộng)' : (imageMetrics.spots > 30 ? '🟡 TRUNG BÌNH (Sắc tố loang lổ nhẹ)' : '🟢 THẤP (Không đáng kể, da khá đều màu)');
+      const uvStatus = imageMetrics.uvPigment > 60 ? '🔴 MẬT ĐỘ CAO (Hắc tố tích tụ sâu trung bì)' : (imageMetrics.uvPigment > 35 ? '🟡 TRUNG BÌNH (Có chân sắc tố ẩn dưới da)' : '🟢 THẤP (Không phát hiện sắc tố sâu)');
+      const textureStatus = imageMetrics.texture > 50 ? '🔴 SẦN SÙI (Thô ráp, thiếu ẩm & collagen)' : (imageMetrics.texture > 25 ? '🟡 TRUNG BÌNH (Kém mịn màng, sừng hóa nhẹ)' : '🟢 MỊN MÀNG (Cấu trúc da săn chắc, căng bóng)');
+      const poresStatus = imageMetrics.pores > 45 ? '🔴 GIÃN NỞ (Lỗ chân lông mở rộng)' : (imageMetrics.pores > 25 ? '🟡 TRUNG BÌNH (Giãn nhẹ vùng chữ T)' : '🟢 SE KHÍT (Lỗ chân lông nhỏ mịn)');
+
+      const baseAnalysis = 
+        `**📊 BÁO CÁO PHÂN TÍCH NỀN DA CHUYÊN SÂU (VISIA-STYLE ANALYSIS):**
+` +
+        `- **🔴 Chỉ số Mao mạch / Đỏ da (Redness)**: **${imageMetrics.redness.toFixed(2)}** $\rightarrow$ ${rednessStatus}
+` +
+        `- **🟤 Chỉ số Đốm sắc tố biểu bì (Spots)**: **${imageMetrics.spots.toFixed(0)}%** $\rightarrow$ ${spotsStatus}
+` +
+        `- **🟣 Chỉ số Sắc tố sâu UV (UV Melanin)**: **${imageMetrics.uvPigment.toFixed(0)}%** $\rightarrow$ ${uvStatus}
+` +
+        `- **🟢 Chỉ số Kết cấu / Độ mịn (Texture)**: **${imageMetrics.texture.toFixed(0)}%** $\rightarrow$ ${textureStatus}
+` +
+        `- **⚫ Chỉ số Lỗ chân lông (Pores)**: **${imageMetrics.pores.toFixed(0)}%** $\rightarrow$ ${poresStatus}
+
+`;
+
       // Phân loại khoa học và chẩn đoán sắc tố nám
       if (hasCorticoidRisk || imageMetrics.redness > 1.34) {
         pigment = '🚨 CẢNH BÁO ĐỎ: Sạm da nhiễm độc Corticoid dội ngược (nền da mỏng yếu, tổn thương hàng rào lipid nặng, dãn mao mạch diện rộng).';
         
-        summary = `- **Thể sắc tố chính**: Sạm da dội ngược do nghiện corticoid hoặc hóa chất bào mòn.\n` +
-                  `- **Đánh giá ảnh thực tế**: Độ không đều màu da đạt **${imageMetrics.unevenness.toFixed(1)}** (Dựa trên vùng da thực tế). Chỉ số đỏ da (Redness): **${imageMetrics.redness.toFixed(2)}** (Rất cao, dãn mao mạch nổi rõ).\n` +
-                  `- **Sức khỏe hàng rào da**: Nền da đang bị teo mỏng, mất hoàn toàn lớp màng bảo vệ hydrolipid tự nhiên, cực kỳ nhạy cảm.\n` +
+        summary = baseAnalysis +
+                  `**🩺 ĐÁNH GIÁ SỨC KHỎE HÀNG RÀO BẢO VỆ:**
+` +
+                  `- Nền da đang bị teo mỏng, mất hoàn toàn lớp màng bảo vệ hydrolipid tự nhiên, mao mạch giãn nổi rõ do ảnh hưởng chất bào mòn.
+` +
                   `- **Yếu tố nguy cơ**: Lịch sử can thiệp ${treatments.join(', ')}. ${rapidWhitening ? 'Biểu hiện kem trắng nhanh: ' + rapidWhitening : ''}.`;
                   
-        next = `**[HOMECARE] PHÁC ĐỒ CHĂM SÓC TẠI NHÀ:**\n` +
-               `- **Hoạt chất khuyên dùng**: Ceramide nồng độ cao (phục hồi sừng), Panthenol (B5), Hyaluronic Acid đa tầng, chiết xuất rau má (Centella), Niacinamide cực nhẹ (<2%) để phục hồi màng lipid.\n` +
-               `- **Hoạt chất cần tránh**: Tuyệt đối tránh Hydroquinone nồng độ cao, Retinoids mạnh (Retinol/Tretinoin), các acid lột tẩy mạnh (AHA/BHA, TCA) và các liệu pháp bong tróc.\n` +
+        next = `**[HOMECARE] PHÁC ĐỒ CHĂM SÓC TẠI NHÀ:**
+` +
+               `- **Hoạt chất khuyên dùng**: Ceramide nồng độ cao (phục hồi sừng), Panthenol (B5), Hyaluronic Acid đa tầng, chiết xuất rau má (Centella), Niacinamide cực nhẹ (<2%) để phục hồi màng lipid.
+` +
+               `- **Hoạt chất cần tránh**: Tuyệt đối tránh Hydroquinone nồng độ cao, Retinoids mạnh (Retinol/Tretinoin), các acid lột tẩy mạnh (AHA/BHA, TCA) và các liệu pháp bong tróc.
+` +
                `- **Lưu ý bảo vệ**: Cai kem corticoid từ từ (giảm tần suất bôi, không dừng đột ngột để tránh bùng phát viêm nặng), tối giản quy trình skincare, dùng kem chống nắng vật lý màng lọc dịu nhẹ cho da tổn thương. Hạn chế tiếp xúc nguồn nhiệt lớn.`;
                
-        treatment = `**[CLINIC] PHÁC ĐỒ ĐIỀU TRỊ TẠI CƠ SỞ:**\n` +
-                    `- **Phương pháp thông thường hay ứng dụng**: Sử dụng các loại laser lạnh, ánh sáng làm dịu da tiêu chuẩn, điện di serum cấp ẩm phục hồi thông thường.\n` +
-                    `- **Khuyến nghị đặc biệt từ PharmesHub**:\n` +
-                    `  * *Phục hồi hàng rào bảo vệ (Bắt buộc)*: Ứng dụng liệu pháp **Superjection** trong giai đoạn phục hồi ban đầu để sửa chữa lớp màng lipid bị tàn phá nặng nề, cấp ẩm sâu, làm dịu kích ứng cấp tốc và thúc đẩy tăng sinh biểu bì khỏe mạnh.\n` +
+        treatment = `**[CLINIC] PHÁC ĐỒ ĐIỀU TRỊ TẠI CƠ SỞ:**
+` +
+                    `- **Phương pháp thông thường hay ứng dụng**: Sử dụng các loại laser lạnh, ánh sáng làm dịu da tiêu chuẩn, điện di serum cấp ẩm phục hồi thông thường.
+` +
+                    `- **Khuyến nghị đặc biệt từ PharmesHub**:
+` +
+                    `  * *Phục hồi hàng rào bảo vệ (Bắt buộc)*: Ứng dụng liệu pháp **Superjection** trong giai đoạn phục hồi ban đầu để sửa chữa lớp màng lipid bị tàn phá nặng nề, cấp ẩm sâu, làm dịu kích ứng cấp tốc và thúc đẩy tăng sinh biểu bì khỏe mạnh.
+` +
                     `  * *Xử lý sắc tố bề mặt (Giai đoạn sau)*: Khi nền da đã được phục hồi ổn định, mới cân nhắc sử dụng liệu pháp **MelanoRx** để dọn sạch sắc tố sạm màu bề mặt một cách an toàn, dịu nhẹ.`;
       } 
       else if (hasPIHRisk) {
         pigment = '⚠️ CẢNH BÁO VÀNG: Tăng sắc tố sau viêm (PIH) nặng / Nền da nhạy cảm đỏ yếu sau xâm lấn hỏng (laser/peel/chấm nám).';
         
-        summary = `- **Thể sắc tố chính**: Tăng sắc tố sau viêm (PIH) thứ phát sau tổn thương vật lý/hóa học.\n` +
-                  `- **Đánh giá ảnh thực tế**: Độ không đều sắc tố da đạt **${imageMetrics.unevenness.toFixed(1)}** (Mảng thâm sậm xen kẽ). Chỉ số đỏ da (Redness): **${imageMetrics.redness.toFixed(2)}** (Cao, biểu hiện viêm đỏ dưới da).\n` +
-                  `- **Sức khỏe hàng rào da**: Hàng rào bảo vệ da bị suy yếu và đang có phản ứng viêm hoạt động kích thích sắc tố sinh thêm.\n` +
-                  `- **Yếu tố nguy cơ**: Tổn thương xuất hiện sau phương pháp ${treatments.join(', ')}. Các sản phẩm trị nám đã dùng: ${payload.history.products || 'Không rõ'}.`;
+        summary = baseAnalysis +
+                  `**🩺 ĐÁNH GIÁ SỨC KHỎE HÀNG RÀO BẢO VỆ:**
+` +
+                  `- Hàng rào bảo vệ da bị suy yếu và đang có phản ứng viêm hoạt động kích thích sắc tố phát triển nhanh sau xâm lấn.
+` +
+                  `- **Yếu tố nguy cơ**: Tổn thương xuất hiện sau phương pháp  ${treatments.join(', ')}. Các sản phẩm trị nám đã dùng: ${payload.history.products || 'Không rõ'}.`;
                   
-        next = `**[HOMECARE] PHÁC ĐỒ CHĂM SÓC TẠI NHÀ:**\n` +
-               `- **Hoạt chất khuyên dùng**: Hoạt chất chống viêm và làm sáng dịu nhẹ như Tranexamic Acid (bôi), Niacinamide, Vitamin C phái sinh ổn định (EAA/SAP), kết hợp B5 và Ceramide để củng cố biểu bì.\n` +
-               `- **Hoạt chất cần tránh**: Tuyệt đối không tự bôi các chất lột tẩy mạnh, kem bong tróc làm mỏng da thêm.\n` +
+        next = `**[HOMECARE] PHÁC ĐỒ CHĂM SÓC TẠI NHÀ:**
+` +
+               `- **Hoạt chất khuyên dùng**: Hoạt chất chống viêm và làm sáng dịu nhẹ như Tranexamic Acid (bôi), Niacinamide, Vitamin C phái sinh ổn định (EAA/SAP), kết hợp B5 và Ceramide để củng cố biểu bì.
+` +
+               `- **Hoạt chất cần tránh**: Tuyệt đối không tự bôi các chất lột tẩy mạnh, kem bong tróc làm mỏng da thêm.
+` +
                `- **Lưu ý bảo vệ**: Chống nắng phổ rộng tối ưu (SPF 50+, PA++++), bôi lại sau mỗi 2-3 giờ, che chắn vật lý kỹ vì vùng PIH rất nhạy cảm với ánh sáng mặt trời.`;
                
-        treatment = `**[CLINIC] PHÁC ĐỒ ĐIỀU TRỊ TẠI CƠ SỞ:**\n` +
-                    `- **Phương pháp thông thường hay ứng dụng**: Điện di Vitamin C thường, tiêm Meso Tranexamic Acid dạng đơn chất, lột da bằng hóa chất (chemical peel) mức độ trung bình để đẩy sắc tố.\n` +
-                    `- **Khuyến nghị đặc biệt từ PharmesHub**:\n` +
-                    `  * *Phục hồi cấu trúc da và màng đáy*: Tiêm cấy hoạt chất **Superjection** để tái tạo nhanh hàng rào biểu bì bị tổn thương sau laser/peel hỏng, dập tắt phản ứng viêm hoạt động đang kích thích tế bào melanocyte.\n` +
+        treatment = `**[CLINIC] PHÁC ĐỒ ĐIỀU TRỊ TẠI CƠ SỞ:**
+` +
+                    `- **Phương pháp thông thường hay ứng dụng**: Điện di Vitamin C thường, tiêm Meso Tranexamic Acid dạng đơn chất, lột da bằng hóa chất (chemical peel) mức độ trung bình để đẩy sắc tố.
+` +
+                    `- **Khuyến nghị đặc biệt từ PharmesHub**:
+` +
+                    `  * *Phục hồi cấu trúc da và màng đáy*: Tiêm cấy hoạt chất **Superjection** để tái tạo nhanh hàng rào biểu bì bị tổn thương sau laser/peel hỏng, dập tắt phản ứng viêm hoạt động đang kích thích tế bào melanocyte.
+` +
                     `  * *Điều trị sắc tố không nhiệt*: Phối hợp liệu pháp trị nám không bong tróc nhiệt **MelanoRx** để ức chế sắc tố bề mặt và đào thải sắc tố PIH một cách êm dịu, ngừa thâm tái phát.`;
       } 
       else if (pattern.includes('Vừa') || pattern.includes('hỗn hợp') || (pattern.includes('Không chắc') && imageMetrics.unevenness > 9.0)) {
         pigment = 'Nám hỗn hợp (Mixed Melasma): Sắc tố đa tầng kết hợp giữa nám mảng biểu bì nông và nám đốm sâu trung bì.';
         
-        summary = `- **Thể sắc tố chính**: Nám hỗn hợp đa tầng nông - sâu hỗn hợp hai bên gò má, sống mũi, trán.\n` +
-                  `- **Đánh giá ảnh thực tế**: Độ loang lổ sắc tố da đạt **${imageMetrics.unevenness.toFixed(1)}** (Chân sắc tố trung bì kết hợp mảng sạm biểu bì). Chỉ số đỏ da: **${imageMetrics.redness.toFixed(2)}** (Ổn định, ít nhạy cảm).\n` +
-                  `- **Sức khỏe hàng rào da**: Hàng rào bảo vệ da tương đối ổn định, cấu trúc sừng khỏe, sẵn sàng tiếp nhận các phác đồ điều trị hoạt chất mạnh.\n` +
+        summary = baseAnalysis +
+                  `**🩺 ĐÁNH GIÁ SỨC KHỎE HÀNG RÀO BẢO VỆ:**
+` +
+                  `- Hàng rào bảo vệ da tương đối ổn định, cấu trúc sừng khỏe, sẵn sàng tiếp nhận các phác đồ trị nám chuyên sâu.
+` +
                   `- **Yếu tố nguy cơ**: Thời gian sắc tố: ${payload.pigmentation.duration.toLowerCase()}. Di truyền gia đình: ${genetic}. Yếu tố nội tiết: ${hormone}.`;
                   
-        next = `**[HOMECARE] PHÁC ĐỒ CHĂM SÓC TẠI NHÀ:**\n` +
-               `- **Hoạt chất khuyên dùng**: Kojic Acid, Alpha Arbutin, Tranexamic Acid bôi, Retinol nồng độ kiểm soát, Azelaic Acid.\n` +
-               `- **Hoạt chất cần tránh**: Các loại kem trị nám tự pha trộn, kem cốt chứa corticoid phá hủy cấu trúc da.\n` +
+        next = `**[HOMECARE] PHÁC ĐỒ CHĂM SÓC TẠI NHÀ:**
+` +
+               `- **Hoạt chất khuyên dùng**: Kojic Acid, Alpha Arbutin, Tranexamic Acid bôi, Retinol nồng độ kiểm soát, Azelaic Acid.
+` +
+               `- **Hoạt chất cần tránh**: Các loại kem trị nám tự pha trộn, kem cốt chứa corticoid phá hủy cấu trúc da.
+` +
                `- **Lưu ý bảo vệ**: Kết hợp chống nắng phổ rộng đa tầng, hạn chế tối đa stress, thức khuya để ổn định nội tiết tố bên trong cơ thể.`;
                
-        treatment = `**[CLINIC] PHÁC ĐỒ ĐIỀU TRỊ TẠI CƠ SỞ:**\n` +
-                    `- **Phương pháp thông thường hay ứng dụng**: Sử dụng các phương pháp nhiệt như công nghệ Laser Nd:YAG (Q-Switched, Pico Laser) để bắn phá chân sắc tố trung bì sâu; tiêm meso trị nám tiêu chuẩn; peel hóa học mạnh.\n` +
-                    `- **Khuyến nghị đặc biệt từ PharmesHub**:\n` +
-                    `  * *Kiểm soát sắc tố bề mặt*: Ứng dụng liệu pháp điều trị sắc tố chuyên sâu **MelanoRx** để dọn sạch nám mảng ở lớp thượng bì mà hoàn toàn không xâm lấn, không sinh nhiệt tổn thương da.\n` +
+        treatment = `**[CLINIC] PHÁC ĐỒ ĐIỀU TRỊ TẠI CƠ SỞ:**
+` +
+                    `- **Phương pháp thông thường hay ứng dụng**: Sử dụng các phương pháp nhiệt như công nghệ Laser Nd:YAG (Q-Switched, Pico Laser) để bắn phá chân sắc tố trung bì sâu; tiêm meso trị nám tiêu chuẩn; peel hóa học mạnh.
+` +
+                    `- **Khuyến nghị đặc biệt từ PharmesHub**:
+` +
+                    `  * *Kiểm soát sắc tố bề mặt*: Ứng dụng liệu pháp điều trị sắc tố chuyên sâu **MelanoRx** để dọn sạch nám mảng ở lớp thượng bì mà hoàn toàn không xâm lấn, không sinh nhiệt tổn thương da.
+` +
                     `  * *Củng cố và duy trì nền da*: Cấy vi điểm **Superjection** xuyên suốt quá trình điều trị giúp phục hồi màng đáy, tăng cường sức khỏe da, ngăn ngừa phản ứng viêm và hạn chế tối đa nguy cơ dội ngược sắc tố thường thấy khi làm laser nhiệt.`;
       } 
       else if (pattern.includes('Đốm') || (pattern.includes('Không chắc') && imageMetrics.unevenness > 6.5 && imageMetrics.redness < 1.22)) {
         pigment = 'Sắc tố dạng đốm rải rác: Tàn nhang / Nám đốm chân sâu trung bì (Hori\'s Nevus) / Đốm đồi mồi lão hóa.';
         
-        summary = `- **Thể sắc tố chính**: Đốm sắc tố hình tròn riêng lẻ sẫm màu tập trung đối xứng ở hai bên gò má.\n` +
-                  `- **Đánh giá ảnh thực tế**: Độ không đều màu da đạt **${imageMetrics.unevenness.toFixed(1)}** (Chân sắc tố tập trung thành đốm đậm màu). Chỉ số đỏ da: **${imageMetrics.redness.toFixed(2)}** (Khỏe mạnh, không có dấu hiệu giãn mao mạch).\n` +
-                  `- **Sức khỏe hàng rào da**: Nền da khỏe mạnh, không bị bào mòn, có độ đàn hồi tốt.\n` +
+        summary = baseAnalysis +
+                  `**🩺 ĐÁNH GIÁ SỨC KHỎE HÀNG RÀO BẢO VỆ:**
+` +
+                  `- Nền da khỏe mạnh, không bị bào mòn, có độ đàn hồi tốt, cần tập trung bảo vệ chống tia UV.
+` +
                   `- **Yếu tố nguy cơ**: Di truyền gia đình: ${genetic}. Đã can thiệp phương pháp: ${treatments.join(', ')}.`;
                   
-        next = `**[HOMECARE] PHÁC ĐỒ CHĂM SÓC TẠI NHÀ:**\n` +
-               `- **Hoạt chất khuyên dùng**: Alpha Arbutin, Azelaic Acid, Vitamin C nguyên chất (L-Ascorbic Acid), Retinol hoặc Retinal để tăng tốc độ thay thế tế bào da.\n` +
-               `- **Hoạt chất cần tránh**: Tránh bôi các loại kem làm bong tróc lột tẩy da bề mặt quá đà (vì chân nám nằm ở trung bì sâu, bôi kem bong tróc nông sẽ không giải quyết được gốc nám mà còn gây mỏng đỏ bề mặt).\n` +
+        next = `**[HOMECARE] PHÁC ĐỒ CHĂM SÓC TẠI NHÀ:**
+` +
+               `- **Hoạt chất khuyên dùng**: Alpha Arbutin, Azelaic Acid, Vitamin C nguyên chất (L-Ascorbic Acid), Retinol hoặc Retinal để tăng tốc độ thay thế tế bào da.
+` +
+               `- **Hoạt chất cần tránh**: Tránh bôi các loại kem làm bong tróc lột tẩy da bề mặt quá đà (vì chân nám nằm ở trung bì sâu, bôi kem bong tróc nông sẽ không giải quyết được gốc nám mà còn gây mỏng đỏ bề mặt).
+` +
                `- **Lưu ý bảo vệ**: Chống nắng vật lý lai hóa học, che chắn vật lý kỹ trước tia UV để các đốm nám không bị đậm màu hơn.`;
                
-        treatment = `**[CLINIC] PHÁC ĐỒ ĐIỀU TRỊ TẠI CƠ SỞ:**\n` +
-                    `- **Phương pháp thông thường hay ứng dụng**: Sử dụng các liệu pháp đốt nhiệt như Laser CO2, Laser Q-Switched Ruby/Alexandrite, hoặc chấm acid TCA nồng độ cao trực tiếp lên nốt tàn nhang để bóc tách sắc tố trung bì.\n` +
-                    `- **Khuyến nghị đặc biệt từ PharmesHub**:\n` +
-                    `  * *Ức chế và đào thải sắc tố đốm không nhiệt*: Ứng dụng liệu trình **MelanoRx** giúp ức chế chọn lọc tế bào melanocyte tại màng đáy, đào thải đốm sắc tố nông dịu nhẹ mà không bào mòn hay để lại sẹo lõm.\n` +
+        treatment = `**[CLINIC] PHÁC ĐỒ ĐIỀU TRỊ TẠI CƠ SỞ:**
+` +
+                    `- **Phương pháp thông thường hay ứng dụng**: Sử dụng các liệu pháp đốt nhiệt như Laser CO2, Laser Q-Switched Ruby/Alexandrite, hoặc chấm acid TCA nồng độ cao trực tiếp lên nốt tàn nhang để bóc tách sắc tố trung bì.
+` +
+                    `- **Khuyến nghị đặc biệt từ PharmesHub**:
+` +
+                    `  * *Ức chế và đào thải sắc tố đốm không nhiệt*: Ứng dụng liệu trình **MelanoRx** giúp ức chế chọn lọc tế bào melanocyte tại màng đáy, đào thải đốm sắc tố nông dịu nhẹ mà không bào mòn hay để lại sẹo lõm.
+` +
                     `  * *Phục hồi liên kết biểu bì - trung bì*: Kết hợp cấy vi điểm **Superjection** trước và trong quá trình điều trị để làm dày khỏe màng đáy da, tăng collagen, giữ nước và tái cấu trúc vùng trung bì bị suy giảm.`;
       } 
       else {
         // Nám mảng lành tính
         pigment = 'Nám mảng biểu bì (Epidermal Melasma): Sắc tố tích tụ dạng mảng nông lành tính do ánh nắng và nhiệt độ môi trường.';
         
-        summary = `- **Thể sắc tố chính**: Mảng sắc tố sạm màu vàng nâu hoặc nâu nhạt phân bố nông ở lớp sừng biểu bì ngoài cùng.\n` +
-                  `- **Đánh giá ảnh thực tế**: Độ không đều sắc tố da đạt **${imageMetrics.unevenness.toFixed(1)}** (Tình trạng nhẹ/trung bình trên da thực tế).\n` +
-                  `- **Chỉ số đỏ da (Redness)**: **${imageMetrics.redness.toFixed(2)}** (Nền da ổn định, khỏe mạnh).\n` +
-                  `- **Sức khỏe hàng rào da**: Hàng rào bảo vệ da tương đối tốt, ít bị tổn thương cơ học.\n` +
-                  `- **Yếu tố nguy cơ**: Thời gian bị: ${payload.pigmentation.duration.toLowerCase()}. Sản phẩm đã dùng: ${payload.history.products || 'Trống'}.`;
+        summary = baseAnalysis +
+                  `**🩺 ĐÁNH GIÁ SỨC KHỎE HÀNG RÀO BẢO VỆ:**
+` +
+                  `- Hàng rào bảo vệ da tương đối tốt, ít bị tổn thương cơ học nhưng dễ bị ảnh hưởng bởi nhiệt độ và ánh nắng.
+` +
+                  `- **Yếu tố nguy cơ**: Thời gian bị:  ${payload.pigmentation.duration.toLowerCase()}. Sản phẩm đã dùng: ${payload.history.products || 'Trống'}.`;
                   
-        next = `**[HOMECARE] PHÁC ĐỒ CHĂM SÓC TẠI NHÀ:**\n` +
-               `- **Hoạt chất khuyên dùng**: Alpha Arbutin, Glycolic Acid (AHA) dịu nhẹ, Vitamin C, Kojic Acid, Niacinamide sáng da.\n` +
-               `- **Hoạt chất cần tránh**: Các sản phẩm dưỡng da chứa cồn khô nồng độ cao gây mất nước và xỉn màu da.\n` +
+        next = `**[HOMECARE] PHÁC ĐỒ CHĂM SÓC TẠI NHÀ:**
+` +
+               `- **Hoạt chất khuyên dùng**: Alpha Arbutin, Glycolic Acid (AHA) dịu nhẹ, Vitamin C, Kojic Acid, Niacinamide sáng da.
+` +
+               `- **Hoạt chất cần tránh**: Các sản phẩm dưỡng da chứa cồn khô nồng độ cao gây mất nước và xỉn màu da.
+` +
                `- **Lưu ý bảo vệ**: Sử dụng kem chống nắng phổ rộng hàng ngày, bôi lại sau mỗi 3-4 giờ, che chắn vật lý khi nấu ăn hoặc đứng bếp nóng để tránh tích tụ nhiệt gây sạm da.`;
                
-        treatment = `**[CLINIC] PHÁC ĐỒ ĐIỀU TRỊ TẠI CƠ SỞ:**\n` +
-                    `- **Phương pháp thông thường hay ứng dụng**: Peel da hóa học trung bình (AHA/BHA), mài da vi điểm vật lý, hoặc công nghệ ánh sáng IPL nhiệt để bóc tách sắc tố nông.\n` +
-                    `- **Khuyến nghị đặc biệt từ PharmesHub**:\n` +
-                    `  * *Xử lý sắc tố mảng nông*: Áp dụng liệu pháp điều trị sắc tố không bong tróc nhiệt **MelanoRx** (đây là giải pháp tối ưu giúp phân giải hắc tố Melanin ở lớp sừng cực kỳ hiệu quả, dưỡng sáng da đồng đều tức thì).\n` +
+        treatment = `**[CLINIC] PHÁC ĐỒ ĐIỀU TRỊ TẠI CƠ SỞ:**
+` +
+                    `- **Phương pháp thông thường hay ứng dụng**: Peel da hóa học trung bình (AHA/BHA), mài da vi điểm vật lý, hoặc công nghệ ánh sáng IPL nhiệt để bóc tách sắc tố nông.
+` +
+                    `- **Khuyến nghị đặc biệt từ PharmesHub**:
+` +
+                    `  * *Xử lý sắc tố mảng nông*: Áp dụng liệu pháp điều trị sắc tố không bong tróc nhiệt **MelanoRx** (đây là giải pháp tối ưu giúp phân giải hắc tố Melanin ở lớp sừng cực kỳ hiệu quả, dưỡng sáng da đồng đều tức thì).
+` +
                     `  * *Phục hồi và làm bóng da song song*: Tiêm cấy hoạt chất **Superjection** xen kẽ để phục hồi tế bào sừng sạm màu, cung cấp dinh dưỡng nuôi dưỡng cấu trúc biểu bì căng bóng, tăng sinh collagen tự nhiên.`;
       }
-
+      
       const html = `
         <div style="font-family:Arial,sans-serif;color:#333;line-height:1.6;max-width:600px;margin:0 auto;padding:20px;border:1px solid #eaeaea;border-radius:12px;">
           <h2 style="color:#CBA45A;border-bottom:2px solid #CBA45A;padding-bottom:10px;margin-top:0;">BÁO CÁO PHÂN TÍCH MELANOCHECK</h2>
@@ -3543,11 +3609,11 @@
             </tr>
             <tr style="background:#f9f9f9;">
               <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Sản phẩm đã dùng</td>
-              <td style="padding:10px;border:1px solid #eee;font-size:14px;font-style:italic;">${payload.history.products}</td>
+              <td style="padding:10px;border:1px solid #eee;font-size:14px;font-style:italic;"> ${payload.history.products}</td>
             </tr>
             <tr>
               <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Lời khuyên ban đầu</td>
-              <td style="padding:10px;border:1px solid #eee;font-size:14px;">${formatReportText(next)}</td>
+              <td style="padding:10px;border:1px solid #eee;font-size:14px;"> ${formatReportText(next)}</td>
             </tr>
             <tr style="background:#f9f9f9;">
               <td style="padding:10px;border:1px solid #eee;font-weight:bold;color:#CBA45A;">Liệu trình đề xuất</td>
