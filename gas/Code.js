@@ -15,7 +15,7 @@ const CONFIG = {
   // Điền ID của Google Sheet ở đây nếu không dùng Bound Script.
   // Nếu Script được tạo trực tiếp từ Sheet (Extensions > Apps Script),
   // hệ thống sẽ tự động lấy ID của trang tính đang hoạt động.
-  SHEET_ID: 'YOUR_GOOGLE_SHEET_ID_HERE', 
+  SHEET_ID: '1WCc18kBuCCfnejIjtkvXI19A0XL9YERueVsdgcj8BMA', 
   
   SHEET_NAME: 'MelanoCheck_Profiles',
   FOLDER_NAME: 'MelanoCheck Submissions',
@@ -191,15 +191,22 @@ function handleNewProfile(body) {
 
   // Thiết lập công thức hiển thị ảnh thu nhỏ có thể click mở xem ảnh gốc
   const lastRow = sheet.getLastRow();
-  if (frontImg.viewUrl && frontImg.directUrl) {
-    sheet.getRange(lastRow, COLS.IMG_FRONT).setFormula('=HYPERLINK("' + frontImg.viewUrl + '", IMAGE("' + frontImg.directUrl + '"))');
+  const locale = sheet.getParent().getSpreadsheetLocale() || '';
+  const useSemicolon = locale.toLowerCase().indexOf('vi') !== -1 || locale.toLowerCase().indexOf('vn') !== -1 || locale.toLowerCase().indexOf('fr') !== -1 || locale.toLowerCase().indexOf('de') !== -1;
+
+  function setImgFormula(col, img) {
+    if (!img.viewUrl || !img.directUrl) return;
+    const range = sheet.getRange(lastRow, col);
+    if (useSemicolon) {
+      range.setFormula('=HYPERLINK("' + img.viewUrl + '"; IMAGE("' + img.directUrl + '"))');
+    } else {
+      range.setFormula('=HYPERLINK("' + img.viewUrl + '", IMAGE("' + img.directUrl + '"))');
+    }
   }
-  if (leftImg.viewUrl && leftImg.directUrl) {
-    sheet.getRange(lastRow, COLS.IMG_LEFT).setFormula('=HYPERLINK("' + leftImg.viewUrl + '", IMAGE("' + leftImg.directUrl + '"))');
-  }
-  if (rightImg.viewUrl && rightImg.directUrl) {
-    sheet.getRange(lastRow, COLS.IMG_RIGHT).setFormula('=HYPERLINK("' + rightImg.viewUrl + '", IMAGE("' + rightImg.directUrl + '"))');
-  }
+
+  setImgFormula(COLS.IMG_FRONT, frontImg);
+  setImgFormula(COLS.IMG_LEFT, leftImg);
+  setImgFormula(COLS.IMG_RIGHT, rightImg);
 
   // Căn chỉnh ảnh và nâng chiều cao dòng lên 80px để hiển thị ảnh rõ nét
   const imageRange = sheet.getRange(lastRow, COLS.IMG_FRONT, 1, 3);
@@ -492,7 +499,11 @@ function getOrCreateDriveFolder(folderName) {
     return folders.next();
   }
   const folder = DriveApp.createFolder(folderName);
-  folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  try {
+    folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  } catch(e) {
+    Logger.log("Không thể chia sẻ thư mục công khai (có thể do chính sách tài khoản): " + e.toString());
+  }
   return folder;
 }
 
@@ -652,17 +663,18 @@ function sendTelegramMessage(text) {
 // SHEET UTILITIES
 // ============================================================
 function getOrCreateSheet() {
-  let sheetId = CONFIG.SHEET_ID;
   let ss;
-  
-  if (!sheetId || sheetId === 'YOUR_GOOGLE_SHEET_ID_HERE') {
-    try {
-      ss = SpreadsheetApp.getActiveSpreadsheet();
-      sheetId = ss.getId();
-    } catch(e) {
+  try {
+    ss = SpreadsheetApp.getActiveSpreadsheet();
+  } catch(e) {
+    Logger.log("getActiveSpreadsheet failed (expected in Web App execution): " + e.toString());
+  }
+
+  if (!ss) {
+    let sheetId = CONFIG.SHEET_ID;
+    if (!sheetId || sheetId === 'YOUR_GOOGLE_SHEET_ID_HERE') {
       throw new Error('Chưa cấu hình SHEET_ID trong script properties hoặc CONFIG.');
     }
-  } else {
     ss = SpreadsheetApp.openById(sheetId);
   }
 
@@ -721,4 +733,49 @@ function YeuCauCapQuyenThuCong() {
   } catch (err) {
     Logger.log("Lỗi khi kiểm tra/cấp quyền: " + err.toString());
   }
+}
+
+/**
+ * Hàm sửa lỗi công thức hiển thị ảnh cho các hàng cũ bị lỗi #ERROR!
+ * Bạn chọn hàm này ở thanh công cụ phía trên và bấm "Chạy" để sửa toàn bộ hàng cũ.
+ */
+function SuaCongThucAnhBiLoi() {
+  const sheet = getOrCreateSheet();
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 1) {
+    Logger.log("Không có dữ liệu để sửa.");
+    return;
+  }
+  
+  const locale = sheet.getParent().getSpreadsheetLocale() || '';
+  const useSemicolon = locale.toLowerCase().indexOf('vi') !== -1 || locale.toLowerCase().indexOf('vn') !== -1 || locale.toLowerCase().indexOf('fr') !== -1 || locale.toLowerCase().indexOf('de') !== -1;
+  
+  Logger.log("Đang sửa công thức ảnh với định dạng locale: " + locale + " (Dùng dấu chấm phẩy: " + useSemicolon + ")");
+  
+  // Lặp qua các hàng dữ liệu từ hàng 2
+  for (let r = 2; r <= lastRow; r++) {
+    const colsToFix = [COLS.IMG_FRONT, COLS.IMG_LEFT, COLS.IMG_RIGHT];
+    
+    colsToFix.forEach(col => {
+      const range = sheet.getRange(r, col);
+      const formula = range.getFormula();
+      
+      if (formula) {
+        // Trích xuất URL từ công thức hiện tại
+        // Ví dụ công thức lỗi: =HYPERLINK("https://...", IMAGE("https://..."))
+        const match = formula.match(/=HYPERLINK\("([^"]+)"[,\s;]+IMAGE\("([^"]+)"\)\)/i);
+        if (match) {
+          const viewUrl = match[1];
+          const directUrl = match[2];
+          
+          if (useSemicolon) {
+            range.setFormula('=HYPERLINK("' + viewUrl + '"; IMAGE("' + directUrl + '"))');
+          } else {
+            range.setFormula('=HYPERLINK("' + viewUrl + '", IMAGE("' + directUrl + '"))');
+          }
+        }
+      }
+    });
+  }
+  Logger.log("Đã sửa xong toàn bộ công thức ảnh bị lỗi!");
 }
