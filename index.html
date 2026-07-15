@@ -2,11 +2,48 @@
 <html lang="vi">
 
 <head>
+  <script>
+    (function() {
+      const errs = [];
+      window.onerror = function(message, source, lineno, colno, error) {
+        const txt = message + ' (' + source + ':' + lineno + ':' + colno + ')';
+        errs.push(txt);
+        show();
+        return false;
+      };
+      window.addEventListener('unhandledrejection', function(e) {
+        errs.push('Unhandled Rejection: ' + e.reason);
+        show();
+      });
+      function show() {
+        let box = document.getElementById('js-debug-box');
+        if (!box) {
+          box = document.createElement('div');
+          box.id = 'js-debug-box';
+          box.style.position = 'fixed';
+          box.style.bottom = '15px';
+          box.style.right = '15px';
+          box.style.background = '#ff3333';
+          box.style.color = '#ffffff';
+          box.style.padding = '15px';
+          box.style.zIndex = '1000000';
+          box.style.fontFamily = 'monospace';
+          box.style.fontSize = '12px';
+          box.style.borderRadius = '8px';
+          box.style.maxWidth = '360px';
+          box.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)';
+          box.style.wordBreak = 'break-all';
+          document.documentElement.appendChild(box);
+        }
+        box.innerHTML = '<strong>JS ERROR DETECTED:</strong><br>' + errs.join('<br><br>');
+      }
+    })();
+  </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MelanoCheck by PharmesHub — Tự Chẩn Đoán Nền Da Nám</title>
+  <title>Ngô Mai Phương SkinCheck — Tự Soi Da & Chẩn Đoán Da Liễu Online</title>
   <meta name="description"
-    content="MelanoCheck giúp bạn kiểm tra bước đầu tình trạng sắc tố, nền da và những yếu tố ảnh hưởng trực tiếp đến hiệu quả điều trị nám." />
+    content="Ngô Mai Phương SkinCheck giúp bạn tự soi da và chẩn đoán mụn (C.acnes, Demodex, nấm), sắc tố nám (mảng, đốm, chân sâu, tàn nhang), và da nhiễm độc corticoid, chì, thuỷ ngân qua AI." />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,29 +54,34 @@
 
   <style>
     :root {
-      --bg: #070D18;
-      --bg-rgb: 7, 13, 24;
-      --cream: #F6F2E9;
-      --cream-dim: #E7D5B5;
-      --brown-light: #0B1730;
-      --brown-light-rgb: 11, 23, 48;
-      --brown-deep: #050A14;
-      --line: rgba(184, 134, 74, 0.15);
-      --line-active: #CBA45A;
-      --muted: #B8864A;
-      --sienna: #CBA45A;
-      --sienna-rgb: 203, 164, 90;
-      --sienna-gradient: linear-gradient(135deg, #CBA45A 0%, #B8864A 100%);
-      --gold: #CBA45A;
-      --font-serif: 'Playfair Display', Georgia, serif;
+      --bg: #faf8f5;
+      --bg-rgb: 250, 248, 245;
+      --cream: #2B2724;
+      --cream-dim: #7A6A5F;
+      --brown-light: #f5ede6;
+      --brown-light-rgb: 245, 237, 230;
+      --brown-deep: #e8dbd0;
+      --line: rgba(63, 21, 33, 0.1);
+      --line-active: #3F1521;
+      --muted: #7A6A5F;
+      --sienna: #3F1521;
+      --sienna-rgb: 63, 21, 33;
+      --sienna-gradient: linear-gradient(135deg, #5c2032 0%, #3F1521 100%);
+      --gold: #b8986c;
+      --font-serif: 'Inter', system-ui, -apple-system, sans-serif;
       --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-      --radius: 16px;
+      --radius: 20px;
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     * {
       box-sizing: border-box;
       outline: none;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      letter-spacing: -0.03em !important;
+      font-weight: 500 !important;
     }
 
     html {
@@ -107,7 +149,7 @@
     .nav.scrolled {
       height: 68px;
       background: rgba(var(--bg-rgb), 0.95);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 30px rgba(184, 152, 108, 0.08);
     }
 
     .brand {
@@ -180,7 +222,7 @@
       border-radius: 99px;
       padding: 14px 28px;
       background: var(--sienna-gradient);
-      color: var(--cream);
+      color: #ffffff;
       font-size: 14px;
       font-weight: 700;
       font-family: var(--font-sans);
@@ -471,106 +513,169 @@
 
     .camera-frame {
       flex: 1;
-      border: 1px solid rgba(255, 237, 215, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 12px;
       position: relative;
       overflow: hidden;
-      background: radial-gradient(circle at 50% 50%, rgba(var(--sienna-rgb), 0.05), transparent 70%);
+      background: radial-gradient(circle at 50% 50%, rgba(128, 82, 255, 0.1), transparent 80%);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
     }
 
-    .face-outline {
-      width: 160px;
+    /* High-tech rotating radar ring */
+    .radar-container {
+      position: absolute;
+      width: 220px;
       height: 220px;
-      border: 1.5px dashed rgba(255, 237, 215, 0.4);
-      border-radius: 100px 100px 90px 90px;
-      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .radar-circle {
+      position: absolute;
+      border: 1px dashed rgba(128, 82, 255, 0.25);
+      border-radius: 50%;
+      animation: rotateRadar 15s linear infinite;
+    }
+    .radar-circle.c1 { width: 220px; height: 220px; }
+    .radar-circle.c2 { width: 170px; height: 170px; animation-direction: reverse; border-style: dotted; }
+    .radar-circle.c3 { width: 110px; height: 110px; border-style: dashed; }
+    
+    @keyframes rotateRadar {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
-    .face-outline::before {
-      content: "";
-      position: absolute;
-      top: 42%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 8px;
-      height: 8px;
-      background: var(--sienna);
-      border-radius: 50%;
-      box-shadow: 0 0 10px var(--sienna);
+    .face-outline-svg {
+      width: 140px;
+      height: 180px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .face-mesh-path {
+      stroke: var(--sienna);
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-dasharray: 200;
+      stroke-dashoffset: 0;
+      animation: glowPath 4s ease-in-out infinite alternate;
+    }
+    
+    @keyframes glowPath {
+      0% {
+        stroke-opacity: 0.4;
+        filter: drop-shadow(0 0 2px rgba(128, 82, 255, 0.3));
+      }
+      100% {
+        stroke-opacity: 0.9;
+        filter: drop-shadow(0 0 8px rgba(128, 82, 255, 0.8));
+      }
     }
 
     .scanning-line {
       position: absolute;
       left: 0;
       right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--sienna), transparent);
-      box-shadow: 0 0 12px var(--sienna);
-      animation: scan 2.5s ease-in-out infinite;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, #8052ff, #ffffff, #8052ff, transparent);
+      box-shadow: 0 0 15px 4px rgba(128, 82, 255, 0.6);
+      animation: scan 3s ease-in-out infinite;
       z-index: 5;
     }
 
     @keyframes scan {
-      0% {
-        top: 10%;
-      }
-
-      50% {
-        top: 90%;
-      }
-
-      100% {
-        top: 10%;
-      }
+      0% { top: 5%; }
+      50% { top: 90%; }
+      100% { top: 5%; }
     }
 
     .mark-point {
       position: absolute;
-      width: 32px;
-      height: 32px;
-      border: 1px solid var(--sienna);
+      width: 24px;
+      height: 24px;
+      border: 1px solid var(--gold);
       border-radius: 50%;
-      background: rgba(var(--sienna-rgb), 0.12);
+      background: rgba(255, 184, 41, 0.15);
       transform: scale(0.9);
-      animation: pulseMark 2s infinite alternate;
+      animation: pulseMark 1.5s infinite alternate;
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .mark-point::after {
       content: "";
-      position: absolute;
-      inset: 12px;
-      background: var(--sienna);
+      width: 6px;
+      height: 6px;
+      background: var(--gold);
       border-radius: 50%;
+      box-shadow: 0 0 8px var(--gold);
+    }
+    
+    /* Neon label overlay on point */
+    .mark-point-label {
+      position: absolute;
+      top: -18px;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid var(--gold);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 8px;
+      color: var(--gold);
+      font-weight: 700;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
-    .p1 {
-      top: 80px;
-      left: 35px;
-    }
-
-    .p2 {
-      top: 95px;
-      right: 40px;
-    }
-
-    .p3 {
-      top: 140px;
-      left: 75px;
-    }
+    .p1 { top: 75px; left: 35px; }
+    .p2 { top: 90px; right: 40px; }
+    .p3 { top: 130px; left: 75px; }
 
     @keyframes pulseMark {
       0% {
-        transform: scale(0.85);
-        box-shadow: 0 0 0 0 rgba(var(--sienna-rgb), 0.4);
+        transform: scale(0.8);
+        box-shadow: 0 0 0 0 rgba(255, 184, 41, 0.5);
       }
-
       100% {
-        transform: scale(1.05);
-        box-shadow: 0 0 8px 4px rgba(var(--sienna-rgb), 0);
+        transform: scale(1.1);
+        box-shadow: 0 0 8px 4px rgba(255, 184, 41, 0);
       }
+    }
+
+    /* Mini real-time scroll logs */
+    .mini-console {
+      width: calc(100% - 24px);
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      padding: 6px 12px;
+      margin-top: 10px;
+      font-family: monospace;
+      font-size: 9px;
+      color: #10b981;
+      height: 38px;
+      overflow: hidden;
+      text-align: left;
+      line-height: 1.4;
+      pointer-events: none;
+    }
+    
+    .console-line {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      animation: typeLine 4s steps(40) infinite;
+    }
+    
+    @keyframes typeLine {
+      from { width: 0; }
+      to { width: 100%; }
     }
 
     .scene-caption {
@@ -750,7 +855,7 @@
 
     /* Tool Diagnostic Section */
     .tool-section {
-      background: #090401;
+      background: var(--bg);
     }
 
     .tool-grid {
@@ -829,10 +934,10 @@
     .form-panel {
       border: 1px solid var(--line);
       border-radius: 20px;
-      background: rgba(var(--brown-light-rgb), 0.25);
+      background: rgba(var(--brown-light-rgb), 0.6);
       padding: 40px;
       backdrop-filter: blur(10px);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 20px 50px rgba(184, 152, 108, 0.15), 0 5px 15px rgba(0, 0, 0, 0.04);
     }
 
     .form-step-pane {
@@ -1051,8 +1156,8 @@
     }
 
     .check-pill:hover {
-      border-color: rgba(255, 237, 215, 0.2);
-      background: rgba(255, 237, 215, 0.02);
+      border-color: rgba(var(--sienna-rgb), 0.3);
+      background: rgba(var(--sienna-rgb), 0.03);
     }
 
     .check-pill input[type="checkbox"] {
@@ -1263,7 +1368,7 @@
 
     /* Footer */
     .footer {
-      background: #060301;
+      background: var(--bg);
       padding: 40px 0;
       border-top: 1px solid var(--line);
       text-align: center;
@@ -1376,7 +1481,7 @@
       border: 1.5px solid var(--line);
       border-radius: 12px;
       padding: 16px;
-      background: rgba(21, 10, 4, 0.2);
+      background: rgba(var(--brown-light-rgb), 0.6);
       cursor: pointer;
       transition: var(--transition);
       display: flex;
@@ -1386,8 +1491,8 @@
     }
 
     .card-option:hover {
-      border-color: rgba(255, 237, 215, 0.15);
-      background: rgba(255, 237, 215, 0.02);
+      border-color: rgba(var(--sienna-rgb), 0.3);
+      background: rgba(var(--sienna-rgb), 0.03);
     }
 
     .card-option.active {
@@ -1432,7 +1537,7 @@
     }
 
     /* Camera and Source Modals */
-    .camera-modal, .source-modal {
+    .camera-modal, .source-modal, .payment-modal {
       position: fixed;
       inset: 0;
       z-index: 200;
@@ -1447,9 +1552,108 @@
       padding: 20px;
     }
 
-    .camera-modal.active, .source-modal.active {
+    .camera-modal.active, .source-modal.active, .payment-modal.active {
       opacity: 1;
       pointer-events: auto;
+    }
+
+    .payment-modal-content {
+      width: 100%;
+      max-width: 400px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 40px rgba(63, 21, 33, 0.08);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 24px;
+      position: relative;
+      text-align: center;
+    }
+
+    .payment-close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+
+    .payment-header h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--sienna);
+      margin: 8px 0 4px;
+    }
+
+    .payment-header p {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 16px 0;
+      line-height: 1.4;
+    }
+
+    .payment-qr-container {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .payment-qr-img {
+      width: 180px;
+      height: 180px;
+      object-fit: contain;
+      margin-bottom: 8px;
+    }
+
+    .payment-timer {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--sienna);
+      background: rgba(var(--sienna-rgb), 0.05);
+      padding: 3px 12px;
+      border-radius: 99px;
+    }
+
+    .payment-details-box {
+      background: rgba(var(--brown-light-rgb), 0.4);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pay-detail-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .pay-detail-row span {
+      color: var(--muted);
+    }
+
+    .pay-detail-row strong {
+      color: var(--cream);
+    }
+
+    .payment-hint {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+      margin-top: 10px;
     }
 
     .camera-modal-content, .source-modal-content {
@@ -1459,7 +1663,7 @@
       border: 1px solid var(--gold);
       border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 30px 60px rgba(184, 152, 108, 0.2);
       display: flex;
       flex-direction: column;
     }
@@ -1890,11 +2094,11 @@
       display: block;
     }
     .result-card {
-      background: rgba(21, 10, 4, 0.6);
-      border: 1px solid rgba(255, 237, 215, 0.08);
+      background: rgba(var(--brown-light-rgb), 0.65);
+      border: 1px solid var(--line);
       border-radius: 16px;
       padding: 30px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 30px rgba(var(--sienna-rgb), 0.08);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
     }
@@ -1904,7 +2108,7 @@
       gap: 15px;
       margin-bottom: 25px;
       padding-bottom: 15px;
-      border-bottom: 1px solid rgba(255, 237, 215, 0.08);
+      border-bottom: 1px solid var(--line);
     }
     .result-header .ai-badge {
       background: rgba(var(--sienna-rgb), 0.1);
@@ -1976,19 +2180,1166 @@
       line-height: 1.5;
       text-align: left;
     }
+
+    /* PREMIUM DIAGNOSTIC STYLES */
+    .diagnosis-header {
+      background: rgba(203, 164, 90, 0.05);
+      border: 1px solid rgba(203, 164, 90, 0.2);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+    .diagnosis-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+    .badge-acne { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .badge-pigment { background: rgba(203, 164, 90, 0.15); color: #e9c882; border: 1px solid rgba(203, 164, 90, 0.3); }
+    .badge-toxic { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+    
+    .diagnosis-desc {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--cream);
+      font-weight: 500;
+    }
+
+    /* SKIN METRICS STYLES */
+    .metrics-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+    .metric-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: left;
+    }
+    .metric-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .metric-label {
+      color: var(--cream-dim);
+    }
+    .metric-value {
+      font-family: monospace;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .metric-bar-bg {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+    .metric-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      width: 0%;
+      transition: width 1.2s cubic-bezier(0.1, 0.8, 0.2, 1);
+    }
+    
+    /* Giai điệu màu sắc động cho các chỉ số */
+    .fill-red { background: linear-gradient(90deg, #ef4444, #f87171); }
+    .fill-orange { background: linear-gradient(90deg, #f97316, #fb923c); }
+    .fill-yellow { background: linear-gradient(90deg, #eab308, #facc15); }
+    .fill-green { background: linear-gradient(90deg, #10b981, #34d399); }
+    .fill-purple { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+    /* TREATMENT PROTOCOL TABS */
+    .protocol-section {
+      margin-top: 30px;
+      text-align: left;
+      border-top: 1px solid rgba(255, 237, 215, 0.08);
+      padding-top: 25px;
+    }
+    .protocol-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .protocol-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .protocol-tab-btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      background: rgba(var(--brown-light-rgb), 0.6);
+      border: 1px solid var(--line);
+      color: var(--cream-dim);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition);
+    }
+    .protocol-tab-btn:hover {
+      background: rgba(var(--brown-light-rgb), 0.95);
+      color: var(--cream);
+    }
+    .protocol-tab-btn.active {
+      background: var(--sienna-gradient);
+      color: #ffffff;
+      border-color: var(--sienna);
+      box-shadow: 0 4px 12px rgba(var(--sienna-rgb), 0.2);
+    }
+    .protocol-pane {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 237, 215, 0.05);
+      border-radius: 12px;
+      padding: 20px;
+      display: none;
+      animation: fadeIn 0.4s ease-out;
+    }
+    .protocol-pane.active {
+      display: block;
+    }
+    .pane-header-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed rgba(255, 237, 215, 0.1);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .pane-stage-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--cream);
+    }
+    .pane-duration {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold);
+      background: rgba(203, 164, 90, 0.1);
+      padding: 4px 10px;
+      border-radius: 99px;
+      text-transform: uppercase;
+    }
+    .pane-detail-row {
+      margin-bottom: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .pane-detail-row:last-child {
+      margin-bottom: 0;
+    }
+    .pane-detail-label {
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+    .pane-detail-value {
+      color: var(--cream-dim);
+    }
+
+    /* SUGGESTED PRODUCTS GRID */
+    .products-section {
+      margin-top: 30px;
+      text-align: left;
+      border-top: 1px solid rgba(255, 237, 215, 0.08);
+      padding-top: 25px;
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .product-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 237, 215, 0.05);
+      border-radius: 12px;
+      padding: 16px;
+      transition: var(--transition);
+    }
+    .product-card:hover {
+      border-color: rgba(var(--sienna-rgb), 0.2);
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .product-icon {
+      font-size: 24px;
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+    .product-type {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .product-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .product-desc {
+      font-size: 12px;
+      color: var(--cream-dim);
+      line-height: 1.4;
+    }
+
+    /* RECOVERY TRACKING SECTION */
+    .tracking-section {
+      background: var(--bg);
+      padding: 120px 0;
+      border-top: 1px solid var(--line);
+    }
+    .tracking-search-box {
+      max-width: 500px;
+      margin: 0 auto 50px;
+      text-align: center;
+    }
+    .search-input-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .search-input-group input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 237, 215, 0.15);
+      border-radius: 99px;
+      padding: 14px 24px;
+      color: var(--cream);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      outline: none;
+      transition: var(--transition);
+    }
+    .search-input-group input:focus {
+      border-color: var(--sienna);
+      box-shadow: 0 0 10px rgba(var(--sienna-rgb), 0.2);
+    }
+    .tracking-dashboard {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 30px;
+      text-align: left;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease-out;
+    }
+    .tracking-dashboard.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* SVG CHART STYLING */
+    .chart-card {
+      background: rgba(11, 23, 48, 0.3);
+      border: 1px solid rgba(255, 237, 215, 0.08);
+      border-radius: 20px;
+      padding: 24px;
+      backdrop-filter: blur(15px);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .chart-legends {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend-color {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .svg-container {
+      width: 100%;
+      height: 250px;
+      position: relative;
+    }
+    
+    /* TIMELINE STYLING */
+    .timeline-card {
+      background: rgba(11, 23, 48, 0.2);
+      border: 1px solid rgba(255, 237, 215, 0.05);
+      border-radius: 20px;
+      padding: 24px;
+    }
+    .timeline-list {
+      position: relative;
+      padding-left: 24px;
+      border-left: 1px dashed rgba(255, 237, 215, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      margin-top: 20px;
+    }
+    .timeline-item {
+      position: relative;
+    }
+    .timeline-dot {
+      position: absolute;
+      left: -30px;
+      top: 4px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--sienna);
+      border: 2px solid var(--bg);
+      box-shadow: 0 0 8px var(--sienna);
+    }
+    .timeline-date {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .timeline-diag {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 8px;
+    }
+    .timeline-images {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .timeline-thumb {
+      width: 50px;
+      height: 50px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 237, 215, 0.1);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .timeline-thumb:hover {
+      transform: scale(1.1);
+      border-color: var(--gold);
+    }
+
+    /* HABIT CHECKLIST STYLING */
+    .checklist-card {
+      background: rgba(11, 23, 48, 0.3);
+      border: 1px solid rgba(255, 237, 215, 0.08);
+      border-radius: 20px;
+      padding: 24px;
+      height: fit-content;
+    }
+    .checklist-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+    .habit-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 237, 215, 0.05);
+      cursor: pointer;
+    }
+    .habit-item:last-child {
+      border-bottom: 0;
+    }
+    .habit-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 1.5px solid rgba(255, 237, 215, 0.3);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+    .habit-item:hover .habit-checkbox {
+      border-color: var(--gold);
+    }
+    .habit-checkbox::after {
+      content: "✓";
+      color: #000;
+      font-size: 12px;
+      font-weight: bold;
+      display: none;
+    }
+    .habit-item.done .habit-checkbox {
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+    .habit-item.done .habit-checkbox::after {
+      display: block;
+    }
+    .habit-text {
+      font-size: 13px;
+      color: var(--cream-dim);
+      transition: var(--transition);
+    }
+    .habit-item.done .habit-text {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Eyebrow centering support */
+    .eyebrow-center {
+      justify-content: center;
+      text-align: center;
+    }
+    .eyebrow-center::after {
+      content: "";
+      width: 32px;
+      height: 1.5px;
+      background: var(--sienna);
+      display: block;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+      .tracking-dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 576px) {
+      .search-input-group {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .search-input-group input {
+        border-radius: 12px;
+        padding: 12px 18px;
+        text-align: center;
+      }
+      .search-input-group button {
+        width: 100%;
+        border-radius: 12px;
+        padding: 12px 18px;
+      }
+      .chart-card {
+        padding: 16px;
+      }
+      .chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .chart-legends {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .products-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* fadeInUp animation for Hero Content */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-content > * {
+      opacity: 0;
+      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .hero-content .eyebrow {
+      animation-delay: 0.1s;
+    }
+
+    .hero-content h1 {
+      animation-delay: 0.2s;
+    }
+
+    .hero-content .lead {
+      animation-delay: 0.3s;
+    }
+
+    .hero-content .actions {
+      animation-delay: 0.4s;
+    }
+
+    .hero-content .steps-quick {
+      animation-delay: 0.5s;
+    }
+
+    /* 3D Device image styling and float animation */
+    .device-image-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 530px;
+      aspect-ratio: 1;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: transparent;
+      box-shadow: 0 20px 50px rgba(63, 21, 33, 0.1), 0 5px 15px rgba(0, 0, 0, 0.04);
+      animation: floatDevice 6s ease-in-out infinite, fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+      opacity: 0;
+    }
+
+    @keyframes floatDevice {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        box-shadow: 0 20px 50px rgba(63, 21, 33, 0.1), 0 5px 15px rgba(0, 0, 0, 0.04);
+      }
+      50% {
+        transform: translateY(-12px) scale(1.02);
+        box-shadow: 0 30px 60px rgba(63, 21, 33, 0.15), 0 10px 25px rgba(0, 0, 0, 0.06);
+      }
+    }
+
+    .device-3d-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Futuristic HUD overlays on top of the image */
+    .hud-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .hud-scanner-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--gold), #ffffff, var(--gold), transparent);
+      box-shadow: 0 0 15px 4px rgba(184, 152, 108, 0.6);
+      animation: hudScan 4s ease-in-out infinite;
+    }
+
+    @keyframes hudScan {
+      0% { top: 20%; }
+      50% { top: 80%; }
+      100% { top: 20%; }
+    }
+
+    .hud-ping {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--gold);
+      border-radius: 50%;
+      background: rgba(255, 184, 41, 0.2);
+      animation: hudPulse 2s infinite alternate;
+    }
+
+    .hud-ping::after {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      background: var(--gold);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--gold);
+    }
+
+    .hud-ping.p1 {
+      top: 45%;
+      left: 45%;
+      animation-delay: 0.5s;
+    }
+
+    .hud-ping.p2 {
+      top: 38%;
+      right: 32%;
+      animation-delay: 1.2s;
+    }
+
+    /* Floating HUD cards */
+    .hud-card {
+      position: absolute;
+      background: rgba(63, 21, 33, 0.72);
+      border: 1px solid rgba(184, 152, 108, 0.28);
+      border-radius: 12px;
+      padding: 8px 10px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 30px rgba(63, 21, 33, 0.2);
+      z-index: 6;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      animation: hudCardFloat 4s ease-in-out infinite alternate;
+      color: #ffffff;
+      font-family: var(--font-sans);
+    }
+    
+    .hud-card.left-top {
+      top: 18%;
+      left: 5%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .hud-card.left-mid {
+      top: 46%;
+      left: 4%;
+      width: 125px;
+      gap: 6px;
+      animation-delay: 0.8s;
+    }
+    
+    .hud-card.right-top {
+      top: 22%;
+      right: 5%;
+      width: 125px;
+      animation-delay: 0.4s;
+    }
+    
+    .hud-card.right-bottom {
+      bottom: 22%;
+      right: 5%;
+      width: 135px;
+      border-color: rgba(46, 204, 113, 0.35);
+      animation-delay: 1.2s;
+    }
+
+    @keyframes hudCardFloat {
+      0% {
+        transform: translateY(0);
+      }
+      100% {
+        transform: translateY(-8px);
+      }
+    }
+    
+    .hud-circular-chart {
+      width: 26px;
+      height: 26px;
+      display: block;
+    }
+    
+    .hud-circular-chart .circle-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 3.5;
+    }
+    
+    .hud-circular-chart .circle {
+      fill: none;
+      stroke: var(--gold);
+      stroke-width: 3.5;
+      stroke-linecap: round;
+    }
+    
+    .hud-gauge {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .hud-gauge-value {
+      position: absolute;
+      font-size: 8px;
+      font-weight: 800;
+      color: var(--gold);
+    }
+    
+    .hud-card-details {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+    
+    .hud-title {
+      font-size: 8px;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    
+    .hud-status {
+      font-size: 10px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-top: 1px;
+    }
+    
+    .hud-bar-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    
+    .hud-bar-label {
+      font-size: 8px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.55);
+      letter-spacing: 0.02em;
+    }
+    
+    .hud-bar-track {
+      height: 3px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    
+    .hud-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), #ffffff);
+      border-radius: 99px;
+    }
+    
+    .hud-mini-chart {
+      margin-top: 1px;
+      height: 18px;
+    }
+    
+    .hud-wave-svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .hud-wave-svg path {
+      stroke-dasharray: 200;
+      stroke-dashoffset: 200;
+      animation: hudWave 3s linear infinite;
+    }
+    
+    @keyframes hudWave {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+    
+    .hud-status-text {
+      font-size: 10px;
+      font-weight: 800;
+      color: #2ecc71;
+      letter-spacing: 0.02em;
+    }
+
+    @keyframes hudPulse {
+      0% { transform: scale(0.8); opacity: 0.5; }
+      100% { transform: scale(1.2); opacity: 1; }
+    }
+
+    /* preloader overlay styles */
+    .preloader-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 1s cubic-bezier(0.85, 0, 0.15, 1), transform 1s cubic-bezier(0.85, 0, 0.15, 1), visibility 1s;
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    .preloader-overlay.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-100%);
+    }
+
+    .preloader-content {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: preloaderZoomIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes preloaderZoomIn {
+      from {
+        opacity: 0;
+        transform: scale(0.92);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .preloader-svg {
+      animation: drawLogo 2s ease-out forwards;
+      stroke-dasharray: 500;
+      stroke-dashoffset: 500;
+      filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
+    }
+
+    @keyframes drawLogo {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    .preloader-brand-text {
+      font-family: var(--font-sans);
+      font-size: 32px;
+      font-weight: 500;
+      letter-spacing: 0.25em;
+      color: #3F1521;
+      margin-top: 0;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeInText 1.2s ease forwards 0.1s;
+    }
+
+    .preloader-brand-sub {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.35em;
+      color: #7A6A5F;
+      margin-top: 10px;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeInText 1.2s ease forwards 0.4s;
+    }
+
+    @keyframes fadeInText {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+    }
+
+    .preloader-loader-bar {
+      width: 140px;
+      height: 2px;
+      background: rgba(63, 21, 33, 0.1);
+      border-radius: 99px;
+      margin-top: 36px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .preloader-loader-bar::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0%;
+      background: var(--sienna);
+      box-shadow: 0 0 8px var(--sienna);
+      animation: preloaderProgress 2.5s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+    }
+
+    /* AI Pre-Analysis Box Styles */
+    .ai-pre-analysis-box {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 24px;
+      background: rgba(var(--brown-light-rgb), 0.85);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 40px rgba(63, 21, 33, 0.06), inset 0 1px 1px rgba(255,255,255,0.6);
+      animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .analysis-header {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .analysis-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: rgba(var(--sienna-rgb), 0.08);
+      border: 1px solid rgba(var(--sienna-rgb), 0.25);
+      color: var(--sienna);
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+
+    .analysis-header h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--cream);
+      margin: 0 0 6px 0;
+    }
+
+    .analysis-header p {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .analysis-meters {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: rgba(var(--bg-rgb), 0.4);
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+    }
+
+    .meter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--cream);
+    }
+
+    .meter-label span:last-child {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .meter-bar-bg {
+      height: 6px;
+      background: rgba(0, 0, 0, 0.06);
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .meter-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      width: 0;
+      transition: width 1.2s cubic-bezier(0.1, 0.8, 0.2, 1);
+    }
+
+    .meter-bar-fill.redness { background: linear-gradient(90deg, #f43f5e, #ef4444); }
+    .meter-bar-fill.spots { background: linear-gradient(90deg, #f97316, #d97706); }
+    .meter-bar-fill.pores { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
+    .meter-bar-fill.texture { background: linear-gradient(90deg, #10b981, #14b8a6); }
+
+    .diagnosis-summary-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      background: linear-gradient(180deg, rgba(var(--sienna-rgb), 0.08) 0%, rgba(var(--sienna-rgb), 0.02) 100%);
+      border: 1px solid rgba(var(--sienna-rgb), 0.25);
+      border-radius: 14px;
+      gap: 8px;
+    }
+
+    .diagnosis-icon {
+      font-size: 36px;
+    }
+
+    .diagnosis-summary-box h4 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--sienna);
+      margin: 0;
+    }
+
+    .diagnosis-summary-box p {
+      font-size: 13px;
+      color: var(--cream-dim);
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .diagnosis-slogan {
+      font-size: 12px;
+      color: #115e59;
+      font-weight: 600;
+      background: rgba(13, 148, 136, 0.06);
+      border: 1px dashed rgba(13, 148, 136, 0.25);
+      padding: 6px 14px;
+      border-radius: 99px;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* Consult Modal Styles */
+    .consult-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(var(--bg-rgb), 0.85);
+      backdrop-filter: blur(15px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      padding: 20px;
+    }
+    .consult-modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .consult-modal-content {
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 40px rgba(63, 21, 33, 0.08);
+      display: flex;
+      flex-direction: column;
+      padding: 30px 24px;
+      position: relative;
+    }
+    .consult-close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+    .consult-close:hover {
+      color: var(--accent);
+    }
+    .consult-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .consult-header h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .consult-header p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .consult-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .consult-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: left;
+    }
+    .consult-input-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .consult-input-group input {
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .consult-input-group input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(63, 21, 33, 0.05);
+    }
   </style>
 </head>
 
 <body>
 
+  <!-- Preloader Splash Screen -->
+  <div id="preloader" class="preloader-overlay">
+    <div class="preloader-content">
+      <div class="preloader-brand-text">NGÔ MAI PHƯƠNG</div>
+      <div class="preloader-brand-sub">SkinCheck</div>
+      <div class="preloader-loader-bar"></div>
+    </div>
+  </div>
+  <script>
+    // Run preloader fadeout immediately inline to prevent any script blockages
+    (function() {
+      var loader = document.getElementById('preloader');
+      if (loader) {
+        setTimeout(function() {
+          loader.classList.add('fade-out');
+          setTimeout(function() {
+            if (loader.parentNode) {
+              loader.parentNode.removeChild(loader);
+            }
+          }, 1000);
+        }, 2500);
+      }
+    })();
+  </script>
+
   <!-- Navigation -->
   <nav class="nav" id="navbar">
     <a class="brand" href="#top">
-      <span class="brand-main">PharmesHub</span>
-      <span class="brand-sub">MelanoCheck</span>
+      <span class="brand-main">Ngô Mai Phương</span>
+      <span class="brand-sub">SkinCheck</span>
     </a>
     <div class="navlinks">
-      <a href="#warning" class="nav-item">Cảnh Báo</a>
       <a href="#tool" class="nav-item">Tự Chẩn Đoán</a>
       <a href="#contact" class="nav-item">Liên Hệ</a>
     </div>
@@ -1998,13 +3349,11 @@
   <!-- Hero Section -->
   <header class="container hero" id="top">
     <div class="hero-content">
-      <div class="eyebrow">MelanoCheck</div>
-      <h1>Hiểu rõ <span>nền da sắc tố</span> trước khi bắt đầu điều trị</h1>
-      <p class="lead">MelanoCheck giúp bạn phân tích sơ bộ tình trạng sắc tố, kiểm tra độ nhạy cảm của nền da và phát
-        hiện những yếu tố nguy cơ có thể khiến nám tái phát dữ dội.</p>
+      <div class="eyebrow">SkinCheck</div>
+      <h1>Hiểu rõ <span>vấn đề da liễu</span> trước khi bắt đầu điều trị</h1>
+      <p class="lead">SkinCheck giúp bạn tự soi da và chẩn đoán mụn (C.acnes, Demodex, nấm), sắc tố nám (mảng, đốm, chân sâu, tàn nhang), và da nhiễm độc corticoid, chì, thuỷ ngân qua AI.</p>
       <div class="actions">
         <a class="btn" href="#tool">Bắt đầu chẩn đoán</a>
-        <a class="btn secondary" href="#warning">Yếu tố cảnh giác</a>
       </div>
       <div class="steps-quick">
         <div class="step-item">
@@ -2017,141 +3366,74 @@
         </div>
         <div class="step-item">
           <span>BƯỚC 03</span>
-          Nhận báo cáo sàng lọc chi tiết gửi qua email.
+          Nhận báo cáo chẩn đoán chi tiết tức thì.
         </div>
       </div>
     </div>
 
     <div class="hero-visual">
-      <div class="device">
-        <div class="demo-top">
-          <div>MelanoCheck Analyzer</div>
-          <div class="demo-indicator">Live Demo</div>
-        </div>
-        <div class="screen">
-
-          <!-- Scene 1: Camera Alignment -->
-          <div class="scene">
-            <div class="scene-title">
-              <span>Hệ thống camera</span>
-              <b>Bước 01 · Chụp ảnh</b>
+      <div class="device-image-wrapper">
+        <img src="skin_analyzer_device.png" alt="SkinCheck 3D AI Skin Analyzer Machine" class="device-3d-image" />
+        <div class="hud-overlay">
+          <div class="hud-scanner-bar"></div>
+          
+          <!-- Left HUD Cards -->
+          <div class="hud-card left-top">
+            <div class="hud-gauge">
+              <svg viewBox="0 0 36 36" class="hud-circular-chart">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle" stroke-dasharray="78, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <div class="hud-gauge-value">78%</div>
             </div>
-            <div class="camera-frame">
-              <div class="face-outline"></div>
-              <div class="mark-point p1"></div>
-              <div class="mark-point p2"></div>
+            <div class="hud-card-details">
+              <span class="hud-title">SKIN MOISTURE</span>
+              <span class="hud-status">Optimal</span>
             </div>
-            <p class="scene-caption">Căn mặt chính diện vào khung. Yêu cầu không trang điểm, không bộ lọc ảnh và đủ ánh
-              sáng tự nhiên.</p>
+          </div>
+          
+          <div class="hud-card left-mid">
+            <div class="hud-bar-row">
+              <span class="hud-bar-label">HYDRATION</span>
+              <div class="hud-bar-track"><div class="hud-bar-fill" style="width: 78%;"></div></div>
+            </div>
+            <div class="hud-bar-row">
+              <span class="hud-bar-label">BARRIER</span>
+              <div class="hud-bar-track"><div class="hud-bar-fill" style="width: 85%;"></div></div>
+            </div>
           </div>
 
-          <!-- Scene 2: Upload Grid -->
-          <div class="scene">
-            <div class="scene-title">
-              <span>Dữ liệu hình ảnh</span>
-              <b>Bước 02 · Upload 3 góc</b>
+          <!-- Right HUD Cards -->
+          <div class="hud-card right-top">
+            <span class="hud-title">TEXTURE</span>
+            <div class="hud-mini-chart">
+              <svg viewBox="0 0 100 30" class="hud-wave-svg">
+                <path d="M0,15 Q15,5 30,20 T60,10 T90,25 T100,15" fill="none" stroke="#b8986c" stroke-width="2.5" />
+              </svg>
             </div>
-            <div class="sim-upload-grid">
-              <div class="sim-upload-card">
-                <div class="sim-thumb">👤</div>
-                Chính diện
-              </div>
-              <div class="sim-upload-card">
-                <div class="sim-thumb">◀</div>
-                Nghiêng trái
-              </div>
-              <div class="sim-upload-card">
-                <div class="sim-thumb">▶</div>
-                Nghiêng phải
-              </div>
-            </div>
-            <p class="scene-caption">Ảnh chụp góc thẳng và 2 bên má giúp xác định vùng phân bổ sắc tố sâu hay nông.</p>
           </div>
 
-          <!-- Scene 3: Scanning -->
-          <div class="scene">
-            <div class="scene-title">
-              <span>Đang chẩn đoán</span>
-              <b>Bước 03 · Quét sắc tố</b>
-            </div>
-            <div class="camera-frame">
-              <div class="face-outline"></div>
-              <div class="scanning-line"></div>
-              <div class="mark-point p1"></div>
-              <div class="mark-point p2"></div>
-              <div class="mark-point p3"></div>
-            </div>
-            <p class="scene-caption">Hệ thống phân tích các điểm sắc tố tập trung và biểu hiện giãn mạch hoặc đỏ yếu của
-              nền da.</p>
+          <div class="hud-card right-bottom">
+            <span class="hud-title" style="color: #2ecc71;">● AI DIAGNOSIS</span>
+            <div class="hud-status-text">OPTIMAL</div>
           </div>
 
-          <!-- Scene 4: Report -->
-          <div class="scene">
-            <div class="scene-title">
-              <span>Phân tích hoàn tất</span>
-              <b>Mã hồ sơ · MC-260611</b>
-            </div>
-            <div class="sim-result-card">
-              <div class="sim-result-header">
-                Mã hồ sơ: <span>MC-260610-0987</span>
-              </div>
-              <div class="sim-result-row">
-                <label>Tình trạng sắc tố</label>
-                <value>Sắc tố hỗn hợp: Mảng sạm kèm đốm rải rác</value>
-              </div>
-              <div class="sim-result-row">
-                <label>Sức khỏe nền da</label>
-                <value>Nền da đỏ, mỏng yếu, tổn thương hàng rào</value>
-              </div>
-              <div class="sim-result-row">
-                <label>Báo cáo</label>
-                <value>Được gửi tự động qua Email đăng ký</value>
-              </div>
-            </div>
-            <p class="scene-caption">Mã hồ sơ sẽ được tạo riêng và gửi kèm báo cáo chẩn đoán chi tiết đến bạn.</p>
-          </div>
-
+          <div class="hud-ping p1"></div>
+          <div class="hud-ping p2"></div>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Warnings Section -->
-  <section class="section warnings" id="warning">
-    <div class="container warnings-grid">
-      <div>
-        <div class="eyebrow">Cảnh báo trước điều trị</div>
-        <h2>Đừng vội vàng tin những <span>lời cam kết siêu nhanh</span></h2>
-        <p class="lead">Nám da là vấn đề phức tạp chịu ảnh hưởng lớn từ nội tiết, ánh sáng, nhiệt độ và hàng rào bảo vệ
-          da. Việc treatment quá nhanh mà không phục hồi nền da trước sẽ dẫn đến các biến chứng nguy hiểm.</p>
-      </div>
-      <div class="warning-cards">
-        <div class="warning-card">
-          <q>Cam kết 5–6 buổi sạch nám</q>
-          <p>Không có một mốc thời gian chung an toàn cho mọi nền da. Tẩy lột quá nhanh sẽ hủy hoại lớp sừng bảo vệ da.
-          </p>
-        </div>
-        <div class="warning-card">
-          <q>Da căng bóng trắng tức thì</q>
-          <p>Cảnh giác với các thành phần bào mòn nhanh hoặc kem chứa corticoid làm mất sắc tố vĩnh viễn.</p>
-        </div>
-        <div class="warning-card">
-          <q>Điều trị không bao giờ tái phát</q>
-          <p>Nám là bệnh lý mạn tính. Nắng, nhiệt, stress hay thay đổi nội tiết đều có thể kích hoạt nám xuất hiện trở
-            lại.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+
 
   <!-- Tool Diagnostic Wizard -->
   <section class="section tool-section" id="tool">
     <div class="container tool-grid">
       <div class="tool-intro">
-        <div class="eyebrow">MelanoCheck Online</div>
-        <h2>Công cụ phân tích <span>hồ sơ sắc tố</span> da</h2>
-        <p class="lead">Vui lòng cung cấp hình ảnh chân thực và khai báo chính xác lịch sử can thiệp để hệ thống đánh
-          giá khách quan nền da của bạn.</p>
+        <div class="eyebrow">SkinCheck Online</div>
+        <h2>Công cụ chẩn đoán <span>da liễu nâng cao</span></h2>
+        <p class="lead">Vui lòng cung cấp hình ảnh chân thực và khai báo chính xác lịch sử bôi thoa để hệ thống AI đánh giá khách quan làn da của bạn.</p>
 
         <!-- Wizard Steps Progress -->
         <div class="wizard-progress" id="wizardProgress">
@@ -2164,6 +3446,56 @@
       </div>
 
       <div class="form-panel" id="formPanel">
+        <div id="aiPreAnalysisBox" class="ai-pre-analysis-box" style="display: none;">
+          <div class="analysis-header">
+            <span class="analysis-badge">🤖 AI PHÂN TÍCH SƠ BỘ</span>
+            <h3>Kết Quả Mô Phỏng Da</h3>
+            <p>Hệ thống AI đã nhận diện các chỉ số bề mặt da từ ảnh chụp.</p>
+          </div>
+
+          <!-- Parameter Meters -->
+          <div class="analysis-meters">
+            <div class="meter-item">
+              <div class="meter-label">
+                <span>🔴 Độ nhạy cảm / Đỏ yếu</span>
+                <span id="val-redness">Thấp</span>
+              </div>
+              <div class="meter-bar-bg"><div class="meter-bar-fill redness" id="fill-redness" style="width: 30%;"></div></div>
+            </div>
+            <div class="meter-item">
+              <div class="meter-label">
+                <span>🟤 Mật độ sắc tố (Nám/Thâm)</span>
+                <span id="val-spots">Mảng sạm</span>
+              </div>
+              <div class="meter-bar-bg"><div class="meter-bar-fill spots" id="fill-spots" style="width: 40%;"></div></div>
+            </div>
+            <div class="meter-item">
+              <div class="meter-label">
+                <span>🐛 Bít tắc / Nhờn mụn</span>
+                <span id="val-pores">Bình thường</span>
+              </div>
+              <div class="meter-bar-bg"><div class="meter-bar-fill pores" id="fill-pores" style="width: 25%;"></div></div>
+            </div>
+            <div class="meter-item">
+              <div class="meter-label">
+                <span>💧 Độ ẩm da / Thiếu nước</span>
+                <span id="val-texture">Bình thường</span>
+              </div>
+              <div class="meter-bar-bg"><div class="meter-bar-fill texture" id="fill-texture" style="width: 35%;"></div></div>
+            </div>
+          </div>
+
+          <!-- Main Diagnosis Box -->
+          <div class="diagnosis-summary-box" id="diagnosisSummaryBox">
+            <div class="diagnosis-icon" id="diag-icon">🟤</div>
+            <h4 id="diag-title">Nhóm Da: Nám & Sắc Tố Hỗn Hợp</h4>
+            <p id="diag-desc">Nền da tập trung sắc tố loang lổ vùng gò má thượng bì hoặc chân sâu trung bì.</p>
+            <div class="diagnosis-slogan" id="diag-slogan">Phác đồ cần ức chế melanin & bảo vệ chống nắng tối đa.</div>
+          </div>
+
+          <button type="button" class="btn full" id="preAnalysisNextBtn">Tiếp tục trả lời khảo sát →</button>
+        </div>
+
         <form id="melanoForm" novalidate>
 
           <!-- STEP 1: Upload Photos -->
@@ -2180,7 +3512,7 @@
                 <li><strong>Ánh sáng tự nhiên:</strong> Ngồi đối diện cửa sổ ban ngày. Tránh chụp ngược sáng hoặc dưới bóng đèn tuýp làm đổi màu da.</li>
                 <li><strong>Cam thường 100%:</strong> Không sử dụng bất kỳ filter, ứng dụng làm mịn hay trang điểm (kem chống nắng/kem nền).</li>
                 <li><strong>Góc chụp & khoảng cách:</strong> Giữ điện thoại cách mặt 30–40 cm, camera ngang tầm mắt. Chụp rõ 3 góc: thẳng mặt và nghiêng hẳn 45-90 độ sang 2 bên má.</li>
-                <li><strong>Lấy nét rõ ràng:</strong> Chạm màn hình lấy nét vào vùng nám để nhìn rõ cấu trúc da, lỗ chân lông và mao mạch.</li>
+                <li><strong>Lấy nét rõ ràng:</strong> Chạm màn hình lấy nét vào vùng da thương tổn để nhìn rõ cấu trúc da, lỗ chân lông và mao mạch.</li>
               </ul>
             </div>
 
@@ -2189,7 +3521,6 @@
               <div class="photo-slot" id="slot-front" data-slot="front">
                 <span class="photo-slot-icon">📷</span>
                 <span>Chính diện</span>
-                <input type="file" id="input-front" accept="image/*" style="display:none;" />
                 <span class="photo-slot-label-overlay">Ảnh Chính Diện</span>
                 <div class="brightness-badge-placeholder"></div>
               </div>
@@ -2197,7 +3528,6 @@
               <div class="photo-slot" id="slot-left" data-slot="left">
                 <span class="photo-slot-icon">📷</span>
                 <span>Má trái</span>
-                <input type="file" id="input-left" accept="image/*" style="display:none;" />
                 <span class="photo-slot-label-overlay">Ảnh Má Trái</span>
                 <div class="brightness-badge-placeholder"></div>
               </div>
@@ -2205,11 +3535,14 @@
               <div class="photo-slot" id="slot-right" data-slot="right">
                 <span class="photo-slot-icon">📷</span>
                 <span>Má phải</span>
-                <input type="file" id="input-right" accept="image/*" style="display:none;" />
                 <span class="photo-slot-label-overlay">Ảnh Má Phải</span>
                 <div class="brightness-badge-placeholder"></div>
               </div>
             </div>
+            <!-- Hidden native file inputs for library selection -->
+            <input type="file" id="input-front" accept="image/*" style="display:none;" />
+            <input type="file" id="input-left" accept="image/*" style="display:none;" />
+            <input type="file" id="input-right" accept="image/*" style="display:none;" />
 
             <p class="required-info">Yêu cầu đăng tải đủ 3 góc ảnh da để tiến hành phân tích.</p>
           </div>
@@ -2217,8 +3550,7 @@
           <!-- STEP 2: Customer Info -->
           <div class="form-step-pane" data-step="2">
             <h3>Thông tin liên hệ & Đặc điểm</h3>
-            <p class="form-step-subtitle">Các thông tin cá nhân giúp chúng tôi định danh hồ sơ và gửi báo cáo chẩn đoán.
-            </p>
+            <p class="form-step-subtitle">Các thông tin cá nhân giúp chúng tôi định danh hồ sơ và gửi báo cáo chẩn đoán.</p>
 
             <div class="form-grid">
               <div class="field">
@@ -2226,162 +3558,410 @@
                 <input name="name" type="text" required placeholder="Ví dụ: Nguyễn Thị Lan" />
               </div>
               <div class="field">
-                <label>Email nhận báo cáo *</label>
-                <input name="email" type="email" required placeholder="lan.nguyen@example.com" />
-              </div>
-              <div class="field">
                 <label>Số điện thoại / Zalo *</label>
                 <input name="phone" type="tel" required placeholder="09xxxxxxxx" />
               </div>
               <div class="field">
+                <label>Email nhận báo cáo *</label>
+                <input name="email" type="email" required placeholder="lan.nguyen@example.com" />
+              </div>
+              <div class="field">
                 <label>Năm sinh *</label>
-                <input name="birthYear" type="number" min="1930" max="2026" required placeholder="VD: 1988" />
+                <select name="birthYear" required style="width:100%; height:50px; background:rgba(0,0,0,0.5); border:1px solid var(--line); border-radius:12px; color:var(--cream); padding:0 16px; font-family:var(--font-sans); font-size:15px; cursor:pointer;">
+                  <option value="" disabled selected>Chọn năm sinh</option>
+                  <option value="2010">2010</option>
+                  <option value="2009">2009</option>
+                  <option value="2008">2008</option>
+                  <option value="2007">2007</option>
+                  <option value="2006">2006</option>
+                  <option value="2005">2005</option>
+                  <option value="2004">2004</option>
+                  <option value="2003">2003</option>
+                  <option value="2002">2002</option>
+                  <option value="2001">2001</option>
+                  <option value="2000">2000</option>
+                  <option value="1999">1999</option>
+                  <option value="1998">1998</option>
+                  <option value="1997">1997</option>
+                  <option value="1996">1996</option>
+                  <option value="1995">1995</option>
+                  <option value="1994">1994</option>
+                  <option value="1993">1993</option>
+                  <option value="1992">1992</option>
+                  <option value="1991">1991</option>
+                  <option value="1990">1990</option>
+                  <option value="1989">1989</option>
+                  <option value="1988">1988</option>
+                  <option value="1987">1987</option>
+                  <option value="1986">1986</option>
+                  <option value="1985">1985</option>
+                  <option value="1984">1984</option>
+                  <option value="1983">1983</option>
+                  <option value="1982">1982</option>
+                  <option value="1981">1981</option>
+                  <option value="1980">1980</option>
+                  <option value="1979">1979</option>
+                  <option value="1978">1978</option>
+                  <option value="1977">1977</option>
+                  <option value="1976">1976</option>
+                  <option value="1975">1975</option>
+                  <option value="1974">1974</option>
+                  <option value="1973">1973</option>
+                  <option value="1972">1972</option>
+                  <option value="1971">1971</option>
+                  <option value="1970">1970</option>
+                  <option value="1969">1969</option>
+                  <option value="1968">1968</option>
+                  <option value="1967">1967</option>
+                  <option value="1966">1966</option>
+                  <option value="1965">1965</option>
+                  <option value="1964">1964</option>
+                  <option value="1963">1963</option>
+                  <option value="1962">1962</option>
+                  <option value="1961">1961</option>
+                  <option value="1960">1960</option>
+                  <option value="1959">1959</option>
+                  <option value="1958">1958</option>
+                  <option value="1957">1957</option>
+                  <option value="1956">1956</option>
+                  <option value="1955">1955</option>
+                  <option value="1950">Trước 1955</option>
+                </select>
               </div>
               <div class="field">
+                <label>Tỉnh / Thành sinh sống *</label>
+                <select name="city" required style="width:100%; height:50px; background:rgba(0,0,0,0.5); border:1px solid var(--line); border-radius:12px; color:var(--cream); padding:0 16px; font-family:var(--font-sans); font-size:15px; cursor:pointer;">
+                  <option value="" disabled selected>Chọn Tỉnh / Thành</option>
+                  <option value="Hà Nội">Hà Nội</option>
+                  <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                  <option value="Đà Nẵng">Đà Nẵng</option>
+                  <option value="An Giang">An Giang</option>
+                  <option value="Bà Rịa - Vũng Tàu">Bà Rịa - Vũng Tàu</option>
+                  <option value="Bắc Giang">Bắc Giang</option>
+                  <option value="Bắc Kạn">Bắc Kạn</option>
+                  <option value="Bạc Liêu">Bạc Liêu</option>
+                  <option value="Bắc Ninh">Bắc Ninh</option>
+                  <option value="Bến Tre">Bến Tre</option>
+                  <option value="Bình Định">Bình Định</option>
+                  <option value="Bình Dương">Bình Dương</option>
+                  <option value="Bình Phước">Bình Phước</option>
+                  <option value="Bình Thuận">Bình Thuận</option>
+                  <option value="Cà Mau">Cà Mau</option>
+                  <option value="Cao Bằng">Cao Bằng</option>
+                  <option value="Đắk Lắk">Đắk Lắk</option>
+                  <option value="Đắk Nông">Đắk Nông</option>
+                  <option value="Điện Biên">Điện Biên</option>
+                  <option value="Đồng Nai">Đồng Nai</option>
+                  <option value="Đồng Tháp">Đồng Tháp</option>
+                  <option value="Gia Lai">Gia Lai</option>
+                  <option value="Hà Giang">Hà Giang</option>
+                  <option value="Hà Nam">Hà Nam</option>
+                  <option value="Hà Tĩnh">Hà Tĩnh</option>
+                  <option value="Hải Dương">Hải Dương</option>
+                  <option value="Hải Phòng">Hải Phòng</option>
+                  <option value="Hậu Giang">Hậu Giang</option>
+                  <option value="Hòa Bình">Hòa Bình</option>
+                  <option value="Hưng Yên">Hưng Yên</option>
+                  <option value="Khánh Hòa">Khánh Hòa</option>
+                  <option value="Kiên Giang">Kiên Giang</option>
+                  <option value="Kon Tum">Kon Tum</option>
+                  <option value="Lai Châu">Lai Châu</option>
+                  <option value="Lâm Đồng">Lâm Đồng</option>
+                  <option value="Lạng Sơn">Lạng Sơn</option>
+                  <option value="Lào Cai">Lào Cai</option>
+                  <option value="Long An">Long An</option>
+                  <option value="Nam Định">Nam Định</option>
+                  <option value="Nghệ An">Nghệ An</option>
+                  <option value="Ninh Bình">Ninh Bình</option>
+                  <option value="Ninh Thuận">Ninh Thuận</option>
+                  <option value="Phú Thọ">Phú Thọ</option>
+                  <option value="Phú Yên">Phú Yên</option>
+                  <option value="Quảng Bình">Quảng Bình</option>
+                  <option value="Quảng Nam">Quảng Nam</option>
+                  <option value="Quảng Ngãi">Quảng Ngãi</option>
+                  <option value="Quảng Ninh">Quảng Ninh</option>
+                  <option value="Quảng Trị">Quảng Trị</option>
+                  <option value="Sóc Trăng">Sóc Trăng</option>
+                  <option value="Sơn La">Sơn La</option>
+                  <option value="Tây Ninh">Tây Ninh</option>
+                  <option value="Thái Bình">Thái Bình</option>
+                  <option value="Thái Nguyên">Thái Nguyên</option>
+                  <option value="Thanh Hóa">Thanh Hóa</option>
+                  <option value="Thừa Thiên Huế">Thừa Thiên Huế</option>
+                  <option value="Tiền Giang">Tiền Giang</option>
+                  <option value="Trà Vinh">Trà Vinh</option>
+                  <option value="Tuyên Quang">Tuyên Quang</option>
+                  <option value="Vĩnh Long">Vĩnh Long</option>
+                  <option value="Vĩnh Phúc">Vĩnh Phúc</option>
+                  <option value="Yên Bái">Yên Bái</option>
+                </select>
+              </div>
+              <div class="field full">
                 <label>Nghề nghiệp chính *</label>
-                <input name="job" type="text" required placeholder="Ví dụ: Văn phòng, Bán hàng, Làm bếp..." />
-              </div>
-              <div class="field">
-                <label>Tỉnh/Thành đang sinh sống *</label>
-                <input name="city" type="text" required placeholder="Ví dụ: Hà Nội, TP. Hồ Chí Minh" />
+                <input type="hidden" name="job" value="" required />
+                <div class="card-grid cols-2" data-select="job">
+                  <div class="card-option" data-value="Văn phòng (tiếp xúc máy tính)">
+                    <span class="card-icon">💼</span>
+                    <div class="card-label">Văn phòng / Máy tính</div>
+                    <div class="card-desc">Làm việc trong mát, tiếp xúc nhiều với ánh sáng màn hình</div>
+                  </div>
+                  <div class="card-option" data-value="Ngoài trời (tiếp xúc ánh nắng)">
+                    <span class="card-icon">☀️</span>
+                    <div class="card-label">Ngoài trời / Đi lại nhiều</div>
+                    <div class="card-desc">Kinh doanh tự do, bán hàng, thường xuyên tiếp xúc trực tiếp nắng gió</div>
+                  </div>
+                  <div class="card-option" data-value="Đầu bếp / Làm bếp / Cận nhiệt">
+                    <span class="card-icon">🍳</span>
+                    <div class="card-label">Làm bếp / Cận nhiệt</div>
+                    <div class="card-desc">Đầu bếp, nấu ăn, tiếp xúc nhiệt độ cao từ lò lửa, bếp gas</div>
+                  </div>
+                  <div class="card-option" data-value="Nội trợ / Ở nhà / Khác">
+                    <span class="card-icon">🏡</span>
+                    <div class="card-label">Nội trợ / Khác</div>
+                    <div class="card-desc">Làm việc tự do tại nhà hoặc môi trường râm mát ít khói bụi</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- STEP 3: History & Expression -->
+          <!-- STEP 3: History & Expression -->
           <div class="form-step-pane" data-step="3">
-            <h3>Lịch sử chăm sóc & Sắc tố</h3>
-            <p class="form-step-subtitle">Khai báo chi tiết các phương pháp xâm lấn đã từng thực hiện để bảo vệ làn da
-              của bạn.</p>
+            <h3>Lịch sử chăm sóc & Tình trạng da</h3>
+            <p class="form-step-subtitle">Khai báo chi tiết vấn đề da chính và lịch sử can thiệp để thiết lập phác đồ tối ưu.</p>
 
+            <!-- VẤN ĐỀ DA CHÍNH -->
             <div class="field">
-              <label>Thời gian bắt đầu xuất hiện sắc tố *</label>
-              <input type="hidden" name="duration" required />
+              <label>Vấn đề da chính bạn cần chẩn đoán & điều trị *</label>
+              <input type="hidden" name="primaryConcern" value="pigment" required />
+              <div class="card-grid" data-select="primaryConcern">
+                <div class="card-option active" data-value="pigment">
+                  <span class="card-icon">🟤</span>
+                  <div class="card-label">Nám & Sắc tố</div>
+                  <div class="card-desc">Nám mảng, nám đốm, nám chân sâu, tàn nhang, đồi mồi...</div>
+                </div>
+                <div class="card-option" data-value="acne">
+                  <span class="card-icon">🔴</span>
+                  <div class="card-label">Da mụn</div>
+                  <div class="card-desc">Mụn trứng cá, mụn Demodex, mụn nấm men, loạn khuẩn...</div>
+                </div>
+                <div class="card-option" data-value="toxic">
+                  <span class="card-icon">🚨</span>
+                  <div class="card-label">Nhiễm độc & Tổn thương</div>
+                  <div class="card-desc">Nhiễm corticoid, teo da giãn mạch, nhiễm chì, thủy ngân...</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CHỈ HIỂN THỊ CHO NÁM & SẮC TỐ -->
+            <div class="concern-group pigment-group">
+              <div class="field">
+                <label>Dạng sắc tố biểu hiện rõ nhất *</label>
+                <input type="hidden" name="pattern" value="" />
+                <div class="card-grid cols-2" data-select="pattern">
+                  <div class="card-option" data-value="Đốm nâu rải rác">
+                    <span class="card-icon">░</span>
+                    <div class="card-label">Đốm sắc tố rải rác</div>
+                    <div class="card-desc">Đốm nhỏ tách rời (Nám đốm chân sâu, Bớt sắc tố Hori, đồi mồi)</div>
+                  </div>
+                  <div class="card-option" data-value="Mảng nâu đối xứng">
+                    <span class="card-icon">█</span>
+                    <div class="card-label">Nám mảng đối xứng</div>
+                    <div class="card-desc">Mảng sạm đối xứng 2 gò má, sống mũi, trán hoặc thái dương</div>
+                  </div>
+                  <div class="card-option" data-value="Vừa mảng vừa đốm ẩn sâu">
+                    <span class="card-icon">▒</span>
+                    <div class="card-label">Nám hỗn hợp</div>
+                    <div class="card-desc">Kết hợp cả các mảng sạm màu bề mặt và các nốt sắc tố sâu</div>
+                  </div>
+                  <div class="card-option" data-value="Thâm/sạm sau mụn, peel hoặc laser">
+                    <span class="card-icon">🩹</span>
+                    <div class="card-label">Tăng sắc tố sau viêm (PIH)</div>
+                    <div class="card-desc">Da sạm đen tối màu sau tổn thương mụn, lột tẩy, peel hoặc laser hỏng</div>
+                  </div>
+                  <div class="card-option" data-value="Không chắc">
+                    <span class="card-icon">🤷</span>
+                    <div class="card-label">Tôi không tự phân biệt được</div>
+                    <div class="card-desc">Cần chuyên khoa xem trực tiếp ảnh để định loại</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Yếu tố di truyền trong gia đình *</label>
+                <input type="hidden" name="geneticFactor" value="" />
+                <div class="card-grid" data-select="geneticFactor">
+                  <div class="card-option" data-value="Có người thân bị nám (mẹ, chị em gái)">
+                    <span class="card-icon">🧬</span>
+                    <div class="card-label">Có di truyền</div>
+                    <div class="card-desc">Mẹ, chị em gái ruột bị sắc tố nám tương tự</div>
+                  </div>
+                  <div class="card-option" data-value="Không có ai bị">
+                    <span class="card-icon">🛡️</span>
+                    <div class="card-label">Không di truyền</div>
+                    <div class="card-desc">Gia đình không có tiền sử bị nám da</div>
+                  </div>
+                  <div class="card-option" data-value="Không rõ">
+                    <span class="card-icon">❓</span>
+                    <div class="card-label">Không rõ thông tin</div>
+                    <div class="card-desc">Tôi không nắm rõ tiền sử nám của gia đình</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Sử dụng thuốc tránh thai / thuốc nội tiết *</label>
+                <input type="hidden" name="hormoneUsage" value="" />
+                <div class="card-grid" data-select="hormoneUsage">
+                  <div class="card-option" data-value="Đang dùng thuốc tránh thai hàng ngày">
+                    <span class="card-icon">💊</span>
+                    <div class="card-label">Thuốc tránh thai</div>
+                    <div class="card-desc">Có, đang dùng thuốc tránh thai hàng ngày</div>
+                  </div>
+                  <div class="card-option" data-value="Đang dùng liệu pháp nội tiết tố khác">
+                    <span class="card-icon">🧪</span>
+                    <div class="card-label">Nội tiết tố khác</div>
+                    <div class="card-desc">Có, đang sử dụng thuốc điều hòa hoặc bổ sung nội tiết</div>
+                  </div>
+                  <div class="card-option" data-value="Không sử dụng">
+                    <span class="card-icon">❌</span>
+                    <div class="card-label">Không sử dụng</div>
+                    <div class="card-desc">Không uống bất kỳ loại thuốc tránh thai hay nội tiết nào</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CHỈ HIỂN THỊ CHO DA MỤN -->
+            <div class="concern-group acne-group" style="display:none;">
+              <div class="field">
+                <label>Dạng mụn & Biểu hiện lâm sàng trên da *</label>
+                <input type="hidden" name="acnePattern" value="" />
+                <div class="card-grid cols-2" data-select="acnePattern">
+                  <div class="card-option" data-value="Mụn sẩn mẩn đỏ ngứa ngáy nhiều sừng hóa nang lông">
+                    <span class="card-icon">🐛</span>
+                    <div class="card-label">Mụn nghi nhiễm Demodex</div>
+                    <div class="card-desc">Mụn sẩn đỏ nhỏ, ngứa châm chích nhiều (nhất là ban đêm), da sần sùi tróc vảy mịn nang lông</div>
+                  </div>
+                  <div class="card-option" data-value="Mụn mủ li ti đồng đều trán rìa tóc ngứa nhiều khi ra mồ hôi">
+                    <span class="card-icon">🍄</span>
+                    <div class="card-label">Mụn nghi nấm men (Fungal)</div>
+                    <div class="card-desc">Các nốt mụn mủ nhỏ li ti đồng đều, tập trung ở trán, thái dương, rìa chân tóc</div>
+                  </div>
+                  <div class="card-option" data-value="Mụn sẩn viêm mủ đầu trắng nhân mụn ẩn cồi đen rải rác">
+                    <span class="card-icon">🧬</span>
+                    <div class="card-label">Mụn vi khuẩn C. acnes</div>
+                    <div class="card-desc">Mụn trứng cá sưng viêm đỏ, mủ trắng đau nhức kèm mụn ẩn, cồi đen/đầu trắng</div>
+                  </div>
+                  <div class="card-option" data-value="Mụn bùng phát đỏ sần nổi mủ sau khi đổi mỹ phẩm hoặc peel da">
+                    <span class="card-icon">🧪</span>
+                    <div class="card-label">Mụn loạn khuẩn hệ vi sinh</div>
+                    <div class="card-desc">Bùng phát mụn mủ đỏ ồ ạt kèm đỏ rát tróc vảy sừng sau khi peel da hoặc dùng kem mới</div>
+                  </div>
+                  <div class="card-option" data-value="Không chắc chắn">
+                    <span class="card-icon">🤷</span>
+                    <div class="card-label">Tôi không tự phân biệt được</div>
+                    <div class="card-desc">Cần chuyên khoa xem ảnh chẩn đoán trực quan</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CHỈ HIỂN THỊ CHO NHIỄM ĐỘC/TỔN THƯƠNG -->
+            <div class="concern-group toxic-group" style="display:none;">
+              <div class="field">
+                <label>Biểu hiện tổn thương & Nghi ngờ độc chất mỹ phẩm *</label>
+                <input type="hidden" name="toxicPattern" value="" />
+                <div class="card-grid cols-2" data-select="toxicPattern">
+                  <div class="card-option" data-value="Da teo mỏng lộ mao mạch đỏ bừng nóng rát khi nắng nhiệt">
+                    <span class="card-icon">🩸</span>
+                    <div class="card-label">Teo da giãn mạch (Nhiễm Corticoid)</div>
+                    <div class="card-desc">Da mỏng lộ tia máu đỏ, đỏ bừng rát bỏng khó chịu khi ra nắng hoặc đứng gần bếp</div>
+                  </div>
+                  <div class="card-option" data-value="Da sạm xám tối màu loang lổ có ánh kim xỉn dưới nắng">
+                    <span class="card-icon">🪙</span>
+                    <div class="card-label">Sạm ánh kim (Chì / Thuỷ ngân)</div>
+                    <div class="card-desc">Da sạm đen sẫm loang lổ đặc trưng, có độ bóng ánh kim xám nhẹ khi ra nắng, da chai sần yếu</div>
+                  </div>
+                  <div class="card-option" data-value="Bùng mụn ồ ạt kèm ngứa rát châm chích dữ dội ngay khi dừng kem">
+                    <span class="card-icon">🚨</span>
+                    <div class="card-label">Bùng mụn thể viêm (Cai Corticoid)</div>
+                    <div class="card-desc">Mụn nước, mụn mủ bùng phát ngứa rát châm chích dữ dội ngay sau khi ngưng loại kem cũ</div>
+                  </div>
+                  <div class="card-option" data-value="Không chắc chắn">
+                    <span class="card-icon">🤷</span>
+                    <div class="card-label">Tôi không chắc chắn</div>
+                    <div class="card-desc">Cần chuyên khoa phân tích da và đánh giá mức độ nhiễm độc hóa chất</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CÁC TRƯỜNG DÙNG CHUNG -->
+            <div class="field">
+              <label>Thời gian bắt đầu gặp tình trạng da này *</label>
+              <input type="hidden" name="duration" value="" required />
               <div class="card-grid" data-select="duration">
                 <div class="card-option" data-value="Dưới 3 tháng">
                   <span class="card-icon">⏱️</span>
                   <div class="card-label">Dưới 3 tháng</div>
-                  <div class="card-desc">Sắc tố mới xuất hiện gần đây</div>
+                  <div class="card-desc">Vấn đề mới xuất hiện gần đây</div>
                 </div>
                 <div class="card-option" data-value="3-12 tháng">
                   <span class="card-icon">📅</span>
                   <div class="card-label">3 - 12 tháng</div>
-                  <div class="card-desc">Sắc tố xuất hiện dưới 1 năm</div>
+                  <div class="card-desc">Tình trạng xuất hiện dưới 1 năm</div>
                 </div>
                 <div class="card-option" data-value="1-3 năm">
                   <span class="card-icon">⏳</span>
                   <div class="card-label">1 - 3 năm</div>
-                  <div class="card-desc">Nám trung hạn, đã bám rễ sâu</div>
+                  <div class="card-desc">Đã kéo dài từ 1 đến 3 năm</div>
                 </div>
                 <div class="card-option" data-value="Trên 3 năm">
                   <span class="card-icon">🕰️</span>
                   <div class="card-label">Trên 3 năm</div>
-                  <div class="card-desc">Nám lâu năm, chân sắc tố bám chặt</div>
+                  <div class="card-desc">Mãn tính lâu năm, bám rễ sâu</div>
                 </div>
               </div>
             </div>
 
-            <div class="field">
-              <label>Dạng sắc tố biểu hiện rõ nhất *</label>
-              <input type="hidden" name="pattern" required />
-              <div class="card-grid cols-2" data-select="pattern">
-                <div class="card-option" data-value="Đốm nâu rải rác">
-                  <span class="card-icon">░</span>
-                  <div class="card-label">Đốm sắc tố rải rác</div>
-                  <div class="card-desc">Đốm nhỏ li ti (Tàn nhang, nám đốm chân sâu, đồi mồi)</div>
-                </div>
-                <div class="card-option" data-value="Mảng nâu">
-                  <span class="card-icon">█</span>
-                  <div class="card-label">Nám mảng đối xứng</div>
-                  <div class="card-desc">Mảng sạm đối xứng 2 gò má, sống mũi, trán hoặc thái dương</div>
-                </div>
-                <div class="card-option" data-value="Vừa mảng vừa đốm">
-                  <span class="card-icon">▒</span>
-                  <div class="card-label">Nám hỗn hợp</div>
-                  <div class="card-desc">Sự kết hợp của cả các mảng sạm màu và các nốt chân sâu</div>
-                </div>
-                <div class="card-option" data-value="Thâm/sạm sau mụn, peel hoặc laser">
-                  <span class="card-icon">🩹</span>
-                  <div class="card-label">Tăng sắc tố sau viêm</div>
-                  <div class="card-desc">Da sạm tối màu hẳn đi sau tổn thương mụn, lột tẩy hỏng, peel da hoặc bắn laser</div>
-                </div>
-                <div class="card-option" data-value="Không chắc">
-                  <span class="card-icon">🤷</span>
-                  <div class="card-label">Tôi không tự phân biệt được</div>
-                  <div class="card-desc">Cần chuyên khoa của PharmesHub xem trực tiếp ảnh để định loại</div>
-                </div>
+            <div class="field full">
+              <label>Khu vực da bị ảnh hưởng nhiều nhất * (Chọn nhiều mục)</label>
+              <div class="check-grid" id="areas">
+                <label class="check-pill"><input type="checkbox" value="hai gò má" />Hai bên gò má</label>
+                <label class="check-pill"><input type="checkbox" value="vùng trán" />Vùng trán</label>
+                <label class="check-pill"><input type="checkbox" value="sống mũi" />Sống mũi & Quanh mũi</label>
+                <label class="check-pill"><input type="checkbox" value="cằm/quanh miệng" />Vùng cằm / Quanh miệng</label>
+                <label class="check-pill"><input type="checkbox" value="thái dương/rìa má" />Hai bên thái dương / Rìa má</label>
+                <label class="check-pill"><input type="checkbox" value="toàn bộ mặt" />Rải rác khắp mặt</label>
               </div>
+              <input name="areas_extra" type="text" placeholder="Ghi chú cụ thể khu vực khác (nếu có)" style="margin-top: 10px; height: 44px; width: 100%; border: 1px solid var(--line); border-radius: 8px; background: rgba(0, 0, 0, 0.3); color: var(--cream); padding: 0 16px;" />
             </div>
-
-            <div class="field">
-              <label>Khu vực tập trung nhiều sắc tố *</label>
-              <input name="areas" type="text" required placeholder="Ví dụ: Gò má, sống mũi, trán, quanh miệng..." />
-            </div>
-
-            <div class="field">
-              <label>Yếu tố di truyền trong gia đình *</label>
-              <input type="hidden" name="geneticFactor" required />
-              <div class="card-grid" data-select="geneticFactor">
-                <div class="card-option" data-value="Có người thân bị nám (mẹ, chị em gái)">
-                  <span class="card-icon">🧬</span>
-                  <div class="card-label">Có di truyền</div>
-                  <div class="card-desc">Mẹ, chị em gái ruột bị sắc tố nám tương tự</div>
-                </div>
-                <div class="card-option" data-value="Không có ai bị">
-                  <span class="card-icon">🛡️</span>
-                  <div class="card-label">Không di truyền</div>
-                  <div class="card-desc">Gia đình không có tiền sử bị nám da</div>
-                </div>
-                <div class="card-option" data-value="Không rõ">
-                  <span class="card-icon">❓</span>
-                  <div class="card-label">Không rõ thông tin</div>
-                  <div class="card-desc">Tôi không nắm rõ tiền sử nám của gia đình</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="field">
-              <label>Sử dụng thuốc tránh thai / thuốc nội tiết *</label>
-              <input type="hidden" name="hormoneUsage" required />
-              <div class="card-grid" data-select="hormoneUsage">
-                <div class="card-option" data-value="Đang dùng thuốc tránh thai hàng ngày">
-                  <span class="card-icon">💊</span>
-                  <div class="card-label">Thuốc tránh thai</div>
-                  <div class="card-desc">Có, đang dùng thuốc tránh thai hàng ngày</div>
-                </div>
-                <div class="card-option" data-value="Đang dùng liệu pháp nội tiết tố khác">
-                  <span class="card-icon">🧪</span>
-                  <div class="card-label">Nội tiết tố khác</div>
-                  <div class="card-desc">Có, đang sử dụng thuốc điều hòa hoặc bổ sung nội tiết</div>
-                </div>
-                <div class="card-option" data-value="Không sử dụng">
-                  <span class="card-icon">❌</span>
-                  <div class="card-label">Không sử dụng</div>
-                  <div class="card-desc">Không uống bất kỳ loại thuốc tránh thai hay nội tiết nào</div>
-                </div>
-              </div>
-            </div>
-
 
             <div class="field full">
               <label>Các phương pháp xâm lấn từng thực hiện * (Chọn ít nhất một mục)</label>
               <div class="check-grid" id="treatments">
-                <label class="check-pill"><input type="checkbox" value="laser" />Laser trị nám</label>
-                <label class="check-pill"><input type="checkbox" value="peel" />Peel da sinh học</label>
-                <label class="check-pill"><input type="checkbox" value="lăn kim/phi kim" />Lăn kim / Phi kim</label>
-                <label class="check-pill"><input type="checkbox" value="tiêm/cấy/truyền" />Tiêm / Cấy tinh chất</label>
-                <label class="check-pill"><input type="checkbox" value="chấm nám" />Chấm axit/Chấm nám chân</label>
-                <label class="check-pill"><input type="checkbox" value="kem nám online" />Kem nám không rõ nguồn
-                  gốc</label>
-                <label class="check-pill"><input type="checkbox" value="chưa từng làm" />Chưa từng can thiệp xâm
-                  lấn</label>
+                <label class="check-pill"><input type="checkbox" value="laser" />Laser trị nám/tàn nhang</label>
+                <label class="check-pill"><input type="checkbox" value="peel" />Peel da sinh học/lột tẩy</label>
+                <label class="check-pill"><input type="checkbox" value="lăn kim/phi kim" />Lăn kim / Phi kim mụn</label>
+                <label class="check-pill"><input type="checkbox" value="tiêm/cấy/truyền" />Tiêm Meso / Cấy tinh chất</label>
+                <label class="check-pill"><input type="checkbox" value="chấm nám" />Chấm axit trị nám/chấm tàn nhang</label>
+                <label class="check-pill"><input type="checkbox" value="kem nám online" />Kem trộn, kem cốt spa, thuốc đông y</label>
+                <label class="check-pill"><input type="checkbox" value="chưa từng làm" />Chưa từng can thiệp xâm lấn</label>
               </div>
             </div>
 
             <div class="field full">
-              <label>Sản phẩm đã từng sử dụng *</label>
-              <textarea name="products" required
-                placeholder="Kể tên sản phẩm trị nám hoặc dưỡng da từng dùng, mua ở đâu, dùng bao lâu, và phản ứng của da khi ngừng sử dụng..."></textarea>
+              <label>Các loại mỹ phẩm / hoạt chất từng sử dụng * (Chọn nhiều mục)</label>
+              <div class="check-grid" id="products">
+                <label class="check-pill"><input type="checkbox" value="kem chống nắng" />Kem chống nắng hàng ngày</label>
+                <label class="check-pill"><input type="checkbox" value="serum phục hồi" />Serum/Kem phục hồi (B5, Ceramide, HA...)</label>
+                <label class="check-pill"><input type="checkbox" value="san pham dac tri" />Sản phẩm làm sáng / Dưỡng ẩm / Đặc trị (BHA, Retinol, Hydroquinone, Arbutin...)</label>
+                <label class="check-pill"><input type="checkbox" value="kem trộn/kem cốt/thuốc rượu" />Kem cốt Spa, kem sâm, thuốc bắc lột tẩy tái tạo</label>
+                <label class="check-pill"><input type="checkbox" value="chưa từng dùng dưỡng da" />Chưa từng sử dụng sản phẩm nào</label>
+              </div>
+              <input name="products_extra" type="text" placeholder="Ghi chú cụ thể tên sản phẩm đang dùng (ví dụ: Obagi, La Roche Posay...)" style="margin-top: 10px; height: 44px; width: 100%; border: 1px solid var(--line); border-radius: 8px; background: rgba(0, 0, 0, 0.3); color: var(--cream); padding: 0 16px;" />
             </div>
           </div>
 
@@ -2422,18 +4002,14 @@
               <label>Biểu hiện thường thấy của nền da hiện tại * (Chọn ít nhất một mục)</label>
               <div class="check-grid" id="symptoms">
                 <label class="check-pill"><input type="checkbox" value="đỏ rát" />Dễ đỏ ửng hoặc rát khi ra nắng</label>
-                <label class="check-pill"><input type="checkbox" value="châm chích" />Châm chích khi thoa mỹ
-                  phẩm</label>
-                <label class="check-pill"><input type="checkbox" value="khô căng/bong" />Khô ráp, căng chặt hoặc dễ bong
-                  tróc</label>
-                <label class="check-pill"><input type="checkbox" value="mụn viêm/li ti" />Mụn viêm đỏ hoặc mụn nước li
-                  ti</label>
-                <label class="check-pill"><input type="checkbox" value="mỏng yếu" />Có cảm giác mỏng yếu, thấy mạch
-                  máu</label>
-                <label class="check-pill"><input type="checkbox" value="sạm lại khi ngưng sản phẩm" />Da sạm đen sẫm lại
-                  ngay khi dừng bôi kem</label>
-                <label class="check-pill"><input type="checkbox" value="chưa rõ" />Nền da ổn định, không có các biểu
-                  hiện trên</label>
+                <label class="check-pill"><input type="checkbox" value="châm chích" />Châm chích khi thoa mỹ phẩm</label>
+                <label class="check-pill"><input type="checkbox" value="khô căng/bong" />Khô ráp, căng chặt hoặc dễ bong tróc</label>
+                <label class="check-pill"><input type="checkbox" value="mụn viêm/li ti" />Mụn viêm đỏ hoặc mụn nước li ti</label>
+                <label class="check-pill"><input type="checkbox" value="ngứa ngáy về đêm" />Ngứa ngáy châm chích nhiều về đêm</label>
+                <label class="check-pill"><input type="checkbox" value="mỏng yếu" />Có cảm giác mỏng yếu, thấy mạch máu</label>
+                <label class="check-pill"><input type="checkbox" value="sạm lại khi ngưng sản phẩm" />Da sạm đen sẫm lại ngay khi dừng bôi kem</label>
+                <label class="check-pill"><input type="checkbox" value="sạm xám ánh kim" />Da sạm xám loang lổ có ánh kim dưới nắng</label>
+                <label class="check-pill"><input type="checkbox" value="chưa rõ" />Nền da ổn định, không có các biểu hiện trên</label>
               </div>
             </div>
 
@@ -2485,40 +4061,181 @@
             <span style="font-size: 20px; line-height: 1; color: #2ecc71;">✓</span>
             <div>
               <h4 style="margin: 0 0 6px; color: #2ecc71; font-weight: 700; font-size: 15px; font-family: var(--font-sans);">Gửi hồ sơ thành công!</h4>
-              <p style="margin: 0; color: var(--cream-dim); font-size: 13px; line-height: 1.5; font-family: var(--font-sans);">Hồ sơ chẩn đoán MelanoCheck đã được ghi nhận trên hệ thống. Bản báo cáo phân tích chi tiết đã được gửi tới email của bạn. Dưới đây là kết quả phân tích sơ bộ hiển thị tức thì:</p>
+              <p style="margin: 0; color: var(--cream-dim); font-size: 13px; line-height: 1.5; font-family: var(--font-sans);">Hồ sơ chẩn đoán SkinCheck đã được ghi nhận trên hệ thống. Bản báo cáo phân tích chi tiết đã được gửi tới email của bạn. Dưới đây là kết quả phân tích sơ bộ hiển thị tức thì:</p>
             </div>
           </div>
 
           <div class="result-card">
             <div class="result-header">
               <span class="ai-badge">Gemini AI Active</span>
-              <h3>Kết quả phân tích da sơ bộ</h3>
+              <h3>Báo cáo chẩn đoán da chuyên sâu</h3>
             </div>
-            
+
+            <!-- CHẨN ĐOÁN CHI TIẾT -->
+            <div class="diagnosis-header">
+              <div class="diagnosis-badge badge-pigment" id="resConcernBadge">Đang chẩn đoán</div>
+              <div class="diagnosis-desc" id="resDetailedDiagnosis">Hệ thống đang phân tích hình ảnh và lịch sử bôi thoa...</div>
+            </div>
+
+            <!-- CHỈ SỐ SỨC KHỎE DA -->
+            <div class="protocol-title">📊 Chỉ số phân tích da định lượng</div>
+            <div class="metrics-container">
+              <div class="metric-row">
+                <div class="metric-info">
+                  <span class="metric-label">🔴 Chỉ số Mụn & Viêm sần</span>
+                  <span class="metric-value" id="valAcneScore">0%</span>
+                </div>
+                <div class="metric-bar-bg">
+                  <div class="metric-bar-fill fill-red" id="barAcneScore" style="width: 0%;"></div>
+                </div>
+              </div>
+              <div class="metric-row">
+                <div class="metric-info">
+                  <span class="metric-label">🟤 Chỉ số Đốm sắc tố nông</span>
+                  <span class="metric-value" id="valPigmentScore">0%</span>
+                </div>
+                <div class="metric-bar-bg">
+                  <div class="metric-bar-fill fill-orange" id="barPigmentScore" style="width: 0%;"></div>
+                </div>
+              </div>
+              <div class="metric-row">
+                <div class="metric-info">
+                  <span class="metric-label">🟣 Tích tụ sắc tố sâu & Độc chất (Corticoid/KLN)</span>
+                  <span class="metric-value" id="valToxicScore">0%</span>
+                </div>
+                <div class="metric-bar-bg">
+                  <div class="metric-bar-fill fill-purple" id="barToxicScore" style="width: 0%;"></div>
+                </div>
+              </div>
+              <div class="metric-row">
+                <div class="metric-info">
+                  <span class="metric-label">🟢 Sức khỏe Hàng rào bảo vệ (Hydrolipid)</span>
+                  <span class="metric-value" id="valBarrierScore">0%</span>
+                </div>
+                <div class="metric-bar-bg">
+                  <div class="metric-bar-fill fill-green" id="barBarrierScore" style="width: 0%;"></div>
+                </div>
+              </div>
+              <div class="metric-row">
+                <div class="metric-info">
+                  <span class="metric-label">🟡 Độ nhạy cảm & Mao mạch yếu</span>
+                  <span class="metric-value" id="valRednessScore">0%</span>
+                </div>
+                <div class="metric-bar-bg">
+                  <div class="metric-bar-fill fill-yellow" id="barRednessScore" style="width: 0%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TÓM TẮT LÂM SÀNG -->
             <div class="result-section">
-              <div class="result-label">🩺 Nhận định sắc tố</div>
+              <div class="result-label">🩺 Nhận định & Vùng phân bố</div>
               <div class="result-value pigment-type" id="resPigment">Đang tải chẩn đoán...</div>
             </div>
             
             <div class="result-section">
-              <div class="result-label">🛡️ Nhận định nền da</div>
-              <div class="result-value skin-status" id="resSkinStatus">Đang tải nhận định nền da...</div>
-            </div>
-            
-            <div class="result-section">
-              <div class="result-label">📊 Tóm tắt tình trạng</div>
+              <div class="result-label">📊 Tóm tắt tình trạng hình ảnh</div>
               <div class="result-value summary-text" id="resSummary">Đang tải tóm tắt...</div>
             </div>
             
             <div class="result-section">
-              <div class="result-label">💡 Lời khuyên & Phác đồ tiếp theo</div>
+              <div class="result-label">💡 Lời khuyên & Lưu ý an toàn</div>
               <div class="result-value next-steps-list" id="resNextSteps">Đang tải lời khuyên...</div>
             </div>
 
+            <!-- PHÁC ĐỒ ĐIỀU TRỊ GIAI ĐOẠN -->
+            <div class="protocol-section">
+              <div class="protocol-title">📅 Phác đồ phục hồi & trị liệu theo giai đoạn</div>
+              <div class="protocol-tabs" id="protocolTabs">
+                <button type="button" class="protocol-tab-btn active" data-tab="giai_doan_1">Giai đoạn 1</button>
+                <button type="button" class="protocol-tab-btn" data-tab="giai_doan_2">Giai đoạn 2</button>
+                <button type="button" class="protocol-tab-btn" data-tab="giai_doan_3">Giai đoạn 3</button>
+              </div>
+              <div class="protocol-panes">
+                <div class="protocol-pane active" id="paneGiaiDoan1">
+                  <div class="pane-header-info">
+                    <span class="pane-stage-name" id="nameGiaiDoan1">Giai đoạn 1: Làm dịu & Phục hồi</span>
+                    <span class="pane-duration" id="durGiaiDoan1">2-4 tuần</span>
+                  </div>
+                  <div class="pane-detail-row">
+                    <div class="pane-detail-label">🎯 Mục tiêu giai đoạn:</div>
+                    <div class="pane-detail-value" id="goalGiaiDoan1">Đang tải mục tiêu...</div>
+                  </div>
+                  <div class="pane-detail-row">
+                    <div class="pane-detail-label">🏠 Hướng dẫn bôi thoa tại nhà (Homecare):</div>
+                    <div class="pane-detail-value" id="homeGiaiDoan1">Đang tải hướng dẫn...</div>
+                  </div>
+                </div>
+                <div class="protocol-pane" id="paneGiaiDoan2">
+                  <div class="pane-header-info">
+                    <span class="pane-stage-name" id="nameGiaiDoan2">Giai đoạn 2: Điều trị chuyên sâu</span>
+                    <span class="pane-duration" id="durGiaiDoan2">4-8 tuần</span>
+                  </div>
+                  <div class="pane-detail-row">
+                    <div class="pane-detail-label">🎯 Mục tiêu giai đoạn:</div>
+                    <div class="pane-detail-value" id="goalGiaiDoan2">Đang tải mục tiêu...</div>
+                  </div>
+                  <div class="pane-detail-row">
+                    <div class="pane-detail-label">🏠 Hướng dẫn bôi thoa tại nhà (Homecare):</div>
+                    <div class="pane-detail-value" id="homeGiaiDoan2">Đang tải hướng dẫn...</div>
+                  </div>
+                </div>
+                <div class="protocol-pane" id="paneGiaiDoan3">
+                  <div class="pane-header-info">
+                    <span class="pane-stage-name" id="nameGiaiDoan3">Giai đoạn 3: Duy trì & Ngừa tái phát</span>
+                    <span class="pane-duration" id="durGiaiDoan3">Dài hạn</span>
+                  </div>
+                  <div class="pane-detail-row">
+                    <div class="pane-detail-label">🎯 Mục tiêu giai đoạn:</div>
+                    <div class="pane-detail-value" id="goalGiaiDoan3">Đang tải mục tiêu...</div>
+                  </div>
+                  <div class="pane-detail-row">
+                    <div class="pane-detail-label">🏠 Hướng dẫn bôi thoa tại nhà (Homecare):</div>
+                    <div class="pane-detail-value" id="homeGiaiDoan3">Đang tải hướng dẫn...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
+            <!-- GỢI Ý MỸ PHẨM PHÙ HỢP -->
+            <div class="products-section">
+              <div class="protocol-title">🧴 Danh mục mỹ phẩm đề xuất phù hợp</div>
+              <div class="products-grid">
+                <div class="product-card">
+                  <span class="product-icon">🧼</span>
+                  <div class="product-type">Sữa rửa mặt</div>
+                  <div class="product-name" id="prodCleanserName">Đang đề xuất...</div>
+                  <div class="product-desc" id="prodCleanserDesc">Đang phân tích sản phẩm làm sạch...</div>
+                </div>
+                <div class="product-card">
+                  <span class="product-icon">💧</span>
+                  <div class="product-type">Serum phục hồi</div>
+                  <div class="product-name" id="prodSerumName">Đang đề xuất...</div>
+                  <div class="product-desc" id="prodSerumDesc">Đang phân tích hoạt chất phục hồi...</div>
+                </div>
+                <div class="product-card">
+                  <span class="product-icon">🧪</span>
+                  <div class="product-type">Hoạt chất đặc trị</div>
+                  <div class="product-name" id="prodTreatmentName">Đang đề xuất...</div>
+                  <div class="product-desc" id="prodTreatmentDesc">Đang phân tích hoạt chất đặc trị mụn/nám...</div>
+                </div>
+                <div class="product-card">
+                  <span class="product-icon">🔒</span>
+                  <div class="product-type">Kem khóa ẩm</div>
+                  <div class="product-name" id="prodMoisturizerName">Đang đề xuất...</div>
+                  <div class="product-desc" id="prodMoisturizerDesc">Đang phân tích kem dưỡng phục hồi...</div>
+                </div>
+                <div class="product-card">
+                  <span class="product-icon">☀️</span>
+                  <div class="product-type">Kem chống nắng</div>
+                  <div class="product-name" id="prodSunscreenName">Đang đề xuất...</div>
+                  <div class="product-desc" id="prodSunscreenDesc">Đang phân tích màng lọc bảo vệ da...</div>
+                </div>
+              </div>
+            </div>
             
             <div class="result-footer-note">
-              Lưu ý: Báo cáo đầy đủ dạng HTML chi tiết đã được gửi đến email của bạn. Hãy click nút "Liên hệ chuyên sâu ngay" bên dưới để bác sĩ PharmesHub trực tiếp xem ảnh và tư vấn phác đồ chi tiết.
+              Lưu ý: Báo cáo đầy đủ dạng HTML chi tiết đã được gửi đến email của bạn. Hãy click nút "Liên hệ chuyên sâu ngay" bên dưới để chuyên gia của Ngô Mai Phương trực tiếp xem ảnh và tư vấn phác đồ chi tiết.
             </div>
           </div>
           <button type="button" class="btn secondary" id="resetBtn2" style="margin: 20px auto 0; display: block;">Tạo hồ sơ mới</button>
@@ -2529,14 +4246,19 @@
           <div class="status-box-inner">
             <div class="status-icon">✓</div>
             <h3>Hồ sơ đã được gửi đi</h3>
-            <p>Hồ sơ chẩn đoán MelanoCheck đã được ghi nhận. Báo cáo sàng lọc sơ bộ cùng phân tích nền da sắc tố đang
+            <p>Hồ sơ chẩn đoán SkinCheck đã được ghi nhận. Báo cáo sàng lọc sơ bộ cùng phân tích nền da và phác đồ điều trị đang
               được tạo lập và sẽ tự động gửi đến email của bạn trong ít phút.</p>
-            <button type="button" class="btn secondary" id="resetBtn">Tạo hồ sơ mới</button>
+            <div style="display: flex; gap: 12px; justify-content: center; margin-top: 20px; flex-wrap: wrap;">
+              <button type="button" class="btn" id="deepReportScrollBtn">Nhận báo cáo chuyên sâu từ Chuyên gia →</button>
+              <button type="button" class="btn secondary" id="resetBtn">Tạo hồ sơ mới</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
+
+
 
   <!-- Deep Consult Section -->
   <section class="section contact-section" id="contact">
@@ -2547,7 +4269,7 @@
         <div class="contact-details">
           <div class="eyebrow">Tư vấn chuyên sâu</div>
           <h2>Nhận báo cáo phân tích chi tiết & Phác đồ cá nhân hóa</h2>
-          <p>Mỗi hồ sơ chẩn đoán đều được đọc trực tiếp bởi đội ngũ chuyên gia da liễu tại PharmesHub. Sau khi gửi hồ
+          <p>Mỗi hồ sơ chẩn đoán đều được đọc trực tiếp bởi đội ngũ chuyên gia da liễu tại thương hiệu Ngô Mai Phương. Sau khi gửi hồ
             sơ, bạn hãy click yêu cầu nhận báo cáo chi tiết để chuyên viên liên hệ trực tiếp hỗ trợ giải pháp.</p>
         </div>
         <div class="contact-actions">
@@ -2564,16 +4286,16 @@
           <div class="status-icon">✓</div>
           <h2>Cảm ơn bạn đã quan tâm!</h2>
           <p class="lead" style="margin: 0 auto 20px;">Yêu cầu nhận báo cáo chuyên sâu đã được tiếp nhận thành công.
-            Chuyên viên chuyên khoa da liễu từ PharmesHub sẽ nhanh chóng liên hệ với bạn thông qua Số điện thoại/Zalo để
+            Chuyên viên chuyên khoa da liễu từ thương hiệu Ngô Mai Phương sẽ nhanh chóng liên hệ với bạn thông qua Số điện thoại/Zalo để
             hỗ trợ phân tích trực tiếp hình ảnh da và lịch sử treatment.</p>
         </div>
       </div>
 
       <div class="footer-warning">
-        Lưu ý: MelanoCheck là công cụ sàng lọc trực tuyến thuộc PharmesHub với mục đích hỗ trợ nâng cao nhận thức của
+        Lưu ý: SkinCheck là công cụ sàng lọc trực tuyến hợp tác cùng Ngô Mai Phương với mục đích hỗ trợ nâng cao nhận thức của
         người dùng trước điều trị. Kết quả báo cáo sơ bộ không thay thế việc thăm khám y khoa trực tiếp bằng máy soi da
         tại các cơ sở chuyên sâu. Vui lòng không sao chép, chỉnh sửa hoặc sử dụng vào mục đích thương mại khi chưa có
-        văn bản đồng ý từ PharmesHub.
+        văn bản đồng ý từ Ngô Mai Phương.
       </div>
     </div>
   </section>
@@ -2581,7 +4303,7 @@
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
-      <p>&copy; 2026 PharmesHub. All rights reserved. MelanoCheck System & Skin Diagnostics Portal.</p>
+      <p>&copy; 2026 Ngô Mai Phương. All rights reserved. SkinCheck System & Skin Diagnostics Portal.</p>
     </div>
   </footer>
 
@@ -2655,9 +4377,98 @@
       </div>
       <button type="button" class="btn secondary source-close" id="closeSourceBtn">Đóng</button>
     </div>
+  <!-- Deep Consult Info Popup Modal -->
+  <div id="consultModal" class="consult-modal">
+    <div class="consult-modal-content">
+      <button type="button" class="consult-close" id="closeConsultBtn">&times;</button>
+      <div class="consult-header">
+        <span style="font-size: 32px; display: block; margin-bottom: 6px;">🩺</span>
+        <h3>Đăng ký Tư vấn Chuyên sâu</h3>
+        <p>Vui lòng xác nhận thông tin liên hệ. Chuyên gia Ngô Mai Phương sẽ trực tiếp liên hệ hỗ trợ bạn xây dựng phác đồ cá nhân hóa.</p>
+      </div>
+      <form id="consultForm" class="consult-form">
+        <div class="consult-input-group">
+          <label for="consultName">Họ tên của bạn <span style="color: var(--accent);">*</span></label>
+          <input type="text" id="consultName" name="name" required placeholder="Ví dụ: Nguyễn Thị Hoa" />
+        </div>
+        <div class="consult-input-group">
+          <label for="consultPhone">Số điện thoại / Zalo <span style="color: var(--accent);">*</span></label>
+          <input type="tel" id="consultPhone" name="phone" required placeholder="Ví dụ: 0912345678" />
+        </div>
+        <div class="consult-input-group">
+          <label for="consultEmail">Địa chỉ Email <span style="color: var(--accent);">*</span></label>
+          <input type="email" id="consultEmail" name="email" required placeholder="Ví dụ: hoa.nguyen@gmail.com" />
+        </div>
+        <button type="submit" class="btn cta-large" id="submitConsultBtn" style="margin-top: 8px;">Gửi yêu cầu & Nhận tư vấn</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Deep Consult Success / Thank You Modal -->
+  <div id="thankyouModal" class="consult-modal">
+    <div class="consult-modal-content" style="text-align: center; max-width: 440px; padding: 35px 25px;">
+      <span style="font-size: 54px; display: block; margin-bottom: 15px;">🎉</span>
+      <h3 style="color: var(--gold); margin-bottom: 15px; font-size: 20px;">Đã Nhận Yêu Cầu!</h3>
+      <p style="color: var(--cream); font-size: 15px; line-height: 1.6; margin-bottom: 12px; font-weight: 500;">
+        Mình đã nhận được yêu cầu của bạn!
+      </p>
+      <p style="color: var(--cream-dim); font-size: 13.5px; line-height: 1.6; margin-bottom: 15px;">
+        Yêu cầu của bạn đã được gửi đến chuyên gia tư vấn.<br>
+        Chuyên gia sẽ liên hệ với bạn qua Số điện thoại / Zalo trong 1 giờ.
+      </p>
+      <p style="color: var(--gold); font-size: 13.5px; font-style: italic; font-weight: bold; margin-bottom: 25px;">
+        Cảm ơn bạn đã kiên nhẫn!
+      </p>
+      <button type="button" class="btn full" id="closeThankyouBtn" style="padding: 12px;">Đóng</button>
+    </div>
+  </div>
+
+  <!-- Payment QR Modal -->
+  <div id="paymentModal" class="payment-modal">
+    <div class="payment-modal-content">
+      <button type="button" class="payment-close" id="closePaymentBtn">&times;</button>
+      <div class="payment-header">
+        <span style="font-size: 32px; display: block; margin-bottom: 6px;">💳</span>
+        <h3>Mở Khóa Phác Đồ Chuyên Sâu</h3>
+        <p>Vui lòng thanh toán để mở khóa tiếp tục khảo sát & nhận báo cáo chẩn đoán da liễu chi tiết từ Chuyên khoa.</p>
+      </div>
+      
+      <div class="payment-qr-container">
+        <img id="paymentQrImg" src="" alt="Mã VietQR Thanh Toán" class="payment-qr-img" />
+        <div class="payment-timer" id="paymentTimer">Thời gian thanh toán còn lại: 05:00</div>
+      </div>
+      
+      <div class="payment-details-box">
+        <div class="pay-detail-row">
+          <span>Ngân hàng:</span>
+          <strong>MB Bank (Quân Đội)</strong>
+        </div>
+        <div class="pay-detail-row">
+          <span>Số tài khoản:</span>
+          <strong>123456789</strong>
+        </div>
+        <div class="pay-detail-row">
+          <span>Chủ tài khoản:</span>
+          <strong>NGO MAI PHUONG</strong>
+        </div>
+        <div class="pay-detail-row">
+          <span>Số tiền:</span>
+          <strong style="color: var(--sienna); font-size: 15px;">99.000đ</strong>
+        </div>
+        <div class="pay-detail-row">
+          <span>Nội dung chuyển khoản:</span>
+          <strong style="color: var(--sienna); font-family: monospace; font-size: 14px;" id="payDescription">SKINCHECK...</strong>
+        </div>
+      </div>
+      
+      <button type="button" class="btn full" id="verifyPaymentBtn">Tôi đã thanh toán thành công →</button>
+      <p class="payment-hint">Sau khi quét mã và chuyển khoản thành công, hệ thống 3C Studio sẽ đối soát tự động để mở khóa tiếp tục chẩn đoán.</p>
+    </div>
   </div>
 
   <script>
+
+
     // Configuration
     const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNgJMhr2DanSJhHdc8WVBcwyw11QrP3sO09W_rOaCsuhrxFl7yPzXqmduDi2wEDJSGmQ/exec';
 
@@ -2689,6 +4500,16 @@
     // DOM Utilities
     const $ = selector => document.querySelector(selector);
     const $$ = selector => Array.from(document.querySelectorAll(selector));
+
+    // Safe storage helper to avoid crash in sandboxed environments (like 3C Studio iframe)
+    const storage = {
+      getItem(key) {
+        try { return localStorage.getItem(key); } catch(e) { return null; }
+      },
+      setItem(key, value) {
+        try { localStorage.setItem(key, value); } catch(e) {}
+      }
+    };
 
     // Handle custom Card selections (Step 3)
     $$('.card-grid').forEach(grid => {
@@ -2759,21 +4580,6 @@
 
     async function processAndValidateUploadedImage(dataUrl, slotKey) {
       const metrics = await analyzeImagePixels(dataUrl);
-      
-      if (!metrics.filtered) {
-        alert("❌ ẢNH KHÔNG ĐẠT TIÊU CHUẨN:\nHệ thống không nhận diện được vùng da mặt của bạn. Ảnh có thể bị quá mờ, thiếu sáng trầm trọng hoặc góc chụp quá xa.\n\nVui lòng chụp hoặc chọn lại ảnh cận cảnh rõ nét mặt của bạn.");
-        return false;
-      }
-      
-      if (metrics.averageLuminance < 45) {
-        alert(`❌ ẢNH QUÁ TỐI:\nẢnh chụp bị thiếu sáng (độ sáng trung bình: ${Math.round(metrics.averageLuminance)}).\n\nVui lòng di chuyển đến vùng có ánh sáng tốt hơn và chụp lại.`);
-        return false;
-      }
-      
-      if (metrics.averageLuminance > 225) {
-        alert(`❌ ẢNH BỊ CHÓI SÁNG:\nẢnh chụp quá chói hoặc lóa sáng mạnh (độ sáng trung bình: ${Math.round(metrics.averageLuminance)}).\n\nVui lòng chụp lại ở nơi có ánh sáng dịu hơn.`);
-        return false;
-      }
       
       // Save data
       state.images[slotKey] = dataUrl;
@@ -2864,13 +4670,13 @@
     }
 
     // Handle File inputs and previews
-    $$('.photo-slot input[type="file"]').forEach(input => {
+    $$('input[type="file"]').forEach(input => {
       input.addEventListener('change', async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        const slot = e.target.closest('.photo-slot');
-        const key = slot.dataset.slot;
+        const key = e.target.id.replace('input-', '');
+        const slot = $('#slot-' + key);
 
         // Show loading state
         slot.style.opacity = '0.5';
@@ -2918,12 +4724,20 @@
     let brightnessInterval = null;
     let cameraCountdownInterval = null;
 
-    // Camera action listeners
+    // Bind click event to photo slots to open source selection modal with camera support detection
     $$('.photo-slot').forEach(slot => {
-      slot.addEventListener('click', (e) => {
-        if (e.target.tagName === 'INPUT' || slot.style.opacity === '0.5') return;
+      slot.addEventListener('click', () => {
         state.activeSlot = slot.dataset.slot;
-        $('#sourceModal').classList.add('active');
+        
+        // Detect camera support / secure context / in-app browser blocks
+        const hasCameraSupport = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        if (hasCameraSupport) {
+          $('#sourceModal').classList.add('active');
+        } else {
+          // Instantly fallback to file uploader if camera is unavailable (e.g. sandboxed iframe or in-app webview)
+          const input = $('#input-' + state.activeSlot);
+          if (input) input.click();
+        }
       });
     });
 
@@ -2994,41 +4808,52 @@
       // Show modal first
       $('#cameraModal').classList.add('active');
 
-      // Hide active video and overlays to show countdown
-      video.style.opacity = '0';
-      $('#cameraOverlay').style.opacity = '0';
-      $('#brightnessFeedback').style.display = 'none';
-      
-      // Start 3s countdown with clean screen
-      makeupOverlay.style.display = 'flex';
-      let count = 3;
-      countdownNumber.textContent = count;
-      if (progressCircle) {
-        progressCircle.style.strokeDasharray = '100, 100';
-      }
-
-      cameraCountdownInterval = setInterval(() => {
-        count--;
-        if (count > 0) {
-          countdownNumber.textContent = count;
-          if (progressCircle) {
-            const pct = (count / 3) * 100;
-            progressCircle.style.strokeDasharray = pct + ", 100";
-          }
-        } else {
-          clearInterval(cameraCountdownInterval);
-          cameraCountdownInterval = null;
-          makeupOverlay.style.display = 'none';
-          
-          // Show video and alignment guide overlays
-          video.style.opacity = '1';
-          $('#cameraOverlay').style.opacity = '1';
-          $('#brightnessFeedback').style.display = 'block';
-          
-          // Start actual camera stream
-          initializeCameraStream(slotKey);
+      if (slotKey === 'front') {
+        // Hide active video and overlays to show countdown
+        video.style.opacity = '0';
+        $('#cameraOverlay').style.opacity = '0';
+        $('#brightnessFeedback').style.display = 'none';
+        
+        // Start 3s countdown with clean screen
+        makeupOverlay.style.display = 'flex';
+        let count = 3;
+        countdownNumber.textContent = count;
+        if (progressCircle) {
+          progressCircle.style.strokeDasharray = '100, 100';
         }
-      }, 1000);
+
+        cameraCountdownInterval = setInterval(() => {
+          count--;
+          if (count > 0) {
+            countdownNumber.textContent = count;
+            if (progressCircle) {
+              const pct = (count / 3) * 100;
+              progressCircle.style.strokeDasharray = pct + ", 100";
+            }
+          } else {
+            clearInterval(cameraCountdownInterval);
+            cameraCountdownInterval = null;
+            makeupOverlay.style.display = 'none';
+            
+            // Show video and alignment guide overlays
+            video.style.opacity = '1';
+            $('#cameraOverlay').style.opacity = '1';
+            $('#brightnessFeedback').style.display = 'block';
+            
+            // Start actual camera stream
+            initializeCameraStream(slotKey);
+          }
+        }, 1000);
+      } else {
+        // For left and right profiles, bypass countdown and open camera stream directly!
+        makeupOverlay.style.display = 'none';
+        video.style.opacity = '1';
+        $('#cameraOverlay').style.opacity = '1';
+        $('#brightnessFeedback').style.display = 'block';
+        
+        // Start actual camera stream
+        initializeCameraStream(slotKey);
+      }
     }
 
     async function initializeCameraStream(slotKey) {
@@ -3042,14 +4867,19 @@
           },
           audio: false
         };
-        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+        } catch (e) {
+          console.warn("Retrying camera stream with standard video constraints...");
+          cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        }
         video.srcObject = cameraStream;
         
         // Start live brightness evaluation
         startBrightnessInterval(slotKey);
       } catch (err) {
         console.error("Camera access error:", err);
-        alert('Không thể kết nối camera. Vui lòng cấp quyền hoặc sử dụng "Tải ảnh lên từ máy".');
+        alert('Không thể kết nối camera. Vui lòng kiểm tra quyền camera của trình duyệt hoặc sử dụng nút "Tải ảnh lên từ máy" để chọn ảnh chụp sẵn.');
         stopCamera();
       }
     }
@@ -3341,31 +5171,61 @@
         }
       }
       else if (step === 3) {
-        const selects = ['duration', 'pattern', 'geneticFactor', 'hormoneUsage'];
-        for (const name of selects) {
-          const el = $(`[name="${name}"]`);
-          if (!el.value) {
-            const grid = $(`.card-grid[data-select="${name}"]`);
+        const concern = $('[name="primaryConcern"]').value;
+        if (!concern) {
+          return 'Vui lòng chọn vấn đề da chính cần điều trị.';
+        }
+
+        // Validate duration
+        const durationEl = $('[name="duration"]');
+        if (!durationEl.value) {
+          const grid = $(`.card-grid[data-select="duration"]`);
+          if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return 'Vui lòng chọn thời gian gặp tình trạng da này.';
+        }
+
+        // Validate dynamic concern fields
+        if (concern === 'pigment') {
+          const selects = ['pattern', 'geneticFactor', 'hormoneUsage'];
+          for (const name of selects) {
+            const el = $(`[name="${name}"]`);
+            if (!el.value) {
+              const grid = $(`.card-grid[data-select="${name}"]`);
+              if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              return 'Vui lòng chọn thông tin phù hợp cho câu hỏi khảo sát sắc tố.';
+            }
+          }
+        } else if (concern === 'acne') {
+          const acnePatternEl = $('[name="acnePattern"]');
+          if (!acnePatternEl.value) {
+            const grid = $(`.card-grid[data-select="acnePattern"]`);
             if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            return `Vui lòng chọn thông tin phù hợp cho câu hỏi về sắc tố.`;
+            return 'Vui lòng chọn dạng mụn và biểu hiện lâm sàng của bạn.';
+          }
+        } else if (concern === 'toxic') {
+          const toxicPatternEl = $('[name="toxicPattern"]');
+          if (!toxicPatternEl.value) {
+            const grid = $(`.card-grid[data-select="toxicPattern"]`);
+            if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return 'Vui lòng chọn biểu hiện tổn thương/nhiễm độc da của bạn.';
           }
         }
 
-        const areas = $('[name="areas"]');
-        if (!areas.value.trim()) {
-          areas.focus();
-          return `Vui lòng nhập vùng xuất hiện sắc tố.`;
+        const checkedAreas = $$('#areas input:checked');
+        const areasExtraVal = $('[name="areas_extra"]').value.trim();
+        if (checkedAreas.length === 0 && !areasExtraVal) {
+          return 'Vui lòng chọn hoặc điền ít nhất một khu vực da bị ảnh hưởng.';
         }
 
         const checkedTreatments = $$('#treatments input:checked');
         if (checkedTreatments.length === 0) {
-          return 'Vui lòng chọn ít nhất một mục tại lịch sử phương pháp điều trị.';
+          return 'Vui lòng chọn ít nhất một mục tại lịch sử phương pháp đã thực hiện.';
         }
 
-        const products = $('[name="products"]');
-        if (!products.value.trim()) {
-          products.focus();
-          return 'Vui lòng cung cấp các sản phẩm đã từng dùng.';
+        const checkedProducts = $$('#products input:checked');
+        const productsExtraVal = $('[name="products_extra"]').value.trim();
+        if (checkedProducts.length === 0 && !productsExtraVal) {
+          return 'Vui lòng chọn hoặc ghi chú ít nhất một sản phẩm từng bôi thoa.';
         }
       }
       else if (step === 4) {
@@ -3390,8 +5250,208 @@
       return '';
     }
 
+    // Run AI scanning transition!
+    async function runAiPreAnalysis() {
+      // Hide form
+      $('#melanoForm').style.display = 'none';
+      
+      // Keep scroll position locked to tool top to prevent layout shift jumping
+      $('#tool').scrollIntoView({ behavior: 'auto', block: 'start' });
+      
+      // Show AI Scanner loading box
+      const scannerBox = $('#aiScannerBox');
+      const scannerTitle = scannerBox.querySelector('.scanner-status-title');
+      const scannerSub = scannerBox.querySelector('#scannerStatusText');
+      
+      scannerTitle.textContent = 'Hệ thống AI đang phân tích da';
+      scannerSub.textContent = 'Đang nhận diện vùng mắt và căn chỉnh cấu trúc mặt...';
+      scannerBox.classList.add('active');
+      
+      // Simulate real-time progress texts
+      const t1 = setTimeout(() => {
+        if (scannerBox.classList.contains('active')) {
+          scannerSub.textContent = 'Đang đo lường mật độ sắc tố thượng bì & trung bì...';
+        }
+      }, 1000);
+      
+      const t2 = setTimeout(() => {
+        if (scannerBox.classList.contains('active')) {
+          scannerSub.textContent = 'Đang phân tích phản ứng đỏ mao mạch dưới ánh sáng...';
+        }
+      }, 2000);
+
+      // Run image analysis
+      const metrics = await analyzeSkinImages(state.images);
+      state.imageMetrics = metrics; // Save calculated metrics in global state
+
+      // Set a short delay for dramatic effect
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Hide scanner
+      scannerBox.classList.remove('active');
+      
+      // Classify the skin concern based on the AI metrics
+      const classification = classifySkin(metrics);
+      state.classifiedCode = classification.code;
+      
+      // Pre-select hidden input & card choice for concern in Step 3!
+      const concernInput = $('input[name="primaryConcern"]');
+      if (concernInput) {
+        concernInput.value = classification.code;
+      }
+      
+      // Set active state on card-option in data-select="primaryConcern"
+      const concernGrid = $('.card-grid[data-select="primaryConcern"]');
+      if (concernGrid) {
+        concernGrid.querySelectorAll('.card-option').forEach(opt => {
+          if (opt.dataset.value === classification.code) {
+            opt.classList.add('active');
+          } else {
+            opt.classList.remove('active');
+          }
+        });
+      }
+      
+      // Set values of concern fields to trigger proper visibility toggles
+      toggleConcernSections(classification.code);
+
+      // Update AI pre-analysis metrics display:
+      // Redness:
+      const rednessVal = metrics.redness || 1.15;
+      let rednessText = 'Thấp (Khỏe)';
+      let rednessWidth = 25;
+      if (rednessVal > 1.22) {
+        rednessText = 'Cao (Mỏng yếu/Nhạy cảm)';
+        rednessWidth = 85;
+      } else if (rednessVal > 1.19) {
+        rednessText = 'Vừa (Hơi đỏ/Kích ứng nhẹ)';
+        rednessWidth = 55;
+      }
+      $('#val-redness').textContent = rednessText;
+      $('#fill-redness').style.width = rednessWidth + '%';
+
+      // Spots:
+      const spotsVal = metrics.spots || 12;
+      let spotsText = 'Rất ít sắc tố';
+      let spotsWidth = 20;
+      if (spotsVal > 35) {
+        spotsText = 'Mật độ cao (Nám hỗn hợp)';
+        spotsWidth = 85;
+      } else if (spotsVal > 18) {
+        spotsText = 'Nám mảng/Đốm rải rác';
+        spotsWidth = 55;
+      }
+      $('#val-spots').textContent = spotsText;
+      $('#fill-spots').style.width = spotsWidth + '%';
+
+      // Pores:
+      const poresVal = metrics.pores || 8;
+      let poresText = 'Khá mịn màng';
+      let poresWidth = 15;
+      if (poresVal > 15) {
+        poresText = 'Lỗ chân lông to / Nhiều nhờn';
+        poresWidth = 85;
+      } else if (poresVal > 10) {
+        poresText = 'Bít tắc trung bình';
+        poresWidth = 50;
+      }
+      $('#val-pores').textContent = poresText;
+      $('#fill-pores').style.width = poresWidth + '%';
+
+      // Texture (Skin Hydration / Moisture level):
+      const textureVal = metrics.texture || 10;
+      let textureText = 'Đủ ẩm (Căng mịn)';
+      let textureWidth = 20;
+      if (textureVal > 20) {
+        textureText = 'Khô ráp / Mất nước';
+        textureWidth = 80;
+      } else if (textureVal > 12) {
+        textureText = 'Khô nhẹ / Thiếu nước';
+        textureWidth = 50;
+      }
+      $('#val-texture').textContent = textureText;
+      $('#fill-texture').style.width = textureWidth + '%';
+
+      // Update Diagnosis box details
+      let diagIcon = '🟤';
+      if (classification.code === 'toxic') diagIcon = '🚨';
+      else if (classification.code === 'acne') diagIcon = '🔴';
+      
+      $('#diag-icon').textContent = diagIcon;
+      // Truncate some name text if too long
+      $('#diag-title').textContent = 'Nhóm Da: ' + classification.name;
+      $('#diag-desc').textContent = classification.description;
+      $('#diag-slogan').textContent = classification.slogan;
+
+      // Show Pre-Analysis result box
+      $('#aiPreAnalysisBox').style.display = 'flex';
+      
+      // Keep viewport locked to tool top
+      $('#tool').scrollIntoView({ behavior: 'auto', block: 'start' });
+    }
+
+    // Bind click listener for pre-analysis confirmation button (Triggers Payment Modal)
+    $('#preAnalysisNextBtn').addEventListener('click', () => {
+      // Generate transaction paymentCode for 3C Studio automation matching
+      state.paymentCode = 'SC' + Math.floor(100000 + Math.random() * 900000);
+      
+      // Update details in modal
+      const bankId = 'mb'; // MB Bank
+      const accountNo = '123456789';
+      const amount = '99000';
+      const accountName = 'NGO MAI PHUONG';
+      
+      $('#payDescription').textContent = state.paymentCode;
+      
+      // Generate VietQR dynamic code URL
+      const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-print.png?amount=${amount}&addInfo=${state.paymentCode}&accountName=${encodeURIComponent(accountName)}`;
+      $('#paymentQrImg').src = qrUrl;
+      
+      // Open Payment Modal
+      $('#paymentModal').classList.add('active');
+      
+      // Timer setup (5 minutes countdown)
+      let timeLeft = 300;
+      clearInterval(state.paymentInterval);
+      const updateTimer = () => {
+        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        const s = (timeLeft % 60).toString().padStart(2, '0');
+        $('#paymentTimer').textContent = `Thời gian thanh toán còn lại: ${m}:${s}`;
+        if (timeLeft <= 0) {
+          clearInterval(state.paymentInterval);
+          $('#paymentTimer').textContent = 'Mã QR đã hết hạn. Vui lòng bấm đóng và mở lại.';
+        }
+        timeLeft--;
+      };
+      updateTimer();
+      state.paymentInterval = setInterval(updateTimer, 1000);
+    });
+
+    // Close Payment Modal
+    $('#closePaymentBtn').addEventListener('click', () => {
+      $('#paymentModal').classList.remove('active');
+      clearInterval(state.paymentInterval);
+    });
+
+    // Verify Payment (Simulate success, advance to Step 2)
+    $('#verifyPaymentBtn').addEventListener('click', () => {
+      $('#paymentModal').classList.remove('active');
+      clearInterval(state.paymentInterval);
+      
+      // Hide pre-analysis
+      $('#aiPreAnalysisBox').style.display = 'none';
+      
+      // Show form and advance to Step 2
+      $('#melanoForm').style.display = 'block';
+      state.currentStep = 2;
+      updateWizardUI();
+      
+      // Scroll to tool top to keep viewport steady
+      $('#tool').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
     // Step Nav Button Listeners
-    nextBtn.addEventListener('click', () => {
+    nextBtn.addEventListener('click', async () => {
       const error = validateStep(state.currentStep);
       if (error) {
         errorBox.textContent = error;
@@ -3399,9 +5459,13 @@
         return;
       }
 
-      if (state.currentStep < state.totalSteps) {
-        state.currentStep++;
-        updateWizardUI();
+      if (state.currentStep === 1) {
+        await runAiPreAnalysis();
+      } else {
+        if (state.currentStep < state.totalSteps) {
+          state.currentStep++;
+          updateWizardUI();
+        }
       }
     });
 
@@ -3513,37 +5577,41 @@
             const avgB = totalB / skinCount;
             const avgLum = skinPixels.reduce((sum, p) => sum + p.lum, 0) / skinCount;
             
-            // 1. Redness index
-            const rednessRatio = avgG > 0 ? avgR / avgG : 1.15;
             
+            // 1. REDNESS (Erythema Index / Huyết sắc tố)
+            // Sort skin pixels by redness intensity to focus only on localized red zones (cheeks, nose)
+            const erythemaValues = skinPixels.map(p => Math.max(0, p.r - p.g)).sort((a, b) => b - a);
+            const topRedCount = Math.max(1, Math.floor(erythemaValues.length * 0.3));
+            const topRedSum = erythemaValues.slice(0, topRedCount).reduce((sum, v) => sum + v, 0);
+            const avgErythema = topRedSum / topRedCount;
+            // Map typical localized erythema index (typically 20 - 75) to redness ratio.
+            // Baseline 1.12, > 1.22 is high redness/sensitivity.
+            const rednessRatio = 1.05 + (avgErythema / 250);
+
             // 2. Luminance standard deviation (unevenness)
             const variance = skinPixels.reduce((sum, p) => sum + Math.pow(p.lum - avgLum, 2), 0) / skinCount;
             const stdDevLum = Math.sqrt(variance);
-            
-            // 3. SPOTS (Epidermal Pigmentation contrast search - stricter threshold to avoid shadows)
+
+            // 3. SPOTS (Brown Melanin spots only)
+            // A pixel is spot only if it is darker than average AND has a brown/melanin chromaticity (G - B > 12).
             let spotCount = 0;
             skinPixels.forEach(p => {
-              if (p.lum < avgLum * 0.72) {
+              const mi = Math.max(0, p.g - p.b);
+              if (p.lum < avgLum * 0.94 && mi > 12) {
                 spotCount++;
               }
             });
-            const spotsScore = Math.min(100, Math.round((spotCount / skinCount) * 100 * 2.0));
-            
-            // 4. UV MELANIN (Independent Melanin index using log scale)
-            let totalMelaninIdx = 0;
-            const mIndices = skinPixels.map(p => {
-              const mIdx = Math.log(p.r + 1) - Math.log(p.b + 1);
-              totalMelaninIdx += mIdx;
-              return mIdx;
+            const spotsScore = Math.min(100, Math.round((spotCount / skinCount) * 100 * 5.0));
+
+            // 4. UV MELANIN (Average Melanin index over skin area)
+            let totalMelanin = 0;
+            skinPixels.forEach(p => {
+              const mi = Math.max(0, p.g - p.b);
+              totalMelanin += mi;
             });
-            const avgMelanin = totalMelaninIdx / skinCount;
-            let uvMelaninCount = 0;
-            mIndices.forEach(m => {
-              if (m > avgMelanin * 1.25) {
-                uvMelaninCount++;
-              }
-            });
-            const uvMelaninScore = Math.min(100, Math.round((uvMelaninCount / skinCount) * 100 * 1.8));
+            const avgMelanin = totalMelanin / skinCount;
+            // Map typical avgMelanin (range 8 - 30) to a 0-100 score.
+            const uvMelaninScore = Math.min(100, Math.max(5, Math.round((avgMelanin - 8) * 3.0)));
             
             // 5. TEXTURE (Spatial derivative / High frequency roughness detection)
             // Ignore sharp specular lighting highlights and shadow boundaries (grad >= 18) to only capture micro-texture/wrinkles
@@ -3588,7 +5656,11 @@
                 }
               }
             });
-            const poresScore = Math.min(100, Math.round((poreCount / skinCount) * 100 * 2.5));
+            // Magnify subtle pores to offset camera compression blur, and add texture-roughness factor
+            let poresScore = Math.min(100, Math.round((poreCount / skinCount) * 100 * 7.5));
+            if (textureScore > 15) {
+              poresScore = Math.min(100, poresScore + Math.round((textureScore - 15) * 1.5));
+            }
             
             resolve({
               redness: rednessRatio,
@@ -3610,6 +5682,52 @@
         };
         img.src = dataUrl;
       });
+    }
+
+    function classifySkin(metrics) {
+      const redness = metrics.redness || 1.18;
+      const spots = metrics.spots || 18;
+      const uvPigment = metrics.uvPigment || 22;
+      const texture = metrics.texture || 15;
+      const pores = metrics.pores || 12;
+      
+      // 1. Melasma & Pigmentation (Core priority for Melano Minitool LDP)
+      if (spots > 22 || uvPigment > 25) {
+        return {
+          code: 'pigment',
+          name: 'Nám & Sắc Tố Hỗn Hợp',
+          description: 'Phát hiện tập trung hắc sắc tố mảng sạm thượng bì nông và các đốm hắc tố chân sâu vùng trung bì.',
+          slogan: 'Khuyên dùng: Kết hợp hoạt chất ức chế tế bào sắc tố melanocyte & chống nắng bảo vệ tối đa.'
+        };
+      }
+      
+      // 2. Toxin / Sensitivity / Capillary Damage (inflammation / red skin)
+      if (redness > 1.22 || (redness > 1.18 && texture > 22)) {
+        return {
+          code: 'toxic',
+          name: 'Da Nhạy Cảm / Nhiễm Độc / Cần Phục Hồi',
+          description: 'Phát hiện đỏ mao mạch diện rộng, hàng rào bảo vệ mỏng, có hiện tượng dội ngược sắc tố hoặc lộ mao mạch.',
+          slogan: 'LƯU Ý: Phải hồi phục cấu trúc da khỏe mạnh trước khi bắt đầu treatment đặc trị.'
+        };
+      }
+      
+      // 3. Acne / Pores
+      if (pores > 15 || (pores > 11 && texture > 20)) {
+        return {
+          code: 'acne',
+          name: 'Da Mụn / Nhờn & Loạn Khuẩn',
+          description: 'Phát hiện bít tắc dầu thừa, cấu trúc sừng hóa nang lông thô ráp, tăng sinh nhân mụn sần.',
+          slogan: 'Khuyên dùng: Tập trung làm sạch sâu kháng viêm nhẹ nhàng, cân bằng vi sinh vật.'
+        };
+      }
+      
+      // Fallback default for Melano LDP
+      return {
+        code: 'pigment',
+        name: 'Nám & Sắc Tố Hỗn Hợp',
+        description: 'Phát hiện sắc tố tích tụ thể nhẹ, loang lổ không đều màu vùng gò má.',
+        slogan: 'Khuyên dùng: Sử dụng hoạt chất làm sáng dịu nhẹ & chống nắng bảo vệ phục hồi.'
+      };
     }
 
     async function analyzeSkinImages(images) {
@@ -3753,9 +5871,9 @@
       const rednessStatus = imageMetrics.redness > 1.28 ? '🔴 CAO (Mao mạch yếu, dễ đỏ rát)' : (imageMetrics.redness > 1.16 ? '🟡 TRUNG BÌNH (Da mỏng yếu, hơi nhạy cảm)' : '🟢 TỐT (Nền da khỏe mạnh, ổn định)');
       const spotsStatus = imageMetrics.spots > 55 ? '🔴 CAO (Mảng sắc tố đậm và rộng)' : (imageMetrics.spots > 30 ? '🟡 TRUNG BÌNH (Sắc tố loang lổ nhẹ)' : '🟢 THẤP (Không đáng kể, da khá đều màu)');
       const uvStatus = imageMetrics.uvPigment > 60 ? '🔴 MẬT ĐỘ CAO (Hắc tố tích tụ sâu trung bì)' : (imageMetrics.uvPigment > 35 ? '🟡 TRUNG BÌNH (Có chân sắc tố ẩn dưới da)' : '🟢 THẤP (Không phát hiện sắc tố sâu)');
-      // Sửa lại chỉ số độ mịn da: Đảo ngược thang thô ráp sang độ mịn (Smoothness = 100 - texture)
-      const smoothnessScore = 100 - imageMetrics.texture;
-      const textureStatus = smoothnessScore >= 75 ? '🟢 MỊN MÀNG (Cấu trúc da săn chắc, căng bóng)' : (smoothnessScore >= 50 ? '🟡 TRUNG BÌNH (Hơi kém mịn màng nhẹ)' : '🔴 SẦN SÙI (Thô ráp, thiếu ẩm & sừng hóa)');
+      // Sửa lại chỉ số độ mịn da thành Độ ẩm da: Đảo ngược thang thô ráp sang độ ẩm (Moisture = 100 - texture)
+      const moistureScore = 100 - imageMetrics.texture;
+      const moistureStatus = moistureScore >= 75 ? '🟢 TỐT (Da ẩm mịn, đủ nước căng bóng)' : (moistureScore >= 55 ? '🟡 TRUNG BÌNH (Hơi khô căng nhẹ, thiếu ẩm)' : '🔴 THIẾU NƯỚC (Da khô ráp, mất nước bề mặt)');
       const poresStatus = imageMetrics.pores > 45 ? '🔴 GIÃN NỞ (Lỗ chân lông mở rộng)' : (imageMetrics.pores > 25 ? '🟡 TRUNG BÌNH (Giãn nhẹ vùng chữ T)' : '🟢 SE KHÍT (Lỗ chân lông nhỏ mịn)');
 
       // Tầng 1: Hàng rào bảo vệ (lâm sàng qua khảo sát)
@@ -3789,7 +5907,7 @@
 ` +
         `- **🟣 Chỉ số Sắc tố sâu UV (UV Melanin)**: **${imageMetrics.uvPigment.toFixed(0)}%** &rarr; ${uvStatus}
 ` +
-        `- **🟢 Chỉ số Kết cấu / Độ mịn (Texture)**: **${smoothnessScore.toFixed(0)}%** &rarr; ${textureStatus}
+        `- **💧 Chỉ số Độ ẩm da / Thiếu nước (Moisture)**: **${moistureScore.toFixed(0)}%** &rarr; ${moistureStatus}
 ` +
         `- **⚫ Chỉ số Lỗ chân lông (Pores)**: **${imageMetrics.pores.toFixed(0)}%** &rarr; ${poresStatus}
 
@@ -3808,8 +5926,8 @@
       // Check if skin is visually clean from spots (Layer 1) to refine the final diagnosis (Layer 2)
       const isSkinClear = imageMetrics.spots < 25;
 
-      // Phân loại khoa học và chẩn đoán sắc tố nám
-      if (hasCorticoidRisk || imageMetrics.redness > 1.34) {
+      // Phân loại khoa học và chẩn đoán sắc tố nám / mụn / tổn thương corticoid
+      if (hasCorticoidRisk || imageMetrics.redness > 1.30 || payload.pigmentation.primaryConcern === 'toxic') {
         if (isSkinClear) {
           pigment = '⚠️ CẢNH BÁO: Nền da nhạy cảm mỏng yếu, có tiền sử dùng chất bào mòn/corticoid (chưa bị bùng phát tăng sắc tố).';
         } else {
@@ -3835,11 +5953,11 @@
 ` +
                     `- **Phương pháp thông thường hay ứng dụng**: Sử dụng các loại laser lạnh, ánh sáng làm dịu da tiêu chuẩn, điện di serum cấp ẩm phục hồi thông thường.
 ` +
-                    `- **Khuyến nghị đặc biệt từ PharmesHub**:
+                    `- **Khuyến nghị đặc biệt từ Chuyên gia**:
 ` +
-                    `  * *Phục hồi hàng rào bảo vệ (Bắt buộc)*: Ứng dụng liệu pháp **Superjection** trong giai đoạn phục hồi ban đầu để sửa chữa lớp màng lipid bị tàn phá nặng nề, cấp ẩm sâu, làm dịu kích ứng cấp tốc và thúc đẩy tăng sinh biểu bì khỏe mạnh.
+                    `  * *Phục hồi hàng rào bảo vệ (Bắt buộc)*: Ứng dụng liệu pháp cấy vi điểm phục hồi màng đáy sinh học trong giai đoạn phục hồi ban đầu để sửa chữa lớp màng lipid bị tàn phá nặng nề, cấp ẩm sâu, làm dịu kích ứng cấp tốc và thúc đẩy tăng sinh biểu bì khỏe mạnh.
 ` +
-                    `  * *Xử lý sắc tố bề mặt (Giai đoạn sau)*: Khi nền da đã được phục hồi ổn định, mới cân nhắc sử dụng liệu pháp **MelanoRx** để dọn sạch sắc tố sạm màu bề mặt một cách an toàn, dịu nhẹ.`;
+                    `  * *Xử lý sắc tố bề mặt (Giai đoạn sau)*: Khi nền da đã được phục hồi ổn định, mới cân nhắc sử dụng liệu trình laser sắc tố nhẹ nhàng không bong tróc để dọn sạch sắc tố sạm màu bề mặt một cách an toàn, dịu nhẹ.`;
       } 
       else if (hasPIHRisk) {
         if (isSkinClear) {
@@ -3867,12 +5985,40 @@
 ` +
                     `- **Phương pháp thông thường hay ứng dụng**: Điện di Vitamin C thường, tiêm Meso Tranexamic Acid dạng đơn chất, lột da bằng hóa chất (chemical peel) mức độ trung bình để đẩy sắc tố.
 ` +
-                    `- **Khuyến nghị đặc biệt từ PharmesHub**:
+                    `- **Khuyến nghị đặc biệt từ Chuyên gia**:
 ` +
-                    `  * *Phục hồi cấu trúc da và màng đáy*: Tiêm cấy hoạt chất **Superjection** để tái tạo nhanh hàng rào biểu bì bị tổn thương sau laser/peel hỏng, dập tắt phản ứng viêm hoạt động đang kích thích tế bào melanocyte.
+                    `  * *Phục hồi cấu trúc da và màng đáy*: Tiêm cấy hoạt chất phục hồi màng lipid sinh học để tái tạo nhanh hàng rào biểu bì bị tổn thương sau laser/peel hỏng, dập tắt phản ứng viêm hoạt động đang kích thích tế bào melanocyte.
 ` +
-                    `  * *Điều trị sắc tố không nhiệt*: Phối hợp liệu pháp trị nám không bong tróc nhiệt **MelanoRx** để ức chế sắc tố bề mặt và đào thải sắc tố PIH một cách êm dịu, ngừa thâm tái phát.`;
+                    `  * *Điều trị sắc tố không nhiệt*: Phối hợp liệu trình laser sắc tố nhẹ nhàng không bong tróc nhiệt để ức chế sắc tố bề mặt và đào thải sắc tố PIH một cách êm dịu, ngừa thâm tái phát.`;
       } 
+      else if (payload.pigmentation.primaryConcern === 'acne' || imageMetrics.pores > 40) {
+        pigment = 'Da Mụn / Nhờn & Loạn Khuẩn (Acne & Sebum Dysbiosis): Tình trạng bít tắc tuyến bã nhờn kết hợp vi khuẩn gây viêm.';
+        
+        summary = baseAnalysis +
+                  `**🩺 ĐÁNH GIÁ SỨC KHỎE HÀNG RÀO BẢO VỆ:**
+` +
+                  barrierText + `
+` +
+                  `- **Yếu tố nguy cơ**: Sự tăng sinh của vi khuẩn C.acnes/Demodex trên nền dầu thừa. Biểu hiện mụn: ${payload.pigmentation.acnePattern || 'Bít tắc ẩn'}.`;
+                  
+        next = `**[HOMECARE] PHÁC ĐỒ CHĂM SÓC TẠI NHÀ:**
+` +
+               `- **Hoạt chất khuyên dùng**: Salicylic Acid (BHA 1-2%), Benzoyl Peroxide nồng độ thấp, Azelaic Acid (giúp giảm viêm mụn và trị thâm song song), Retinol/Adapalene (bôi tối), Niacinamide kiềm dầu.
+` +
+               `- **Hoạt chất cần tránh**: Tuyệt đối tránh các loại dầu dưỡng da đậm đặc, kem dưỡng ẩm quá dày gây bí tắc lỗ chân lông.
+` +
+               `- **Lưu ý bảo vệ**: Làm sạch hai bước (Double Cleansing) dịu nhẹ vào buổi tối, sử dụng kem chống nắng kiềm dầu dạng gel hoặc fluid không gây bít tắc (Non-comedogenic).`;
+               
+        treatment = `**[CLINIC] PHÁC ĐỒ ĐIỀU TRỊ TẠI CƠ SỞ:**
+` +
+                    `- **Phương pháp thông thường hay ứng dụng**: Lấy nhân mụn y khoa chuẩn y học, peel da hóa học trị mụn (Salicylic Acid/Glycolic Acid), chiếu ánh sáng xanh diệt khuẩn C.acnes.
+` +
+                    `- **Khuyến nghị đặc biệt từ Chuyên gia**:
+` +
+                    `  * *Kiểm soát dầu & Diệt khuẩn tối ưu*: Ứng dụng liệu trình chiếu ánh sáng sinh học kết hợp điện di tinh chất kháng viêm kháng khuẩn sâu để làm dịu các nốt mụn sưng đỏ cấp tốc mà không để lại thâm sẹo.
+` +
+                    `  * *Phục hồi da và se khít*: Cấy tế bào gốc phục hồi màng đáy sinh học sau mụn giúp tái tạo làn da tổn thương, thu nhỏ lỗ chân lông và làm mờ thâm mụn nhanh chóng.`;
+      }
       else if (pattern.includes('Vừa') || pattern.includes('hỗn hợp') || (pattern.includes('Không chắc') && imageMetrics.unevenness > 9.0)) {
         if (isSkinClear) {
           pigment = 'Nền da khỏe mạnh: Ít sắc tố bề mặt, cấu trúc biểu bì ổn định (chưa phát hiện nám hỗn hợp lâm sàng).';
@@ -3899,17 +6045,17 @@
 ` +
                     `- **Phương pháp thông thường hay ứng dụng**: Sử dụng các phương pháp nhiệt như công nghệ Laser Nd:YAG (Q-Switched, Pico Laser) để bắn phá chân sắc tố trung bì sâu; tiêm meso trị nám tiêu chuẩn; peel hóa học mạnh.
 ` +
-                    `- **Khuyến nghị đặc biệt từ PharmesHub**:
+                    `- **Khuyến nghị đặc biệt từ Chuyên gia**:
 ` +
-                    `  * *Kiểm soát sắc tố bề mặt*: Ứng dụng liệu pháp điều trị sắc tố chuyên sâu **MelanoRx** để dọn sạch nám mảng ở lớp thượng bì mà hoàn toàn không xâm lấn, không sinh nhiệt tổn thương da.
+                    `  * *Kiểm soát sắc tố bề mặt*: Ứng dụng liệu trình phân giải sắc tố chuyên sâu để dọn sạch nám mảng ở lớp thượng bì mà hoàn toàn không xâm lấn, không sinh nhiệt tổn thương da.
 ` +
-                    `  * *Củng cố và duy trì nền da*: Cấy vi điểm **Superjection** xuyên suốt quá trình điều trị giúp phục hồi màng đáy, tăng cường sức khỏe da, ngăn ngừa phản ứng viêm và hạn chế tối đa nguyao dội ngược sắc tố thường thấy khi làm laser nhiệt.`;
+                    `  * *Củng cố và duy trì nền da*: Cấy vi điểm phục hồi màng đáy sinh học xuyên suốt quá trình điều trị giúp phục hồi màng đáy, tăng cường sức khỏe da, ngăn ngừa phản ứng viêm và hạn chế tối đa nguy cơ dội ngược sắc tố thường thấy khi làm laser nhiệt.`;
       } 
       else if (pattern.includes('Đốm') || (pattern.includes('Không chắc') && imageMetrics.unevenness > 6.5 && imageMetrics.redness < 1.22)) {
         if (isSkinClear) {
           pigment = 'Nền da khỏe mạnh: Ít sắc tố bề mặt, cấu trúc biểu bì ổn định (chưa phát hiện nám đốm/tàn nhang lâm sàng).';
         } else {
-          pigment = 'Sắc tố dạng đốm rải rác: Tàn nhang / Nám đốm chân sâu trung bì (Hori\'s Nevus) / Đốm đồi mồi lão hóa.';
+          pigment = 'Sắc tố dạng đốm rải rác: Tàn nhang / Nám đốm chân sâu hoặc Bớt sắc tố Hori (trung bì) / Đốm đồi mồi.';
         }
         
         summary = baseAnalysis +
@@ -3931,11 +6077,11 @@
 ` +
                     `- **Phương pháp thông thường hay ứng dụng**: Sử dụng các liệu pháp đốt nhiệt như Laser CO2, Laser Q-Switched Ruby/Alexandrite, hoặc chấm acid TCA nồng độ cao trực tiếp lên nốt tàn nhang để bóc tách sắc tố trung bì.
 ` +
-                    `- **Khuyến nghị đặc biệt từ PharmesHub**:
+                    `- **Khuyến nghị đặc biệt từ Chuyên gia**:
 ` +
-                    `  * *Ức chế và đào thái sắc tố đốm không nhiệt*: Ứng dụng liệu trình **MelanoRx** giúp ức chế chọn lọc tế bào melanocyte tại màng đáy, đào thải đốm sắc tố nông dịu nhẹ mà không bào mòn hay để lại sẹo lõm.
+                    `  * *Ức chế và đào thải sắc tố đốm không nhiệt*: Sử dụng liệu pháp bôi thoa chứa hoạt chất ức chế chọn lọc sắc tố thượng bì giúp đào thải đốm sắc tố nông dịu nhẹ mà không bào mòn hay để lại sẹo lõm.
 ` +
-                    `  * *Phục hồi liên kết biểu bì - trung bì*: Kết hợp cấy vi điểm **Superjection** trước và trong quá trình điều trị để làm dày khỏe màng đáy da, tăng collagen, giữ nước và tái cấu trúc vùng trung bì bị suy giảm.`;
+                    `  * *Phục hồi liên kết biểu bì - trung bì*: Kết hợp cấy vi điểm phục hồi màng đáy sinh học trước và trong quá trình điều trị để làm dày khỏe màng đáy da, tăng collagen, giữ nước và tái cấu trúc vùng trung bì bị suy giảm.`;
       } 
       else {
         // Nám mảng lành tính
@@ -3964,11 +6110,11 @@
 ` +
                     `- **Phương pháp thông thường hay ứng dụng**: Peel da hóa học trung bình (AHA/BHA), mài da vi điểm vật lý, hoặc công nghệ ánh sáng IPL nhiệt để bóc tách sắc tố nông.
 ` +
-                    `- **Khuyến nghị đặc biệt từ PharmesHub**:
+                    `- **Khuyến nghị đặc biệt từ Chuyên gia**:
 ` +
-                    `  * *Xử lý sắc tố mảng nông*: Áp dụng liệu pháp điều trị sắc tố không bong tróc nhiệt **MelanoRx** (đây là giải pháp tối ưu giúp phân giải hắc tố Melanin ở lớp sừng cực kỳ hiệu quả, dưỡng sáng da đồng đều tức thì).
+                    `  * *Xử lý sắc tố mảng nông*: Áp dụng liệu trình phân giải sắc tố không bong tróc nhiệt (đây là giải pháp tối ưu giúp phân giải hắc tố Melanin ở lớp sừng cực kỳ hiệu quả, dưỡng sáng da đồng đều tức thì).
 ` +
-                    `  * *Phục hồi và làm bóng da song song*: Tiêm cấy hoạt chất **Superjection** xen kẽ để phục hồi tế bào sừng sạm màu, cung cấp dinh dưỡng nuôi dưỡng cấu trúc biểu bì căng bóng, tăng sinh collagen tự nhiên.`;
+                    `  * *Phục hồi và làm bóng da song song*: Tiêm cấy hoạt chất phục hồi màng lipid sinh học xen kẽ để phục hồi tế bào sừng sạm màu, cung cấp dinh dưỡng nuôi dưỡng cấu trúc biểu bì căng bóng, tăng sinh collagen tự nhiên.`;
       }      const html = `
         <div style="font-family:Arial,sans-serif;color:#333;line-height:1.6;max-width:600px;margin:0 auto;padding:20px;border:1px solid #eaeaea;border-radius:12px;">
           <h2 style="color:#CBA45A;border-bottom:2px solid #CBA45A;padding-bottom:10px;margin-top:0;">BÁO CÁO PHÂN TÍCH MELANOCHECK</h2>
@@ -4014,6 +6160,7 @@
 
       const payload = {
         profileId: generateProfileId(fd.get('phone')),
+        paymentCode: state.paymentCode || '',
         createdAt: new Date().toISOString(),
         customer: {
           name: fd.get('name') || '',
@@ -4024,15 +6171,18 @@
           city: fd.get('city') || ''
         },
         pigmentation: {
+          primaryConcern: fd.get('primaryConcern') || '',
+          acnePattern: fd.get('acnePattern') || '',
+          toxicPattern: fd.get('toxicPattern') || '',
           duration: fd.get('duration') || '',
           pattern: fd.get('pattern') || '',
-          areas: fd.get('areas') || '',
+          areas: checkedValues('areas').join(', ') + (fd.get('areas_extra') ? ' (Khác: ' + fd.get('areas_extra') + ')' : ''),
           geneticFactor: fd.get('geneticFactor') || '',
           hormoneUsage: fd.get('hormoneUsage') || ''
         },
         history: {
           treatments: checkedValues('treatments'),
-          products: fd.get('products') || '',
+          products: checkedValues('products').join(', ') + (fd.get('products_extra') ? ' (Cụ thể: ' + fd.get('products_extra') + ')' : ''),
           rapidWhitening: fd.get('rapidWhitening') || ''
         },
         skinBackground: {
@@ -4051,7 +6201,7 @@
 
     async function sendToGoogleSheet(payload) {
       if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL.includes('PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE')) {
-        localStorage.setItem('melanocheck_pending_payload', JSON.stringify(payload));
+        storage.setItem('melanocheck_pending_payload', JSON.stringify(payload));
         // Simulate local latency
         await new Promise(resolve => setTimeout(resolve, 1000));
         return { success: true, localOnly: true };
@@ -4090,17 +6240,22 @@
 
       // Hide form and show scanner loading screen
       $('#melanoForm').style.display = 'none';
+      
+      // Keep scroll position locked to tool top to prevent layout shift jumping
+      $('#tool').scrollIntoView({ behavior: 'auto', block: 'start' });
+      
       const scannerBox = $('#aiScannerBox');
+      scannerBox.querySelector('.scanner-status-title').textContent = 'Đang Khởi Tạo Phác Đồ Riêng Biệt';
       scannerBox.classList.add('active');
 
       // Update scanner status texts dynamically
       const statusText = $('#scannerStatusText');
       const statusMessages = [
-        'Đang kết nối cổng dữ liệu chẩn đoán da...',
-        'Đang mã hóa dữ liệu hình ảnh 3 góc chụp...',
-        'AI đang xác định diện sắc tố nám và tàn nhang...',
-        'AI đang đánh giá độ nhạy cảm & mao mạch nền da...',
-        'Đang tổng hợp phác đồ bôi thoa phục hồi cá nhân hóa...'
+        'Đang kết nối cơ sở dữ liệu y khoa...',
+        'Đang đồng bộ kết quả chẩn đoán hình ảnh và khảo sát...',
+        'AI đang tính toán giai đoạn phục hồi hàng rào lipid...',
+        'Đang thiết lập danh mục sản phẩm bôi thoa an toàn...',
+        'Đang tổng hợp báo cáo và phác đồ chẩn đoán chi tiết...'
       ];
       
       let msgIndex = 0;
@@ -4179,22 +6334,80 @@
           finalReport.skinStatus = cleanText(finalReport.skinStatus);
         }
 
-        // Render diagnosis results onto the result card
-        $('#resPigment').innerHTML = finalReport.pigment;
-        
-        const finalSkinStatus = finalReport.skinStatus || payload.internalReport.skinStatus;
-        if ($('#resSkinStatus')) {
-          $('#resSkinStatus').innerHTML = formatReportText(finalSkinStatus);
+        // Render concern badge and description
+        const concern = finalReport.primary_condition || payload.internalReport.primary_condition || 'Sắc tố';
+        const badgeEl = $('#resConcernBadge');
+        if (badgeEl) {
+          badgeEl.textContent = concern;
+          badgeEl.className = 'diagnosis-badge';
+          if (concern === 'Mụn') badgeEl.classList.add('badge-acne');
+          else if (concern === 'Nhiễm độc') badgeEl.classList.add('badge-toxic');
+          else badgeEl.classList.add('badge-pigment');
         }
 
-        $('#resSummary').innerHTML = formatReportText(finalReport.summary);
+        const diagDescEl = $('#resDetailedDiagnosis');
+        if (diagDescEl) {
+          diagDescEl.textContent = finalReport.detailed_diagnosis || payload.internalReport.detailed_diagnosis || '';
+        }
+
+        // Render metrics
+        const metrics = finalReport.metrics || payload.internalReport.metrics || { acne_score: 15, pigment_score: 15, toxicity_score: 10, barrier_score: 80, redness_score: 20 };
         
-        // Merge next steps (Homecare) and treatment (Clinic) to display together without duplication
-        const mergedNext = finalReport.treatment ? (finalReport.next + '\n\n' + finalReport.treatment) : finalReport.next;
-        $('#resNextSteps').innerHTML = formatReportText(mergedNext);
+        const setMetric = (idPrefix, val) => {
+          const valEl = $('#val' + idPrefix);
+          const barEl = $('#bar' + idPrefix);
+          if (valEl) valEl.textContent = val + '%';
+          if (barEl) barEl.style.width = val + '%';
+        };
+
+        setMetric('AcneScore', metrics.acne_score !== undefined ? metrics.acne_score : 15);
+        setMetric('PigmentScore', metrics.pigment_score !== undefined ? metrics.pigment_score : 15);
+        setMetric('ToxicScore', metrics.toxicity_score !== undefined ? metrics.toxicity_score : 10);
+        setMetric('BarrierScore', metrics.barrier_score !== undefined ? metrics.barrier_score : 80);
+        setMetric('RednessScore', metrics.redness_score !== undefined ? metrics.redness_score : 20);
+
+        // Render textual fields
+        $('#resPigment').innerHTML = finalReport.pigment;
+        $('#resSummary').innerHTML = formatReportText(finalReport.summary);
+        $('#resNextSteps').innerHTML = formatReportText(finalReport.next);
+
+        // Render Stage Protocol
+        const sp = finalReport.stage_treatment_protocol || payload.internalReport.stage_treatment_protocol || {};
+        const renderStage = (num, key) => {
+          const stage = sp[key] || {};
+          const nameEl = $('#nameGiaiDoan' + num);
+          const durEl = $('#durGiaiDoan' + num);
+          const goalEl = $('#goalGiaiDoan' + num);
+          const homeEl = $('#homeGiaiDoan' + num);
+          
+          if (nameEl) nameEl.textContent = stage.ten || `Giai đoạn ${num}`;
+          if (durEl) durEl.textContent = stage.thoi_gian || '';
+          if (goalEl) goalEl.textContent = stage.muc_tieu || '';
+          if (homeEl) homeEl.textContent = stage.homecare || '';
+        };
+        renderStage(1, 'giai_doan_1');
+        renderStage(2, 'giai_doan_2');
+        renderStage(3, 'giai_doan_3');
+
+        // Render Suggested Products
+        const prod = finalReport.suggested_products || payload.internalReport.suggested_products || {};
+        const renderProd = (idPrefix, nameVal, descVal) => {
+          const nameEl = $('#prod' + idPrefix + 'Name');
+          const descEl = $('#prod' + idPrefix + 'Desc');
+          if (nameEl) nameEl.textContent = nameVal || 'Theo chỉ định của chuyên khoa';
+          if (descEl) descEl.textContent = descVal || 'Liên hệ chuyên khoa để được hướng dẫn cụ thể.';
+        };
+        renderProd('Cleanser', 'Gel rửa mặt phù hợp', prod.sua_rua_mat);
+        renderProd('Serum', 'Serum phục hồi chuyên biệt', prod.serum_phuc_hoi);
+        renderProd('Treatment', 'Hoạt chất đặc trị tối ưu', prod.hoat_chat_dac_tri);
+        renderProd('Moisturizer', 'Kem khóa ẩm phục hồi', prod.kem_duong_phuc_hoi);
+        renderProd('Sunscreen', 'Kem chống nắng phổ rộng', prod.kem_chong_nang);
 
         // Show AI diagnostic result card directly (with success banner inside)
         $('#aiResultBox').classList.add('active');
+        
+        // Keep viewport locked to tool top to prevent page jumping
+        $('#tool').scrollIntoView({ behavior: 'auto', block: 'start' });
 
         // Save profile ID to connect with contact request
         state.lastProfileId = payload.profileId;
@@ -4245,39 +6458,664 @@
     $('#resetBtn').addEventListener('click', resetAction);
     $('#resetBtn2').addEventListener('click', resetAction);
 
-    // Handle Deep Consult CTA Click
-    const deepConsultBtn = document.getElementById('deepConsultBtn');
-    if (deepConsultBtn) {
-      deepConsultBtn.addEventListener('click', async () => {
-        // Mở liên kết sang trang quynhtrangpharmeshub.vn trong tab mới
-        window.open('https://quynhtrangpharmeshub.vn', '_blank');
+    // Scroll to contact on deepReportScrollBtn click
+    const deepReportScrollBtn = $('#deepReportScrollBtn');
+    if (deepReportScrollBtn) {
+      deepReportScrollBtn.addEventListener('click', () => {
+        const contactSection = $('#contact');
+        if (contactSection) {
+          contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
 
-        // Show loading state
-        deepConsultBtn.disabled = true;
-        deepConsultBtn.textContent = 'Đang tiếp nhận...';
+    // Handle Deep Consult CTA Click & Modal Form
+    const deepConsultBtn = document.getElementById('deepConsultBtn');
+    const consultModal = document.getElementById('consultModal');
+    if (deepConsultBtn && consultModal) {
+      deepConsultBtn.addEventListener('click', () => {
+        // Pre-fill fields from main form if available
+        const mainName = document.querySelector('[name="name"]')?.value || '';
+        const mainPhone = document.querySelector('[name="phone"]')?.value || '';
+        const mainEmail = document.querySelector('[name="email"]')?.value || '';
+
+        const consultNameInput = document.getElementById('consultName');
+        const consultPhoneInput = document.getElementById('consultPhone');
+        const consultEmailInput = document.getElementById('consultEmail');
+
+        if (consultNameInput) consultNameInput.value = mainName;
+        if (consultPhoneInput) consultPhoneInput.value = mainPhone;
+        if (consultEmailInput) consultEmailInput.value = mainEmail;
+
+        consultModal.classList.add('active');
+      });
+    }
+
+    const closeConsultBtn = document.getElementById('closeConsultBtn');
+    if (closeConsultBtn && consultModal) {
+      closeConsultBtn.addEventListener('click', () => {
+        consultModal.classList.remove('active');
+      });
+    }
+
+    const consultForm = document.getElementById('consultForm');
+    if (consultForm) {
+      consultForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const submitBtn = document.getElementById('submitConsultBtn');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Đang gửi yêu cầu...';
+        }
+
+        const consultNameVal = document.getElementById('consultName')?.value || '';
+        const consultPhoneVal = document.getElementById('consultPhone')?.value || '';
+        const consultEmailVal = document.getElementById('consultEmail')?.value || '';
 
         try {
-          // If a profile was just submitted, notify the backend about the request for deep consulting
-          if (state.lastProfileId && GOOGLE_APPS_SCRIPT_URL && !GOOGLE_APPS_SCRIPT_URL.includes('PASTE_YOUR')) {
+          if (GOOGLE_APPS_SCRIPT_URL && !GOOGLE_APPS_SCRIPT_URL.includes('PASTE_YOUR')) {
             await fetch(GOOGLE_APPS_SCRIPT_URL, {
               method: 'POST',
               mode: 'no-cors',
               headers: { 'Content-Type': 'text/plain;charset=utf-8' },
               body: JSON.stringify({
                 action: 'request_consultation',
-                profileId: state.lastProfileId
+                profileId: state.lastProfileId || '',
+                name: consultNameVal,
+                phone: consultPhoneVal,
+                email: consultEmailVal
               })
             });
           }
-        } catch (e) {
-          console.error("Failed to notify consult action:", e);
+        } catch (err) {
+          console.error("Failed to notify consult action:", err);
+        } finally {
+          // Hide modal and show custom thankyouModal directly in DOM
+          consultModal.classList.remove('active');
+          
+          const thankyouModal = document.getElementById('thankyouModal');
+          if (thankyouModal) {
+            thankyouModal.classList.add('active');
+          }
+          
+          // Reset submit button state
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Gửi yêu cầu & Nhận tư vấn';
+          }
+        }
+      });
+    }
+
+    // Handle Close Thank You Modal
+    const closeThankyouBtn = document.getElementById('closeThankyouBtn');
+    if (closeThankyouBtn) {
+      closeThankyouBtn.addEventListener('click', () => {
+        document.getElementById('thankyouModal')?.classList.remove('active');
+      });
+    }
+
+    // ==========================================
+    // OVERWRITE/APPEND IN CLIENT SIDE:
+    // ==========================================
+
+    // Setup tab switching for protocol
+    $$('.protocol-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        $$('.protocol-tab-btn').forEach(b => b.classList.remove('active'));
+        $$('.protocol-pane').forEach(p => p.classList.remove('active'));
+        
+        btn.classList.add('active');
+        const tabName = btn.dataset.tab;
+        if (tabName === 'giai_doan_1') $('#paneGiaiDoan1').classList.add('active');
+        if (tabName === 'giai_doan_2') $('#paneGiaiDoan2').classList.add('active');
+        if (tabName === 'giai_doan_3') $('#paneGiaiDoan3').classList.add('active');
+      });
+    });
+
+    // Custom Toggle Concern Sections
+    function toggleConcernSections(concern) {
+      $$('.concern-group').forEach(el => el.style.display = 'none');
+      if (concern === 'pigment') {
+        $('.pigment-group').style.display = 'block';
+      } else if (concern === 'acne') {
+        $('.acne-group').style.display = 'block';
+      } else if (concern === 'toxic') {
+        $('.toxic-group').style.display = 'block';
+      }
+    }
+
+    // Bind change listener on primaryConcern input
+    const concernGrid = $('.card-grid[data-select="primaryConcern"]');
+    if (concernGrid) {
+      concernGrid.querySelectorAll('.card-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          toggleConcernSections(opt.dataset.value);
+        });
+      });
+    }
+
+    // DRAW SVG LINE CHART FUNCTION
+    function drawRecoveryChart(historyData) {
+      const container = $('#chartSvgContainer');
+      if (!container) return;
+
+      if (!historyData || historyData.length === 0) {
+        container.innerHTML = `<div style="display:flex; height:100%; align-items:center; justify-content:center; color: var(--muted); font-size:13px;">Chưa có dữ liệu biểu đồ...</div>`;
+        return;
+      }
+
+      // Sort chronological
+      const sorted = [...historyData].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      
+      const width = 500;
+      const height = 250;
+      const padding = 40;
+
+      // Extract points
+      const points = sorted.map((d, index) => {
+        const dateStr = new Date(d.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+        const m = d.metrics || {};
+        return {
+          index,
+          date: dateStr,
+          acne: m.acne_score !== undefined ? m.acne_score : 15,
+          pigment: m.pigment_score !== undefined ? m.pigment_score : 15,
+          toxic: m.toxicity_score !== undefined ? m.toxicity_score : 10,
+          barrier: m.barrier_score !== undefined ? m.barrier_score : 80
+        };
+      });
+
+      const n = points.length;
+      const stepX = n > 1 ? (width - padding * 2) / (n - 1) : 0;
+      
+      const getX = (i) => padding + i * stepX;
+      const getY = (val) => height - padding - (val / 100) * (height - padding * 2);
+
+      let svgHtml = `<svg width="100%" height="${height}" viewBox="0 0 ${width} ${height}" style="overflow: visible;">`;
+      
+      // Grid lines
+      for (let gridVal = 0; gridVal <= 100; gridVal += 25) {
+        const y = getY(gridVal);
+        svgHtml += `<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" stroke="rgba(255, 237, 215, 0.05)" stroke-width="1" />`;
+        svgHtml += `<text x="${padding - 10}" y="${y + 4}" fill="var(--muted)" font-size="10" text-anchor="end">${gridVal}</text>`;
+      }
+
+      // X Axis dates & ticks
+      points.forEach(p => {
+        const x = getX(p.index);
+        svgHtml += `<line x1="${x}" y1="${height - padding}" x2="${x}" y2="${padding}" stroke="rgba(255, 237, 215, 0.03)" stroke-width="1" />`;
+        svgHtml += `<text x="${x}" y="${height - padding + 18}" fill="var(--muted)" font-size="10" text-anchor="middle">${p.date}</text>`;
+      });
+
+      // Helper path drawer
+      const drawLine = (key, color) => {
+        if (n === 0) return '';
+        let dPath = '';
+        points.forEach((p, idx) => {
+          const x = getX(idx);
+          const y = getY(p[key]);
+          if (idx === 0) dPath += `M ${x} ${y}`;
+          else dPath += ` L ${x} ${y}`;
+        });
+        
+        let paths = `<path d="${dPath}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />`;
+        
+        // Dots
+        points.forEach((p, idx) => {
+          const x = getX(idx);
+          const y = getY(p[key]);
+          paths += `<circle cx="${x}" cy="${y}" r="5" fill="${color}" stroke="#0b1730" stroke-width="2" />`;
+        });
+        return paths;
+      };
+
+      // Draw indicators lines
+      svgHtml += drawLine('acne', '#ef4444');
+      svgHtml += drawLine('pigment', '#f97316');
+      svgHtml += drawLine('toxic', '#8b5cf6');
+      svgHtml += drawLine('barrier', '#10b981');
+
+      svgHtml += `</svg>`;
+      container.innerHTML = svgHtml;
+    }
+
+    // TIMELINE RENDERER
+    function renderRecoveryTimeline(historyData) {
+      const listEl = $('#trackTimeline');
+      if (!listEl) return;
+
+      if (!historyData || historyData.length === 0) {
+        listEl.innerHTML = '<div style="color: var(--muted); font-size: 13px;">Chưa có lịch sử chẩn đoán.</div>';
+        return;
+      }
+
+      const sorted = [...historyData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      
+      let html = '';
+      sorted.forEach(item => {
+        const dateStr = new Date(item.createdAt).toLocaleDateString('vi-VN', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        let imgHtml = '';
+        const images = item.images || {};
+        ['front', 'left', 'right'].forEach(side => {
+          if (images[side]) {
+            imgHtml += `<img src="${images[side]}" class="timeline-thumb" onclick="window.open('${images[side]}', '_blank')" title="Nhấp để xem ảnh ${side} phóng to" />`;
+          }
+        });
+
+        html += `
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-date">${dateStr}</div>
+            <div class="timeline-diag">${item.pigment || item.primary_condition}</div>
+            <div style="font-size: 13px; color: var(--cream-dim); line-height: 1.5; margin-bottom: 10px;">
+              ${item.detailed_diagnosis || ''}
+            </div>
+            ${imgHtml ? `<div class="timeline-images">${imgHtml}</div>` : ''}
+          </div>
+        `;
+      });
+      listEl.innerHTML = html;
+    }
+
+    // HABIT CHECKLIST RENDERER
+    function renderHabitChecklist(latestRecord) {
+      const listEl = $('#trackHabitList');
+      if (!listEl) return;
+
+      const sp = latestRecord.stage_treatment_protocol || {};
+      let activeStage = sp.giai_doan_1 || {};
+      
+      $('#trackStageName').textContent = activeStage.ten || 'Giai đoạn 1';
+      $('#trackStageDuration').textContent = 'Thời gian: ' + (activeStage.thoi_gian || 'Đang cập nhật');
+      $('#trackStageGoal').textContent = activeStage.muc_tieu || 'Đang cập nhật mục tiêu phục hồi';
+
+      const defaultHabits = [
+        'Rửa mặt dịu nhẹ buổi sáng (pH 5.5)',
+        'Thoa Serum phục hồi (B5/Rau má) sáng',
+        'Bôi Kem dưỡng khóa ẩm dịu da sáng',
+        'Bôi Kem chống nắng phổ rộng bảo vệ',
+        'Tẩy trang sạch sâu dịu nhẹ tối',
+        'Rửa mặt tối',
+        'Thoa Serum phục hồi tối',
+        'Bôi Hoạt chất đặc trị mỏng tối (nếu có)'
+      ];
+
+      const habitKey = 'skincheck_habits_' + (latestRecord.profileId || 'guest');
+      const savedHabitStates = JSON.parse(storage.getItem(habitKey) || '{}');
+
+      let html = '';
+      defaultHabits.forEach((habit, idx) => {
+        const isDone = savedHabitStates[idx] ? 'done' : '';
+        html += `
+          <div class="habit-item ${isDone}" data-index="${idx}">
+            <div class="habit-checkbox"></div>
+            <div class="habit-text">${habit}</div>
+          </div>
+        `;
+      });
+
+      listEl.innerHTML = html;
+
+      listEl.querySelectorAll('.habit-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const idx = item.dataset.index;
+          item.classList.toggle('done');
+          
+          savedHabitStates[idx] = item.classList.contains('done');
+          storage.setItem(habitKey, JSON.stringify(savedHabitStates));
+        });
+      });
+    }
+
+    // SEARCH HISTORY ACTION
+    const searchBtn = $('#trackSearchBtn');
+    const searchInput = $('#trackSearchInput');
+    const searchFeedback = $('#trackSearchFeedback');
+
+    if (searchBtn && searchInput) {
+      searchBtn.addEventListener('click', async () => {
+        const val = searchInput.value.trim();
+        if (!val) {
+          searchFeedback.textContent = 'Vui lòng nhập số điện thoại hoặc email.';
+          searchFeedback.style.color = '#ef4444';
+          return;
         }
 
-        // UI transitions
-        document.getElementById('deepConsultCard').style.display = 'none';
-        document.getElementById('thankYouCard').style.display = 'grid';
-        document.getElementById('thankYouCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        searchBtn.disabled = true;
+        searchBtn.textContent = 'Đang tìm...';
+        searchFeedback.textContent = 'Đang truy vấn lịch sử da từ hệ thống...';
+        searchFeedback.style.color = 'var(--gold)';
+
+        try {
+          const res = await fetch(GOOGLE_APPS_SCRIPT_URL + '?action=get_history&phoneOrEmail=' + encodeURIComponent(val));
+          const responseData = await res.json();
+
+          if (responseData.status === 'success' && responseData.data && responseData.data.length > 0) {
+            searchFeedback.textContent = `Tìm thấy ${responseData.data.length} lần quét da thành công.`;
+            searchFeedback.style.color = '#2ecc71';
+            
+            const dashboard = $('#trackingDashboard');
+            dashboard.style.display = 'grid';
+            setTimeout(() => dashboard.classList.add('active'), 50);
+
+            drawRecoveryChart(responseData.data);
+            renderRecoveryTimeline(responseData.data);
+
+            const latest = responseData.data[0];
+            renderHabitChecklist(latest);
+            
+            state.savedPhoneOrEmail = val;
+          } else {
+            searchFeedback.textContent = 'Không tìm thấy hồ sơ quét da nào cho thông tin này.';
+            searchFeedback.style.color = '#f97316';
+            $('#trackingDashboard').style.display = 'none';
+          }
+        } catch (e) {
+          console.error("Tracking lookup failed:", e);
+          searchFeedback.textContent = 'Lỗi hệ thống khi tải lịch sử da. Vui lòng thử lại sau.';
+          searchFeedback.style.color = '#ef4444';
+        } finally {
+          searchBtn.disabled = false;
+          searchBtn.textContent = 'Tra Cứu';
+        }
       });
+    }
+
+    // Rescan button scrolling action
+    const rescanBtn = $('#trackRescanBtn');
+    if (rescanBtn) {
+      rescanBtn.addEventListener('click', () => {
+        const toolEl = $('#tool');
+        if (toolEl) {
+          toolEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (state.savedPhoneOrEmail) {
+            const phoneEl = $('[name="phone"]');
+            const emailEl = $('[name="email"]');
+            if (phoneEl) {
+              if (state.savedPhoneOrEmail.includes('@')) {
+                if (emailEl) emailEl.value = state.savedPhoneOrEmail;
+              } else {
+                phoneEl.value = state.savedPhoneOrEmail;
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // OVERRIDE LOCAL DIAGNOSIS ENGINE FOR DYNAMIC PATHWAY
+    function createInternalReport(payload, imageMetrics) {
+      if (!imageMetrics) {
+        imageMetrics = { redness: 1.18, unevenness: 4.8, spots: 18.0, uvPigment: 22.0, texture: 15.0, pores: 12.0, averageLuminance: 120, hasImages: false };
+      }
+      
+      const concern = payload.pigmentation.primaryConcern || 'pigment';
+      
+      let primary_condition = 'Sắc tố';
+      let detailed_diagnosis = '';
+      let pigment = '';
+      let summary = '';
+      let next = '';
+      let stage_treatment_protocol = {};
+      let suggested_products = {};
+      let metrics = {
+        acne_score: 15,
+        pigment_score: 15,
+        toxicity_score: 10,
+        barrier_score: 80,
+        redness_score: 20
+      };
+      
+      metrics.redness_score = Math.round(Math.min(100, Math.max(10, (imageMetrics.redness - 1.0) * 150)));
+      metrics.pigment_score = Math.round(imageMetrics.spots || 15);
+      
+      if (concern === 'acne') {
+        primary_condition = 'Mụn';
+        const aPat = payload.pigmentation.acnePattern || '';
+        
+        let type = 'Mụn trứng cá thường';
+        if (aPat.includes('Demodex')) {
+          type = 'Mụn ký sinh trùng Demodex';
+          metrics.acne_score = 75;
+          metrics.barrier_score = 45;
+          metrics.redness_score = Math.max(65, metrics.redness_score);
+        } else if (aPat.includes('nấm men')) {
+          type = 'Mụn nấm men (Fungal Acne)';
+          metrics.acne_score = 65;
+          metrics.barrier_score = 55;
+        } else if (aPat.includes('loạn khuẩn')) {
+          type = 'Mụn loạn khuẩn hệ vi sinh';
+          metrics.acne_score = 80;
+          metrics.barrier_score = 35;
+          metrics.redness_score = Math.max(70, metrics.redness_score);
+        } else {
+          type = 'Mụn vi khuẩn C. acnes';
+          metrics.acne_score = 55;
+          metrics.barrier_score = 65;
+        }
+        
+        pigment = `${type}`;
+        detailed_diagnosis = `${type} bùng phát trên nền da suy yếu màng lipid bảo vệ tự nhiên.`;
+        
+        summary = `- **Loại da & Tình trạng bệnh lý**: ${type} hoạt động sần viêm.\n` +
+                  `- **Cấu trúc biểu bì & Hàng rào**: Lớp lipid biểu bì mất cân bằng, dầu thừa bít tắc nang lông tạo ổ viêm.\n` +
+                  `- **Dấu hiệu tổn thương & Mao mạch**: Da có phản ứng viêm sưng đỏ rát nhẹ ở các nốt mụn.\n` +
+                  `- **Khoanh vùng chi tiết**: Tập trung nhiều mụn mủ, sần đỏ ở vùng ${payload.pigmentation.areas || 'gò má, trán'}.`;
+                  
+        next = `- **Chế độ chăm sóc**: Làm sạch da mặt dịu nhẹ ngày 2 lần, không dùng tẩy tế bào chết hạt vật lý chà xát mạnh.\n` +
+               `- **Chống nắng & Bảo vệ**: Sử dụng kem chống nắng mỏng nhẹ dạng gel-sữa, không chứa cồn khô hay dầu khoáng.\n` +
+               `- **Lưu ý đặc biệt**: Tuyệt đối tránh tự ý nặn mụn non, không bôi kem tự chế chứa corticoid làm nặng thêm tình trạng viêm.`;
+               
+        stage_treatment_protocol = {
+          giai_doan_1: {
+            ten: 'GIAI ĐOẠN 1: Làm dịu & Tiêu viêm',
+            thoi_gian: '2 - 3 tuần',
+            muc_tieu: 'Khống chế các ổ viêm sưng, dập tắt các nốt mụn đỏ rát cấp tốc và làm dịu da.',
+            homecare: 'Sáng: SRM dịu nhẹ pH 5.5 + Serum phục hồi B5 + Kem dưỡng ẩm dạng gel nhẹ. Tối: Tẩy trang micellar + SRM + Serum B5 + Chấm mụn viêm.'
+          },
+          giai_doan_2: {
+            ten: 'GIAI ĐOẠN 2: Điều trị đặc trị tiêu diệt tác nhân',
+            thoi_gian: '4 - 6 tuần',
+            muc_tieu: 'Làm sạch sâu nang lông, tiêu diệt vi khuẩn/nấm/demodex và dọn sạch nhân mụn.',
+            homecare: 'Sáng: SRM + Serum B5 + Kem dưỡng gel + KCN mỏng nhẹ. Tối: Tẩy trang + SRM + Serum B5 + Hoạt chất đặc trị mụn phù hợp.'
+          },
+          giai_doan_3: {
+            ten: 'GIAI ĐOẠN 3: Phục hồi hàng rào & Ngừa thâm',
+            thoi_gian: 'Dài hạn',
+            muc_tieu: 'Làm mờ thâm mụn, thu nhỏ lỗ chân lông và củng cố hàng rào da ngăn mụn quay lại.',
+            homecare: 'Sáng: SRM + Serum Vitamin C/Niacinamide + Dưỡng ẩm + KCN. Tối: Tẩy trang + SRM + Serum B5 + Dưỡng sáng da duy trì.'
+          }
+        };
+        
+        suggested_products = {
+          sua_rua_mat: 'Sữa rửa mặt dạng gel dịu nhẹ pH 5.5, không chứa cồn hay hạt bọt xà phòng bào mòn da.',
+          serum_phuc_hoi: 'Serum chứa Vitamin B5 (Panthenol 5-10%) kết hợp Hyaluronic Acid giúp dưỡng ẩm dịu nhẹ không bít tắc.',
+          hoat_chat_dac_tri: aPat.includes('Demodex') ? 'Kem bôi đặc trị chứa Metronidazole 0.75% hoặc Ivermectin 1%' :
+                             (aPat.includes('nấm men') ? 'Kem Ketoconazole 2% hoặc Sulfur chấm mụn' : 'Serum Salicylic Acid BHA 2% hoặc Benzoyl Peroxide 2.5-5% chấm nốt viêm.'),
+          kem_duong_phuc_hoi: 'Kem dưỡng ẩm dạng Gel-cream không chứa dầu khoáng (oil-free), mỏng nhẹ thấm nhanh.',
+          kem_chong_nang: 'Kem chống nắng vật lý lai hóa học phổ rộng lành tính dành riêng cho da mụn nhạy cảm.'
+        };
+      } 
+      else if (concern === 'toxic') {
+        primary_condition = 'Nhiễm độc';
+        const tPat = payload.pigmentation.toxicPattern || '';
+        
+        let type = 'Viêm da tiếp xúc kích ứng do hóa chất lột tẩy bào mòn';
+        if (tPat.includes('Corticoid') || tPat.includes('giãn mạch')) {
+          type = 'Tổn thương teo da giãn mạch do lạm dụng Corticoid';
+          metrics.toxicity_score = 90;
+          metrics.barrier_score = 20;
+          metrics.redness_score = Math.max(80, metrics.redness_score);
+        } else if (tPat.includes('chì') || tPat.includes('thủy ngân') || tPat.includes('ánh kim')) {
+          type = 'Viêm da tiếp xúc dị ứng do mỹ phẩm chứa kim loại nặng';
+          metrics.toxicity_score = 80;
+          metrics.barrier_score = 30;
+          metrics.pigment_score = Math.max(65, metrics.pigment_score);
+        } else {
+          type = 'Viêm da bùng phát thể viêm mủ do cai Corticoid';
+          metrics.acne_score = Math.max(50, metrics.acne_score);
+          metrics.toxicity_score = 75;
+          metrics.barrier_score = 25;
+          metrics.redness_score = Math.max(75, metrics.redness_score);
+        }
+        
+        pigment = `${type}`;
+        detailed_diagnosis = `${type}. Hàng rào bảo vệ hydrolipid bị hủy hoại, mao mạch suy yếu trầm trọng cần hồi sinh biểu bì.`;
+        
+        summary = `- **Loại da & Tình trạng bệnh lý**: ${type} do lạm dụng sản phẩm bào mòn lột tẩy cấp tốc.\n` +
+                  `- **Cấu trúc biểu bì & Hàng rào**: Lớp sừng bị bào mỏng hoàn toàn, da mất nước biểu bì lớn, suy kiệt miễn dịch.\n` +
+                  `- **Dấu hiệu tổn thương & Mao mạch**: Giãn mao mạch nông nổi rõ, đỏ bừng nóng rát dữ dội khi gặp nhiệt hoặc đi nắng.\n` +
+                  `- **Khoanh vùng chi tiết**: Tổn thương mỏng đỏ giãn mạch rõ rệt vùng gò má gân mũi.`;
+                  
+        next = `- **Chế độ chăm sóc**: Cai kem corticoid cũ từ từ (giảm tần suất bôi, không ngưng đột ngột để tránh bùng phát viêm kích ứng).\n` +
+               `- **Chống nắng & Bảo vệ**: Chống nắng vật lý tối đa, che chắn kỹ vùng tổn thương, hạn chế đứng bếp hoặc tiếp xúc nhiệt nóng.\n` +
+               `- **Lưu ý đặc biệt**: Ngưng hoàn toàn mọi hoạt chất treatment acid, retinol lột tẩy ở giai đoạn này.`;
+               
+        stage_treatment_protocol = {
+          giai_doan_1: {
+            ten: 'GIAI ĐOẠN 1: Thải độc, Làm dịu da cấp tốc',
+            thoi_gian: '2 - 4 tuần',
+            muc_tieu: 'Làm dịu ngứa ngáy bỏng rát lập tức, khôi phục cân bằng màng ẩm mỏng nhẹ ban đầu.',
+            homecare: 'Sáng: SRM dịu nhẹ không bọt + Serum HA/B5 + Kem phục hồi Panthenol mỏng. Tối: SRM dịu nhẹ + Serum HA/B5 + Kem phục hồi Panthenol chuyên sâu.'
+          },
+          giai_doan_2: {
+            ten: 'GIAI ĐOẠN 2: Tái cấu trúc hàng rào lipid',
+            thoi_gian: '4 - 8 tuần',
+            muc_tieu: 'Tái sinh lớp màng bảo vệ da biểu bì sừng bị tàn phá, làm dày da và ổn định mao mạch.',
+            homecare: 'Sáng: SRM + Serum B5/Rau má + Kem dưỡng Ceramide củng cố + KCN vật lý dịu nhẹ. Tối: Tẩy trang dịu nhẹ + SRM + Serum phục hồi + Kem dưỡng Ceramide.'
+          },
+          giai_doan_3: {
+            ten: 'GIAI ĐOẠN 3: Đào thải hắc tố dội ngược & Bảo vệ duy trì',
+            thoi_gian: 'Dài hạn',
+            muc_tieu: 'Làm sáng vùng da sạm dội ngược sau cai corticoid/thải độc kim loại an toàn.',
+            homecare: 'Sáng: SRM + Serum B5 + Serum Tranexamic Acid (3%) sáng da nhẹ + Dưỡng ẩm + KCN. Tối: Tẩy trang + SRM + Serum phục hồi + Serum sáng da + Dưỡng ẩm.'
+          }
+        };
+        
+        suggested_products = {
+          sua_rua_mat: 'Sữa rửa mặt không tạo bọt, không xà phòng, cực kỳ dịu nhẹ cho da siêu nhạy cảm.',
+          serum_phuc_hoi: 'Serum Panthenol (B5) 10% kết hợp chiết xuất rau má lành tính giúp sửa chữa tế bào tổn thương.',
+          hoat_chat_dac_tri: 'Tạm ngưng hoàn toàn đặc trị hóa học. Chỉ bôi phục hồi cấp ẩm làm dày da.',
+          kem_duong_phuc_hoi: 'Kem dưỡng ẩm phục hồi chứa Ceramide nồng độ cao và squalane thực vật củng cố lớp sừng.',
+          kem_chong_nang: 'Kem chống nắng 100% vật lý màng lọc Zinc Oxide & Titanium Dioxide không chứa cồn hương liệu.'
+        };
+      } 
+      else {
+        primary_condition = 'Sắc tố';
+        const pattern = payload.pigmentation.pattern || '';
+        const genetic = payload.pigmentation.geneticFactor || '';
+        const hormone = payload.pigmentation.hormoneUsage || '';
+        
+        metrics.pigment_score = Math.round(imageMetrics.spots || 60);
+        metrics.barrier_score = (payload.skinBackground.symptoms.includes('mỏng yếu') || imageMetrics.redness > 1.25) ? 45 : 75;
+        
+        let type = 'Nám mảng biểu bì';
+        if (pattern.includes('chân sâu') || pattern.includes('Đốm')) {
+          type = 'Nám đốm chân sâu hoặc Bớt sắc tố Hori';
+          metrics.pigment_score = Math.max(70, metrics.pigment_score);
+        } else if (pattern.includes('hỗn hợp') || pattern.includes('Vừa')) {
+          type = 'Nám hỗn hợp đa tầng';
+          metrics.pigment_score = Math.max(75, metrics.pigment_score);
+        } else if (pattern.includes('tàn nhang')) {
+          type = 'Tàn nhang bề mặt da';
+          metrics.pigment_score = Math.max(50, metrics.pigment_score);
+        } else if (pattern.includes('đồi mồi')) {
+          type = 'Đồi mồi lão hóa da';
+          metrics.pigment_score = Math.max(55, metrics.pigment_score);
+        }
+        
+        pigment = `${type}`;
+        detailed_diagnosis = 'Tăng sắc tố lành tính. Chân hắc tố phân bố ở lớp tế bào đáy thượng bì hoặc rải rác ở lớp trung bì.';
+        
+        summary = `- **Loại da & Tình trạng bệnh lý**: ${type} gây mất đều màu da bề mặt.\n` +
+                  `- **Cấu trúc biểu bì & Hàng rào**: Hàng rào bảo vệ da khá ổn định nhưng màng đáy bị tổn thương nhẹ do tia UV.\n` +
+                  `- **Dấu hiệu tổn thương & Mao mạch**: Hệ mao mạch tương đối ổn định, không có hiện tượng đỏ da nghiêm trọng.\n` +
+                  `- **Khoanh vùng chi tiết**: Tập trung sắc tố loang lổ nhiều nhất khu vực ${payload.pigmentation.areas || 'gò má'}.`;
+                  
+        next = `- **Chế độ chăm sóc**: Dưỡng ẩm đầy đủ giúp da khỏe, tăng sừng hóa tự nhiên đào thải sắc tố nám nông.\n` +
+               `- **Chống nắng & Bảo vệ**: Chống nắng phổ rộng cao (SPF50+, PA++++) là yếu tố sống còn để ngăn nám tái phát.\n` +
+               `- **Lưu ý đặc biệt**: Tuyệt đối không tự ý lột tẩy acid nồng độ cao tại nhà dẫn đến mất sắc tố vĩnh viễn.`;
+               
+        stage_treatment_protocol = {
+          giai_doan_1: {
+            ten: 'GIAI ĐOẠN 1: Chuẩn bị da & Ức chế melanin bề mặt',
+            thoi_gian: '3 - 4 tuần',
+            muc_tieu: 'Ức chế tế bào sản sinh melanin hoạt động quá mức, củng cố độ ẩm màng đáy.',
+            homecare: 'Sáng: SRM dịu nhẹ + Serum Niacinamide 10% + Dưỡng ẩm + KCN. Tối: Tẩy trang + SRM + Serum Niacinamide + Serum Tranexamic Acid + Dưỡng ẩm.'
+          },
+          giai_doan_2: {
+            ten: 'GIAI ĐOẠN 2: Điều trị tấn công bóc tách sắc tố',
+            thoi_gian: '6 - 12 tuần',
+            muc_tieu: 'Tăng tốc đào thải hắc tố nông thượng bì, bắn phá và phân giải các đốm nám sâu.',
+            homecare: 'Sáng: SRM + Serum Tranexamic Acid + Dưỡng ẩm + KCN. Tối: Tẩy trang + SRM + Retinol nhẹ nhàng xen kẽ serum trị nám + Kem phục hồi.'
+          },
+          giai_doan_3: {
+            ten: 'GIAI ĐOẠN 3: Duy trì & Bảo vệ ngăn tái phát',
+            thoi_gian: 'Dài hạn',
+            muc_tieu: 'Ngăn chặn hắc tố quay trở lại do các tác nhân bên ngoài, dưỡng da căng mịn đều màu.',
+            homecare: 'Sáng: SRM + Serum Vitamin C + Dưỡng ẩm + KCN. Tối: Tẩy trang + SRM + Retinol duy trì + Serum sáng da + Dưỡng phục hồi.'
+          }
+        };
+        
+        suggested_products = {
+          sua_rua_mat: 'Sữa rửa mặt làm sạch dịu nhẹ pH 5.5, không chứa hạt bóc tách gây xước da.',
+          serum_phuc_hoi: 'Serum chứa Niacinamide 10% kết hợp HA dưỡng ẩm đa tầng và nâng tông da.',
+          hoat_chat_dac_tri: 'Serum chứa Tranexamic Acid 3-5% kết hợp Alpha Arbutin 2% giúp giảm nám mảng hiệu quả.',
+          kem_duong_phuc_hoi: 'Kem dưỡng ẩm dịu nhẹ củng cố hàng rào da chống dội ngược sắc tố.',
+          kem_chong_nang: 'Kem chống nắng phổ rộng bảo vệ tối đa với màng lọc thế hệ mới (như Tinosorb, Mexoryl).'
+        };
+      }
+      
+      const sp = stage_treatment_protocol;
+      const html = `
+        <div style="font-family:Arial,sans-serif;color:#333;line-height:1.6;max-width:600px;margin:0 auto;padding:20px;border:1px solid #eaeaea;border-radius:12px;">
+          <h2 style="color:#CBA45A;border-bottom:2px solid #CBA45A;padding-bottom:10px;margin-top:0;">BÁO CÁO PHÂN TÍCH CHẨN ĐOÁN DA</h2>
+          <p><b>Mã hồ sơ:</b> <span style="font-family:monospace;font-size:16px;color:#CBA45A;font-weight:bold;">${payload.profileId}</span></p>
+          <p><b>Khách hàng:</b> ${payload.customer.name} (${payload.customer.birthYear})</p>
+          <p><b>Địa chỉ:</b> ${payload.customer.city} | <b>Nghề nghiệp:</b> ${payload.customer.job}</p>
+          
+          <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+            <tr style="background:#f9f9f9;">
+              <td style="padding:10px;border:1px solid #eee;font-weight:bold;width:30%;">Chẩn đoán da</td>
+              <td style="padding:10px;border:1px solid #eee;color:#a03600;font-weight:bold;">${pigment}</td>
+            </tr>
+            <tr style="background:#f9f9f9;">
+              <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Tóm tắt tình trạng</td>
+              <td style="padding:10px;border:1px solid #eee;font-size:14px;">${formatReportText(summary)}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Sản phẩm cũ đã dùng</td>
+              <td style="padding:10px;border:1px solid #eee;font-size:14px;font-style:italic;"> ${payload.history.products}</td>
+            </tr>
+            <tr style="background:#f9f9f9;">
+              <td style="padding:10px;border:1px solid #eee;font-weight:bold;">Lời khuyên ban đầu</td>
+              <td style="padding:10px;border:1px solid #eee;font-size:14px;"> ${formatReportText(next)}</td>
+            </tr>
+          </table>
+          <p style="font-size:12px;color:#777;border-top:1px solid #eee;padding-top:10px;margin-top:20px;font-style:italic;">Báo cáo chẩn đoán mang tính chất định hướng ban đầu, không thay thế cho thăm khám da liễu chuyên khoa trực tiếp.</p>
+        </div>
+      `;
+
+      return { 
+        primary_condition, 
+        detailed_diagnosis, 
+        pigment, 
+        summary, 
+        next, 
+        stage_treatment_protocol, 
+        suggested_products, 
+        metrics, 
+        html 
+      };
     }
   </script>
 </body>

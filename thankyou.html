@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cảm ơn bạn đã đăng ký - SkinCheck Ngô Mai Phương</title>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #faf8f5;
+      --text: #2B2724;
+      --muted: #7A6A5F;
+      --accent: #3F1521;
+      --accent-gradient: linear-gradient(135deg, #5c2032 0%, #3F1521 100%);
+      --line: rgba(63, 21, 33, 0.1);
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .thankyou-container {
+      width: 100%;
+      max-width: 520px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 40px rgba(63, 21, 33, 0.05);
+      padding: 48px 32px;
+      text-align: center;
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .success-icon-wrapper {
+      width: 80px;
+      height: 80px;
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .success-icon {
+      font-size: 36px;
+      color: #10b981;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 0 0 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .message-box {
+      font-size: 16px;
+      color: var(--text);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .message-box p {
+      margin: 10px 0;
+    }
+
+    .btn-back {
+      display: inline-block;
+      padding: 14px 32px;
+      background: var(--accent-gradient);
+      color: #ffffff;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 8px 16px rgba(63, 21, 33, 0.15);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-back:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 20px rgba(63, 21, 33, 0.2);
+    }
+
+    .btn-back:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="thankyou-container">
+    <div class="success-icon-wrapper">
+      <span class="success-icon">✓</span>
+    </div>
+    <h1>Cảm ơn bạn!</h1>
+    <div class="message-box">
+      <p style="font-weight: 600; color: var(--accent); font-size: 18px;">Mình đã nhận được yêu cầu của bạn!</p>
+      <p>Yêu cầu của bạn đã được gửi đến chuyên gia tư vấn.</p>
+      <p>Chuyên gia sẽ liên hệ với bạn trong 1 giờ.</p>
+      <p style="color: var(--muted); font-size: 14px; margin-top: 18px;">Cảm ơn bạn đã kiên nhẫn!</p>
+    </div>
+    <a href="index.html" class="btn-back">Quay lại Trang chủ</a>
+  </div>
+
+</body>
+</html>
