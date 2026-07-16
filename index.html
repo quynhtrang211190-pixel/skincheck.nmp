@@ -3461,6 +3461,179 @@
       line-height: 1.4;
     }
 
+    /* VISIA SKIN SCANNER STYLING */
+    .visia-scanner-container {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(var(--sienna-rgb), 0.15);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    
+    .visia-scanner-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .visia-scanner-title h4 {
+      font-size: 11.5px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--gold);
+      margin: 0;
+    }
+    .visia-pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #ef4444;
+      border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      animation: pulse-red 1.5s infinite;
+    }
+    @keyframes pulse-red {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
+    }
+    
+    .visia-image-view {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+    
+    .visia-img-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 260px;
+      aspect-ratio: 3/4;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #000;
+    }
+    
+    .visia-img-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    
+    .visia-overlay-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+      mix-blend-mode: screen;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .visia-overlay-canvas.active {
+      opacity: 1;
+    }
+    
+    /* Glowing scan line animation */
+    .visia-scan-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(to bottom, transparent, rgba(var(--sienna-rgb), 0.8), transparent);
+      box-shadow: 0 0 10px rgba(var(--sienna-rgb), 0.5);
+      z-index: 6;
+      top: 0;
+      pointer-events: none;
+      opacity: 0;
+    }
+    
+    .visia-scan-line.scanning {
+      opacity: 1;
+      animation: scan-vertical 1.5s linear infinite;
+    }
+    
+    @keyframes scan-vertical {
+      0% { top: 0%; }
+      50% { top: 100%; }
+      100% { top: 0%; }
+    }
+    
+    .visia-angle-selector {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    
+    .angle-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--cream-dim);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .angle-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(var(--sienna-rgb), 0.3);
+    }
+    
+    .angle-btn.active {
+      background: rgba(var(--sienna-rgb), 0.12);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    
+    .visia-filters {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    
+    .filter-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--cream-dim);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    
+    .filter-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .filter-btn.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #0b1730;
+      box-shadow: 0 0 10px rgba(203, 164, 90, 0.2);
+    }
+
     /* Consult Modal Styles */
     .consult-modal {
       position: fixed;
@@ -3739,6 +3912,38 @@
             <h4 id="diag-title">Nhóm Da: Nám & Sắc Tố Hỗn Hợp</h4>
             <p id="diag-desc">Nền da tập trung sắc tố loang lổ vùng gò má thượng bì hoặc chân sâu trung bì.</p>
             <div class="diagnosis-slogan" id="diag-slogan">Phác đồ cần ức chế melanin & bảo vệ chống nắng tối đa.</div>
+          </div>
+
+          <!-- MÔ PHỎNG MÁY SOI DA VISIA CLINIC -->
+          <div class="visia-scanner-container">
+            <div class="visia-scanner-title">
+              <span class="visia-pulse-dot"></span>
+              <h4>BẢN ĐỒ QUÉT DA MÔ PHỎNG (VISIA SCANNER)</h4>
+            </div>
+            
+            <div class="visia-image-view">
+              <div class="visia-img-wrapper" id="visiaMainWrapper">
+                <img id="visiaMainImage" src="" alt="Ảnh soi da" />
+                <canvas id="visiaOverlayCanvas" class="visia-overlay-canvas"></canvas>
+                <!-- Scan line effect -->
+                <div class="visia-scan-line" id="visiaScanLine"></div>
+              </div>
+            </div>
+            
+            <!-- Controls to switch angles -->
+            <div class="visia-angle-selector" id="visiaAngleSelector">
+              <button type="button" class="angle-btn" data-angle="front">Chính diện</button>
+              <button type="button" class="angle-btn" data-angle="left">Má trái</button>
+              <button type="button" class="angle-btn" data-angle="right">Má phải</button>
+            </div>
+            
+            <!-- Controls to toggle filter overlays -->
+            <div class="visia-filters" id="visiaFilters">
+              <button type="button" class="filter-btn" data-filter="original">🔍 Ảnh gốc</button>
+              <button type="button" class="filter-btn redness" data-filter="redness">🔴 Mụn & Viêm</button>
+              <button type="button" class="filter-btn spots" data-filter="spots">🟤 Đốm sắc tố</button>
+              <button type="button" class="filter-btn pores" data-filter="pores">🟢 Lỗ chân lông</button>
+            </div>
           </div>
 
           <button type="button" class="btn full" id="preAnalysisNextBtn">Tiếp tục trả lời khảo sát →</button>
@@ -5632,11 +5837,132 @@
       $('#diag-desc').textContent = classification.description;
       $('#diag-slogan').textContent = classification.slogan;
 
+      // Initialize VISIA Skin Simulator
+      let defaultAngle = 'front';
+      if (!state.images.front) {
+        defaultAngle = state.images.left ? 'left' : 'right';
+      }
+      
+      state.currentVisiaAngle = defaultAngle;
+      
+      // Select default filter based on skin concern code
+      let defaultFilter = 'original';
+      if (classification.code === 'acne') {
+        defaultFilter = 'redness';
+      } else if (classification.code === 'pigment') {
+        defaultFilter = 'spots';
+      } else if (classification.code === 'toxic') {
+        defaultFilter = 'redness';
+      }
+      state.currentVisiaFilter = defaultFilter;
+      
+      // Show/hide angle buttons depending on which images were uploaded
+      $$('#visiaAngleSelector .angle-btn').forEach(btn => {
+        const angle = btn.dataset.angle;
+        if (!state.images[angle]) {
+          btn.style.display = 'none';
+        } else {
+          btn.style.display = 'inline-block';
+          if (angle === defaultAngle) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        }
+      });
+      
+      // Set active state on filter buttons
+      $$('#visiaFilters .filter-btn').forEach(btn => {
+        if (btn.dataset.filter === defaultFilter) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      
       // Show Pre-Analysis result box
       $('#aiPreAnalysisBox').style.display = 'flex';
       
+      // Render the VISIA simulator overlay
+      updateVisiaView(defaultAngle, defaultFilter);
+      
       // Keep viewport locked to tool top
       $('#tool').scrollIntoView({ behavior: 'auto', block: 'start' });
+    }
+
+    function updateVisiaView(angle, filter) {
+      const visiaImg = $('#visiaMainImage');
+      const canvas = $('#visiaOverlayCanvas');
+      const ctx = canvas.getContext('2d');
+      const scanLine = $('#visiaScanLine');
+      
+      // Update image source
+      const imgUrl = state.images[angle];
+      if (!imgUrl) return;
+      visiaImg.src = imgUrl;
+      
+      // Clear overlay
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvas.classList.remove('active');
+      scanLine.classList.remove('scanning');
+      
+      if (filter === 'original') {
+        return;
+      }
+      
+      // Get appropriate mask
+      const angleKey = angle === 'front' ? 'front' : (angle === 'left' ? 'left' : 'right');
+      const analysis = state.angleAnalysis ? state.angleAnalysis[angleKey] : null;
+      if (!analysis) return;
+      
+      const maskKey = filter + 'Mask'; // e.g. rednessMask, spotsMask, poresMask
+      const maskUrl = analysis[maskKey];
+      if (!maskUrl) return;
+      
+      // Run scan line animation effect
+      scanLine.classList.add('scanning');
+      
+      const maskImg = new Image();
+      maskImg.onload = () => {
+        // Adjust canvas internal size to fit client rendering size (anti-aliasing fix)
+        canvas.width = canvas.clientWidth || 260;
+        canvas.height = canvas.clientHeight || 347;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(maskImg, 0, 0, canvas.width, canvas.height);
+        
+        // Keep scan line scanning for 1.2s then fade in the overlay spots
+        setTimeout(() => {
+          canvas.classList.add('active');
+          scanLine.classList.remove('scanning');
+        }, 800);
+      };
+      maskImg.src = maskUrl;
+    }
+
+    // Bind click listeners for VISIA Scanner angles and filters
+    const angleSelector = $('#visiaAngleSelector');
+    if (angleSelector) {
+      angleSelector.querySelectorAll('.angle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          angleSelector.querySelectorAll('.angle-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.currentVisiaAngle = btn.dataset.angle;
+          updateVisiaView(state.currentVisiaAngle, state.currentVisiaFilter);
+        });
+      });
+    }
+    
+    const filterSelector = $('#visiaFilters');
+    if (filterSelector) {
+      filterSelector.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterSelector.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.currentVisiaFilter = btn.dataset.filter;
+          updateVisiaView(state.currentVisiaAngle, state.currentVisiaFilter);
+        });
+      });
     }
 
     // Bind click listener for pre-analysis confirmation button (Triggers Payment Modal)
@@ -5924,6 +6250,60 @@
               poresScore = Math.min(100, poresScore + Math.round((textureScore - 15) * 1.5));
             }
             
+            // Generate visual overlay masks
+            const maskCanvas = document.createElement('canvas');
+            maskCanvas.width = 50;
+            maskCanvas.height = 50;
+            const maskCtx = maskCanvas.getContext('2d');
+            
+            // 1. Redness/Acne Mask
+            maskCtx.clearRect(0, 0, 50, 50);
+            skinPixels.forEach(p => {
+              const pRG = p.r / (p.g || 1);
+              const pDiff = p.r - p.g;
+              if (pRG > avgRG * 1.18 && pDiff > avgDiff * 1.45 && p.r > 120 && pRG < 1.70) {
+                maskCtx.fillStyle = 'rgba(239, 68, 68, 0.85)';
+                maskCtx.beginPath();
+                maskCtx.arc(p.x, p.y, 1.2, 0, 2 * Math.PI);
+                maskCtx.fill();
+              }
+            });
+            const rednessMaskUrl = maskCanvas.toDataURL();
+            
+            // 2. Spots Mask
+            maskCtx.clearRect(0, 0, 50, 50);
+            skinPixels.forEach(p => {
+              const mi = Math.max(0, p.g - p.b);
+              if (p.lum < avgLum * 0.86 && mi > avgMelanin * 1.25 && mi > 14) {
+                maskCtx.fillStyle = 'rgba(203, 164, 90, 0.9)';
+                maskCtx.beginPath();
+                maskCtx.arc(p.x, p.y, 1.2, 0, 2 * Math.PI);
+                maskCtx.fill();
+              }
+            });
+            const spotsMaskUrl = maskCanvas.toDataURL();
+            
+            // 3. Pores Mask
+            maskCtx.clearRect(0, 0, 50, 50);
+            skinPixels.forEach(p => {
+              const neighbors = [
+                lumMap[`${p.x-1},${p.y-1}`], lumMap[`${p.x},${p.y-1}`], lumMap[`${p.x+1},${p.y-1}`],
+                lumMap[`${p.x-1},${p.y}`],                             lumMap[`${p.x+1},${p.y}`],
+                lumMap[`${p.x-1},${p.y+1}`], lumMap[`${p.x},${p.y+1}`], lumMap[`${p.x+1},${p.y+1}`]
+              ];
+              const validNeighbors = neighbors.filter(v => v !== undefined);
+              if (validNeighbors.length >= 5) {
+                const avgNeighborLum = validNeighbors.reduce((sum, v) => sum + v, 0) / validNeighbors.length;
+                if (p.lum < avgNeighborLum * 0.81) {
+                  maskCtx.fillStyle = 'rgba(16, 185, 129, 0.9)';
+                  maskCtx.beginPath();
+                  maskCtx.arc(p.x, p.y, 1.0, 0, 2 * Math.PI);
+                  maskCtx.fill();
+                }
+              }
+            });
+            const poresMaskUrl = maskCanvas.toDataURL();
+            
             resolve({
               redness: rednessRatio,
               unevenness: stdDevLum,
@@ -5933,6 +6313,9 @@
               texture: textureScore,
               pores: poresScore,
               acne: acneScore,
+              rednessMask: rednessMaskUrl,
+              spotsMask: spotsMaskUrl,
+              poresMask: poresMaskUrl,
               filtered: true
             });
           } catch (e) {
@@ -6032,13 +6415,23 @@
       }
       
       result.hasImages = true;
-      const promises = [];
+      state.angleAnalysis = { front: null, left: null, right: null };
       
-      if (images.front) promises.push(analyzeImagePixels(images.front));
-      if (images.left) promises.push(analyzeImagePixels(images.left));
-      if (images.right) promises.push(analyzeImagePixels(images.right));
+      if (images.front) {
+        state.angleAnalysis.front = await analyzeImagePixels(images.front);
+      }
+      if (images.left) {
+        state.angleAnalysis.left = await analyzeImagePixels(images.left);
+      }
+      if (images.right) {
+        state.angleAnalysis.right = await analyzeImagePixels(images.right);
+      }
       
-      const analyses = await Promise.all(promises);
+      const analyses = [];
+      if (state.angleAnalysis.front) analyses.push(state.angleAnalysis.front);
+      if (state.angleAnalysis.left) analyses.push(state.angleAnalysis.left);
+      if (state.angleAnalysis.right) analyses.push(state.angleAnalysis.right);
+      
       if (analyses.length > 0) {
         let sumRedness = 0;
         let sumUnevenness = 0;
