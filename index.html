@@ -1439,6 +1439,43 @@
       }
     }
 
+    /* Guide box styles replacing inline styles */
+    .guide-box {
+      background: rgba(var(--sienna-rgb), 0.04);
+      border: 1px solid rgba(var(--sienna-rgb), 0.15);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      text-align: left;
+    }
+    .guide-title {
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .guide-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--cream-dim);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      line-height: 1.5;
+    }
+
+    /* Result actions container styling */
+    .result-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
     @media (max-width: 768px) {
       .nav {
         height: 64px !important;
@@ -1462,6 +1499,17 @@
 
       .container {
         padding: 0 16px !important;
+      }
+
+      /* Hide large decorative mockup on mobile to keep page clean and compact */
+      .hero-visual {
+        display: none !important;
+      }
+
+      .hero {
+        padding-top: 100px !important;
+        padding-bottom: 40px !important;
+        gap: 20px !important;
       }
 
       /* Wizard progress stepper adjustments */
@@ -1525,6 +1573,20 @@
         border-radius: 16px !important;
       }
 
+      /* Stretched wizard buttons equally to fill width on mobile */
+      .wizard-actions {
+        display: flex !important;
+        gap: 10px !important;
+        margin-top: 20px !important;
+        padding-top: 16px !important;
+      }
+      .wizard-actions .btn {
+        flex: 1 !important;
+        justify-content: center !important;
+        padding: 12px 8px !important;
+        font-size: 13.5px !important;
+      }
+
       /* Heading scale down for mobile readability */
       h1 {
         font-size: 26px !important;
@@ -1545,22 +1607,6 @@
       .section {
         padding: 35px 0 !important;
       }
-
-      /* Device Mockup Scale-down */
-      .device {
-        height: 400px !important;
-      }
-      .face-outline-svg {
-        width: 100px !important;
-        height: 130px !important;
-      }
-      .radar-container {
-        width: 160px !important;
-        height: 160px !important;
-      }
-      .radar-circle.c1 { width: 160px !important; height: 160px !important; }
-      .radar-circle.c2 { width: 120px !important; height: 120px !important; }
-      .radar-circle.c3 { width: 80px !important; height: 80px !important; }
 
       /* Compact results box on mobile */
       .ai-pre-analysis-box {
@@ -1596,14 +1642,44 @@
         font-size: 12.5px !important;
       }
 
+      .guide-box {
+        padding: 12px 10px !important;
+        font-size: 11.5px !important;
+        margin-bottom: 16px !important;
+      }
+      .guide-list {
+        gap: 6px !important;
+        padding-left: 14px !important;
+      }
+
+      /* Stack result actions vertically on mobile */
+      .result-actions {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 10px !important;
+      }
+      .result-actions .btn {
+        width: 100% !important;
+        justify-content: center !important;
+        text-align: center !important;
+        padding: 12px 16px !important;
+        font-size: 13.5px !important;
+      }
+
       .contact-card {
         padding: 24px 16px !important;
         gap: 20px !important;
       }
       
       .cta-large {
+        width: 100% !important;
+        justify-content: center !important;
         padding: 12px 20px !important;
         font-size: 14px !important;
+      }
+
+      .contact-actions, .cta-glow-wrapper {
+        width: 100% !important;
       }
 
       /* Modal contents padding adjustments */
@@ -3682,11 +3758,11 @@
             <p class="form-step-subtitle">Chụp ảnh camera thường, không dùng bộ lọc hoặc trang điểm. Ưu tiên ánh sáng tự nhiên cạnh cửa sổ.</p>
 
             <!-- Quy chuẩn chụp ảnh da -->
-            <div style="background: rgba(var(--sienna-rgb), 0.04); border: 1px solid rgba(var(--sienna-rgb), 0.15); border-radius: 12px; padding: 18px; margin-bottom: 24px; font-size: 13px;">
-              <div style="font-weight: 700; color: var(--gold); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+            <div class="guide-box">
+              <div class="guide-title">
                 <span>💡</span> QUY CHUẨN CHỤP ẢNH DA ĐẠT CHUẨN CHẨN ĐOÁN
               </div>
-              <ul style="margin: 0; padding-left: 18px; color: var(--cream-dim); display: flex; flex-direction: column; gap: 8px; line-height: 1.5; text-align: left;">
+              <ul class="guide-list">
                 <li><strong>Ánh sáng tự nhiên:</strong> Ngồi đối diện cửa sổ ban ngày. Tránh chụp ngược sáng hoặc dưới bóng đèn tuýp làm đổi màu da.</li>
                 <li><strong>Cam thường 100%:</strong> Không sử dụng bất kỳ filter, ứng dụng làm mịn hay trang điểm (kem chống nắng/kem nền).</li>
                 <li><strong>Góc chụp & khoảng cách:</strong> Giữ điện thoại cách mặt 30–40 cm, camera ngang tầm mắt. Chụp rõ 3 góc: thẳng mặt và nghiêng hẳn 45-90 độ sang 2 bên má.</li>
@@ -4426,7 +4502,7 @@
             <h3>Hồ sơ đã được gửi đi</h3>
             <p>Hồ sơ chẩn đoán SkinCheck đã được ghi nhận. Báo cáo sàng lọc sơ bộ cùng phân tích nền da và phác đồ điều trị đang
               được tạo lập và sẽ tự động gửi đến email của bạn trong ít phút.</p>
-            <div style="display: flex; gap: 12px; justify-content: center; margin-top: 20px; flex-wrap: wrap;">
+            <div class="result-actions">
               <button type="button" class="btn" id="deepReportScrollBtn">Nhận báo cáo chuyên sâu từ Chuyên gia →</button>
               <button type="button" class="btn secondary" id="resetBtn">Tạo hồ sơ mới</button>
             </div>
