@@ -5799,13 +5799,14 @@
       $('#fill-spots').style.width = spotsWidth + '%';
 
       // Pores / Acne lesions:
-      const poresVal = Math.max(metrics.pores || 8, (metrics.acne || 0) * 0.4);
+      const poresVal = metrics.pores || 8;
+      const acneVal = metrics.acne || 0;
       let poresText = 'Khá mịn màng';
       let poresWidth = 15;
-      if ((metrics.acne || 0) > 30 || poresVal > 18) {
+      if (acneVal > 30 || poresVal > 35) {
         poresText = 'Nhiều mụn viêm / Nhờn bít tắc';
         poresWidth = 90;
-      } else if ((metrics.acne || 0) > 15 || poresVal > 11) {
+      } else if (acneVal > 15 || poresVal > 22) {
         poresText = 'Có nhân mụn / Bít tắc trung bình';
         poresWidth = 55;
       }
@@ -6129,7 +6130,7 @@
                                r > g && r > b && 
                                (r - g) > 15 && 
                                (Math.max(r, g, b) - Math.min(r, g, b) > 15) &&
-                               (r / (g || 1) < 1.35) && 
+                               (r / (g || 1) < 1.60) && 
                                lum > 50;
                                
                 if (isSkin) {
@@ -6250,41 +6251,45 @@
               poresScore = Math.min(100, poresScore + Math.round((textureScore - 15) * 1.5));
             }
             
-            // Generate visual overlay masks
+            // Generate visual overlay masks at high resolution (300x400) for crisp vector-like rendering
             const maskCanvas = document.createElement('canvas');
-            maskCanvas.width = 50;
-            maskCanvas.height = 50;
+            maskCanvas.width = 300;
+            maskCanvas.height = 400;
             const maskCtx = maskCanvas.getContext('2d');
             
             // 1. Redness/Acne Mask
-            maskCtx.clearRect(0, 0, 50, 50);
+            maskCtx.clearRect(0, 0, 300, 400);
             skinPixels.forEach(p => {
               const pRG = p.r / (p.g || 1);
               const pDiff = p.r - p.g;
               if (pRG > avgRG * 1.18 && pDiff > avgDiff * 1.45 && p.r > 120 && pRG < 1.70) {
-                maskCtx.fillStyle = 'rgba(239, 68, 68, 0.85)';
+                const px = (p.x / 50) * 300;
+                const py = (p.y / 50) * 400;
+                maskCtx.fillStyle = 'rgba(239, 68, 68, 0.75)';
                 maskCtx.beginPath();
-                maskCtx.arc(p.x, p.y, 1.2, 0, 2 * Math.PI);
+                maskCtx.arc(px, py, 2.5, 0, 2 * Math.PI);
                 maskCtx.fill();
               }
             });
             const rednessMaskUrl = maskCanvas.toDataURL();
             
             // 2. Spots Mask
-            maskCtx.clearRect(0, 0, 50, 50);
+            maskCtx.clearRect(0, 0, 300, 400);
             skinPixels.forEach(p => {
               const mi = Math.max(0, p.g - p.b);
               if (p.lum < avgLum * 0.86 && mi > avgMelanin * 1.25 && mi > 14) {
-                maskCtx.fillStyle = 'rgba(203, 164, 90, 0.9)';
+                const px = (p.x / 50) * 300;
+                const py = (p.y / 50) * 400;
+                maskCtx.fillStyle = 'rgba(203, 164, 90, 0.8)';
                 maskCtx.beginPath();
-                maskCtx.arc(p.x, p.y, 1.2, 0, 2 * Math.PI);
+                maskCtx.arc(px, py, 2.0, 0, 2 * Math.PI);
                 maskCtx.fill();
               }
             });
             const spotsMaskUrl = maskCanvas.toDataURL();
             
             // 3. Pores Mask
-            maskCtx.clearRect(0, 0, 50, 50);
+            maskCtx.clearRect(0, 0, 300, 400);
             skinPixels.forEach(p => {
               const neighbors = [
                 lumMap[`${p.x-1},${p.y-1}`], lumMap[`${p.x},${p.y-1}`], lumMap[`${p.x+1},${p.y-1}`],
@@ -6295,9 +6300,11 @@
               if (validNeighbors.length >= 5) {
                 const avgNeighborLum = validNeighbors.reduce((sum, v) => sum + v, 0) / validNeighbors.length;
                 if (p.lum < avgNeighborLum * 0.81) {
-                  maskCtx.fillStyle = 'rgba(16, 185, 129, 0.9)';
+                  const px = (p.x / 50) * 300;
+                  const py = (p.y / 50) * 400;
+                  maskCtx.fillStyle = 'rgba(16, 185, 129, 0.8)';
                   maskCtx.beginPath();
-                  maskCtx.arc(p.x, p.y, 1.0, 0, 2 * Math.PI);
+                  maskCtx.arc(px, py, 1.8, 0, 2 * Math.PI);
                   maskCtx.fill();
                 }
               }
