@@ -1512,6 +1512,28 @@
         gap: 20px !important;
       }
 
+      /* Stack hero actions vertically on mobile */
+      .actions {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 10px !important;
+        margin-bottom: 32px !important;
+      }
+      .actions .btn {
+        width: 100% !important;
+        justify-content: center !important;
+        text-align: center !important;
+        padding: 12px 20px !important;
+      }
+
+      /* Stack hero steps vertically on mobile for readability */
+      .steps-quick {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+        max-width: 100% !important;
+        text-align: left !important;
+      }
+
       /* Wizard progress stepper adjustments */
       .wizard-step {
         width: 28px !important;
@@ -1631,6 +1653,15 @@
         flex-direction: column !important;
         align-items: flex-start !important;
         gap: 8px !important;
+      }
+
+      .diagnosis-header {
+        padding: 14px !important;
+        margin-bottom: 16px !important;
+      }
+      .diagnosis-desc {
+        font-size: 13.5px !important;
+        line-height: 1.5 !important;
       }
 
       .metric-info {
