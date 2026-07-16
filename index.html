@@ -74,6 +74,17 @@
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    /* Hide Vercel Feedback Toolbar / Live Comments Button */
+    vercel-live-feedback,
+    #vercel-live-feedback,
+    [id*="vercel-live-feedback"],
+    [class*="vercel-live-feedback"] {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
     * {
       box-sizing: border-box;
       outline: none;
