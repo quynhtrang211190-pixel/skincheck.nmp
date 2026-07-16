@@ -5948,34 +5948,45 @@
     }
 
     function classifySkin(metrics) {
-      const redness = metrics.redness || 1.18;
-      const spots = metrics.spots || 18;
-      const uvPigment = metrics.uvPigment || 22;
-      const texture = metrics.texture || 15;
-      const pores = metrics.pores || 12;
-      const acne = metrics.acne || 10;
+      const redness = metrics.redness || 1.15;
+      const spots = metrics.spots || 15;
+      const uvPigment = metrics.uvPigment || 20;
+      const texture = metrics.texture || 12;
+      const pores = metrics.pores || 10;
+      const acne = metrics.acne || 0;
       
-      // 1. Inflammation / Red Acne / Toxin / Sensitivity (High priority if red spots exist)
-      if (acne > 22 || redness > 1.22) {
-        if (acne > 30) {
-          return {
-            code: 'acne',
-            name: 'Da Mụn / Nhờn & Loạn Khuẩn',
-            description: 'Phát hiện vùng viêm sần đỏ, tích tụ dầu thừa bít tắc nang lông và có xu hướng tăng sinh nhân mụn viêm.',
-            slogan: 'Khuyên dùng: Tập trung làm sạch sâu kháng viêm nhẹ nhàng, phục hồi hàng rào bảo vệ da.'
-          };
-        } else {
-          return {
-            code: 'toxic',
-            name: 'Da Nhạy Cảm / Nhiễm Độc / Cần Phục Hồi',
-            description: 'Phát hiện đỏ mao mạch diện rộng, hàng rào bảo vệ mỏng, có hiện tượng dội ngược sắc tố hoặc dễ kích ứng đỏ rát.',
-            slogan: 'LƯU Ý: Phải hồi phục cấu trúc da khỏe mạnh trước khi bắt đầu treatment đặc trị.'
-          };
-        }
+      // 1. Prioritize Inflamed Acne (Mụn viêm đỏ)
+      if (acne > 32) {
+        return {
+          code: 'acne',
+          name: 'Da Mụn / Nhờn & Loạn Khuẩn',
+          description: 'Phát hiện vùng viêm sần đỏ, tích tụ dầu thừa bít tắc nang lông và có xu hướng tăng sinh nhân mụn viêm.',
+          slogan: 'Khuyên dùng: Tập trung làm sạch sâu kháng viêm nhẹ nhàng, phục hồi hàng rào bảo vệ da.'
+        };
       }
       
-      // 2. Melasma & Pigmentation (Core priority for Melano Minitool LDP)
-      if (spots > 22 || uvPigment > 25) {
+      // 2. Prioritize Sensitivity / Toxin / High Redness (Da nhạy cảm / Đỏ yếu / Tổn thương)
+      if (redness > 1.25) {
+        return {
+          code: 'toxic',
+          name: 'Da Nhạy Cảm / Nhiễm Độc / Cần Phục Hồi',
+          description: 'Phát hiện đỏ mao mạch diện rộng, hàng rào bảo vệ mỏng, có hiện tượng dội ngược sắc tố hoặc dễ kích ứng đỏ rát.',
+          slogan: 'LƯU Ý: Phải hồi phục cấu trúc da khỏe mạnh trước khi bắt đầu treatment đặc trị.'
+        };
+      }
+      
+      // 3. Prioritize Severe Pores / Blackheads / Comedones (Da bít tắc nhờn mụn đầu đen)
+      if (pores > 35 || (pores > 24 && texture > 22)) {
+        return {
+          code: 'acne',
+          name: 'Da Mụn / Nhờn & Loạn Khuẩn',
+          description: 'Phát hiện bít tắc dầu thừa diện rộng, cấu trúc sừng hóa nang lông thô ráp, tăng sinh nhân mụn cám/mụn ẩn.',
+          slogan: 'Khuyên dùng: Tập trung làm sạch sâu kiềm dầu, tẩy da chết hóa học (BHA) dịu nhẹ.'
+        };
+      }
+      
+      // 4. Prioritize Melasma & Pigmentation (Nám & Sắc tố)
+      if (spots > 25 || uvPigment > 30) {
         return {
           code: 'pigment',
           name: 'Nám & Sắc Tố Hỗn Hợp',
@@ -5984,17 +5995,7 @@
         };
       }
       
-      // 3. Acne / Pores fallback
-      if (pores > 15 || (pores > 11 && texture > 20)) {
-        return {
-          code: 'acne',
-          name: 'Da Mụn / Nhờn & Loạn Khuẩn',
-          description: 'Phát hiện bít tắc dầu thừa, cấu trúc sừng hóa nang lông thô ráp, tăng sinh nhân mụn sần.',
-          slogan: 'Khuyên dùng: Tập trung làm sạch sâu kháng viêm nhẹ nhàng, cân bằng vi sinh vật.'
-        };
-      }
-      
-      // Fallback default for healthy / low-concern skin
+      // 5. Default Fallback for Clean / Healthy skin
       return {
         code: 'pigment',
         name: 'Da Khỏe Mạnh / Ít Sắc Tố',
@@ -6002,6 +6003,16 @@
         slogan: 'Khuyên dùng: Duy trì chống nắng bảo vệ và cấp ẩm nhẹ nhàng để duy trì làn da sáng mịn.'
       };
     }
+
+
+
+
+
+
+
+
+
+
 
     async function analyzeSkinImages(images) {
       const result = {
