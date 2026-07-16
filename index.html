@@ -2,50 +2,13 @@
 <html lang="vi">
 
 <head>
-  <script>
-    (function() {
-      const errs = [];
-      window.onerror = function(message, source, lineno, colno, error) {
-        const txt = message + ' (' + source + ':' + lineno + ':' + colno + ')';
-        errs.push(txt);
-        show();
-        return false;
-      };
-      window.addEventListener('unhandledrejection', function(e) {
-        errs.push('Unhandled Rejection: ' + e.reason);
-        show();
-      });
-      function show() {
-        let box = document.getElementById('js-debug-box');
-        if (!box) {
-          box = document.createElement('div');
-          box.id = 'js-debug-box';
-          box.style.position = 'fixed';
-          box.style.bottom = '15px';
-          box.style.right = '15px';
-          box.style.background = '#ff3333';
-          box.style.color = '#ffffff';
-          box.style.padding = '15px';
-          box.style.zIndex = '1000000';
-          box.style.fontFamily = 'monospace';
-          box.style.fontSize = '12px';
-          box.style.borderRadius = '8px';
-          box.style.maxWidth = '360px';
-          box.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)';
-          box.style.wordBreak = 'break-all';
-          document.documentElement.appendChild(box);
-        }
-        box.innerHTML = '<strong>JS ERROR DETECTED:</strong><br>' + errs.join('<br><br>');
-      }
-    })();
-  </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Ngô Mai Phương SkinCheck — Tự Soi Da & Chẩn Đoán Da Liễu Online</title>
-  <meta name="description"
-    content="Ngô Mai Phương SkinCheck giúp bạn tự soi da và chẩn đoán mụn (C.acnes, Demodex, nấm), sắc tố nám (mảng, đốm, chân sâu, tàn nhang), và da nhiễm độc corticoid, chì, thuỷ ngân qua AI." />
-
-  <!-- Fonts -->
+  <meta name="description" content="Ngô Mai Phương SkinCheck giúp bạn tự soi da và chẩn đoán mụn (C.acnes, Demodex, nấm), sắc tố nám (mảng, đốm, chân sâu, tàn nhang), và da nhiễm độc corticoid, chì, thuỷ ngân qua AI." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -5866,7 +5829,6 @@
             const avgRG = avgR / (avgG || 1);
             const avgDiff = avgR - avgG;
             const avgMelanin = skinPixels.reduce((sum, p) => sum + Math.max(0, p.g - p.b), 0) / skinCount;
-            
             // 1. REDNESS & INFLAMMATORY ACNE DETECT (Self-calibrated baseline)
             // Count red acne pixels (significantly redder than the person's own average skin tone)
             let acnePixelCount = 0;
@@ -5874,12 +5836,12 @@
               const pRG = p.r / (p.g || 1);
               const pDiff = p.r - p.g;
               
-              if (pRG > avgRG * 1.15 && pDiff > avgDiff * 1.35 && p.r > 115 && pRG < 1.75) {
+              if (pRG > avgRG * 1.18 && pDiff > avgDiff * 1.45 && p.r > 120 && pRG < 1.70) {
                 acnePixelCount++;
               }
             });
             const acneRatio = acnePixelCount / skinCount;
-            const acneScore = Math.min(100, Math.round(acneRatio * 100 * 12.0));
+            const acneScore = Math.min(100, Math.round(acneRatio * 100 * 10.0));
 
             // Sort skin pixels by redness intensity to focus only on localized red zones (cheeks, nose)
             const erythemaValues = skinPixels.map(p => Math.max(0, p.r - p.g)).sort((a, b) => b - a);
