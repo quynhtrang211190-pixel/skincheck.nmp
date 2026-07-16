@@ -5863,61 +5863,53 @@
             const avgB = totalB / skinCount;
             const avgLum = skinPixels.reduce((sum, p) => sum + p.lum, 0) / skinCount;
             
+            const avgRG = avgR / (avgG || 1);
+            const avgDiff = avgR - avgG;
+            const avgMelanin = skinPixels.reduce((sum, p) => sum + Math.max(0, p.g - p.b), 0) / skinCount;
             
-            // 1. REDNESS & INFLAMMATORY ACNE DETECT
-            // Count red acne pixels (prominent red lesions: high R/G ratio but not extremely saturated lips)
+            // 1. REDNESS & INFLAMMATORY ACNE DETECT (Self-calibrated baseline)
+            // Count red acne pixels (significantly redder than the person's own average skin tone)
             let acnePixelCount = 0;
-            for (let i = 0; i < data.length; i += 4) {
-              const r = data[i];
-              const g = data[i+1];
-              const b = data[i+2];
-              const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+            skinPixels.forEach(p => {
+              const pRG = p.r / (p.g || 1);
+              const pDiff = p.r - p.g;
               
-              if (r > 100 && g > 25 && b > 15 &&
-                  r > g && r > b &&
-                  (r / (g || 1) >= 1.26) && (r / (g || 1) < 1.68) &&
-                  (r - g) > 20 &&
-                  lum > 40) {
+              if (pRG > avgRG * 1.15 && pDiff > avgDiff * 1.35 && p.r > 115 && pRG < 1.75) {
                 acnePixelCount++;
               }
-            }
-            const acneRatio = acnePixelCount / Math.max(100, skinCount);
-            const acneScore = Math.min(100, Math.round(acneRatio * 100 * 7.5));
+            });
+            const acneRatio = acnePixelCount / skinCount;
+            const acneScore = Math.min(100, Math.round(acneRatio * 100 * 12.0));
 
             // Sort skin pixels by redness intensity to focus only on localized red zones (cheeks, nose)
             const erythemaValues = skinPixels.map(p => Math.max(0, p.r - p.g)).sort((a, b) => b - a);
             const topRedCount = Math.max(1, Math.floor(erythemaValues.length * 0.3));
             const topRedSum = erythemaValues.slice(0, topRedCount).reduce((sum, v) => sum + v, 0);
             const avgErythema = topRedSum / topRedCount;
-            // Map typical localized erythema index to redness ratio.
-            let rednessRatio = 1.05 + (avgErythema / 420);
+            
+            // Map typical localized erythema index to redness ratio (adjusted baseline)
+            let rednessRatio = 1.05 + (avgErythema / 480);
             
             // Boost redness if there are prominent red acne spots detected
-            if (acneRatio > 0.01) {
-              rednessRatio += (acneRatio - 0.01) * 0.85;
+            if (acneRatio > 0.015) {
+              rednessRatio += (acneRatio - 0.015) * 1.2;
             }
 
             // 2. Luminance standard deviation (unevenness)
             const variance = skinPixels.reduce((sum, p) => sum + Math.pow(p.lum - avgLum, 2), 0) / skinCount;
             const stdDevLum = Math.sqrt(variance);
 
-            // 3. SPOTS (Brown Melanin spots only)
+            // 3. SPOTS (Brown Melanin spots only - strict contrast threshold)
             let spotCount = 0;
             skinPixels.forEach(p => {
               const mi = Math.max(0, p.g - p.b);
-              if (p.lum < avgLum * 0.91 && mi > 12) {
+              if (p.lum < avgLum * 0.86 && mi > avgMelanin * 1.25 && mi > 14) {
                 spotCount++;
               }
             });
-            const spotsScore = Math.min(100, Math.round((spotCount / skinCount) * 100 * 1.8));
+            const spotsScore = Math.min(100, Math.round((spotCount / skinCount) * 100 * 3.5));
 
             // 4. UV MELANIN (Average Melanin index over skin area)
-            let totalMelanin = 0;
-            skinPixels.forEach(p => {
-              const mi = Math.max(0, p.g - p.b);
-              totalMelanin += mi;
-            });
-            const avgMelanin = totalMelanin / skinCount;
             const uvMelaninScore = Math.min(100, Math.max(5, Math.round((avgMelanin - 8) * 3.0)));
             
             // 5. TEXTURE (Spatial derivative / High frequency roughness detection)
@@ -5943,6 +5935,10 @@
             let textureScore = Math.min(80, Math.max(0, Math.round((avgGrad - 2.2) * 5)));
             if (avgLum > 130) {
               textureScore = Math.max(5, textureScore - (avgLum - 130) * 0.6);
+            }
+            // Compensate texture if the skin is highly uniform (stdDevLum is low)
+            if (stdDevLum < 8.0) {
+              textureScore = Math.max(5, Math.round(textureScore * (stdDevLum / 8.0)));
             }
             
             // 6. PORES (Local minima dark indentations)
@@ -6036,12 +6032,12 @@
         };
       }
       
-      // Fallback default for Melano LDP
+      // Fallback default for healthy / low-concern skin
       return {
         code: 'pigment',
-        name: 'Nám & Sắc Tố Hỗn Hợp',
-        description: 'Phát hiện sắc tố tích tụ thể nhẹ, loang lổ không đều màu vùng gò má.',
-        slogan: 'Khuyên dùng: Sử dụng hoạt chất làm sáng dịu nhẹ & chống nắng bảo vệ phục hồi.'
+        name: 'Da Khỏe Mạnh / Ít Sắc Tố',
+        description: 'Nền da của bạn tương đối khỏe mạnh, hắc sắc tố ở mức tối thiểu và cấu trúc da ổn định.',
+        slogan: 'Khuyên dùng: Duy trì chống nắng bảo vệ và cấp ẩm nhẹ nhàng để duy trì làn da sáng mịn.'
       };
     }
 
