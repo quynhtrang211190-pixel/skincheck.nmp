@@ -1441,11 +1441,40 @@
 
     @media (max-width: 768px) {
       .nav {
-        padding: 0 16px;
+        height: 64px !important;
+        padding: 0 16px !important;
       }
 
       .navlinks {
         display: none;
+      }
+
+      .brand-main {
+        font-size: 15px !important;
+      }
+      .brand-sub {
+        font-size: 9.5px !important;
+      }
+      .nav .btn {
+        padding: 6px 12px !important;
+        font-size: 11.5px !important;
+      }
+
+      .container {
+        padding: 0 16px !important;
+      }
+
+      /* Wizard progress stepper adjustments */
+      .wizard-step {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 12px !important;
+      }
+      .wizard-progress::before, .progress-bar-fill {
+        top: 13px !important;
+      }
+      .wizard-progress {
+        margin-bottom: 20px !important;
       }
 
       /* Compact horizontal 3-column layout for photos on mobile */
@@ -1485,6 +1514,12 @@
         grid-template-columns: 1fr;
       }
 
+      .check-pill {
+        padding: 10px 12px !important;
+        font-size: 12.5px !important;
+        gap: 8px !important;
+      }
+
       .form-panel {
         padding: 20px 14px !important;
         border-radius: 16px !important;
@@ -1511,6 +1546,22 @@
         padding: 35px 0 !important;
       }
 
+      /* Device Mockup Scale-down */
+      .device {
+        height: 400px !important;
+      }
+      .face-outline-svg {
+        width: 100px !important;
+        height: 130px !important;
+      }
+      .radar-container {
+        width: 160px !important;
+        height: 160px !important;
+      }
+      .radar-circle.c1 { width: 160px !important; height: 160px !important; }
+      .radar-circle.c2 { width: 120px !important; height: 120px !important; }
+      .radar-circle.c3 { width: 80px !important; height: 80px !important; }
+
       /* Compact results box on mobile */
       .ai-pre-analysis-box {
         padding: 16px 12px !important;
@@ -1526,6 +1577,35 @@
         gap: 4px !important;
       }
 
+      .result-card {
+        padding: 16px !important;
+      }
+      
+      .result-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+      }
+
+      .metric-info {
+        font-size: 11.5px !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+      }
+      .metric-value {
+        font-size: 12.5px !important;
+      }
+
+      .contact-card {
+        padding: 24px 16px !important;
+        gap: 20px !important;
+      }
+      
+      .cta-large {
+        padding: 12px 20px !important;
+        font-size: 14px !important;
+      }
+
       /* Modal contents padding adjustments */
       .camera-modal-content, .source-modal-content, .payment-modal-content, .consult-modal-content {
         padding: 20px 14px !important;
@@ -1534,6 +1614,12 @@
 
       .payment-qr-img {
         max-width: 180px !important;
+      }
+      
+      .pay-detail-row {
+        font-size: 11.5px !important;
+        flex-wrap: wrap !important;
+        gap: 2px !important;
       }
     }
 
