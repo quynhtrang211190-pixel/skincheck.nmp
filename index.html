@@ -6163,7 +6163,7 @@
               const pRG = p.r / (p.g || 1);
               const pDiff = p.r - p.g;
               
-              if (pRG > avgRG * 1.18 && pDiff > avgDiff * 1.45 && p.r > 120 && pRG < 1.70) {
+              if (pRG > avgRG * 1.18 && pDiff > avgDiff * 1.45 && p.r > 120 && pRG < 1.70 && p.lum > avgLum * 0.70) {
                 acnePixelCount++;
               }
             });
@@ -6192,7 +6192,7 @@
             let spotCount = 0;
             skinPixels.forEach(p => {
               const mi = Math.max(0, p.g - p.b);
-              if (p.lum < avgLum * 0.86 && mi > avgMelanin * 1.25 && mi > 14) {
+              if (p.lum < avgLum * 0.86 && p.lum > avgLum * 0.65 && mi > avgMelanin * 1.25 && mi > 14) {
                 spotCount++;
               }
             });
@@ -6233,6 +6233,7 @@
             // 6. PORES (Local minima dark indentations)
             let poreCount = 0;
             skinPixels.forEach(p => {
+              if (p.lum < avgLum * 0.88) return;
               const neighbors = [
                 lumMap[`${p.x-1},${p.y-1}`], lumMap[`${p.x},${p.y-1}`], lumMap[`${p.x+1},${p.y-1}`],
                 lumMap[`${p.x-1},${p.y}`],                             lumMap[`${p.x+1},${p.y}`],
@@ -6262,7 +6263,7 @@
             skinPixels.forEach(p => {
               const pRG = p.r / (p.g || 1);
               const pDiff = p.r - p.g;
-              if (pRG > avgRG * 1.18 && pDiff > avgDiff * 1.45 && p.r > 120 && pRG < 1.70) {
+              if (pRG > avgRG * 1.18 && pDiff > avgDiff * 1.45 && p.r > 120 && pRG < 1.70 && p.lum > avgLum * 0.70) {
                 const px = (p.x / 50) * 300;
                 const py = (p.y / 50) * 400;
                 maskCtx.fillStyle = 'rgba(239, 68, 68, 0.75)';
@@ -6277,7 +6278,7 @@
             maskCtx.clearRect(0, 0, 300, 400);
             skinPixels.forEach(p => {
               const mi = Math.max(0, p.g - p.b);
-              if (p.lum < avgLum * 0.86 && mi > avgMelanin * 1.25 && mi > 14) {
+              if (p.lum < avgLum * 0.86 && p.lum > avgLum * 0.65 && mi > avgMelanin * 1.25 && mi > 14) {
                 const px = (p.x / 50) * 300;
                 const py = (p.y / 50) * 400;
                 maskCtx.fillStyle = 'rgba(203, 164, 90, 0.8)';
@@ -6291,6 +6292,7 @@
             // 3. Pores Mask
             maskCtx.clearRect(0, 0, 300, 400);
             skinPixels.forEach(p => {
+              if (p.lum < avgLum * 0.88) return;
               const neighbors = [
                 lumMap[`${p.x-1},${p.y-1}`], lumMap[`${p.x},${p.y-1}`], lumMap[`${p.x+1},${p.y-1}`],
                 lumMap[`${p.x-1},${p.y}`],                             lumMap[`${p.x+1},${p.y}`],
