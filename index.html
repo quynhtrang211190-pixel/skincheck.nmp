@@ -3637,6 +3637,22 @@
       color: #0b1730;
       box-shadow: 0 0 10px rgba(203, 164, 90, 0.2);
     }
+    
+    .filter-btn.mesh-btn {
+      grid-column: span 2;
+      background: rgba(16, 185, 129, 0.05);
+      border-color: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+    }
+    .filter-btn.mesh-btn:hover {
+      background: rgba(16, 185, 129, 0.12);
+    }
+    .filter-btn.mesh-btn.active {
+      background: #10b981;
+      border-color: #10b981;
+      color: #faf8f5;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+    }
 
     /* Consult Modal Styles */
     .consult-modal {
@@ -3947,6 +3963,7 @@
               <button type="button" class="filter-btn redness" data-filter="redness">🔴 Mụn & Viêm</button>
               <button type="button" class="filter-btn spots" data-filter="spots">🟤 Đốm sắc tố</button>
               <button type="button" class="filter-btn pores" data-filter="pores">🟢 Lỗ chân lông</button>
+              <button type="button" class="filter-btn mesh-btn" data-filter="mesh">🤖 Lưới định vị AI</button>
             </div>
           </div>
 
@@ -5025,11 +5042,85 @@
       });
     }
 
+    let faceMeshInstance = null;
+    function initFaceMesh() {
+      if (faceMeshInstance) return;
+      if (typeof FaceMesh === 'undefined') {
+        console.warn("MediaPipe FaceMesh script not fully loaded yet.");
+        return;
+      }
+      faceMeshInstance = new FaceMesh({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+      });
+      faceMeshInstance.setOptions({
+        maxNumFaces: 1,
+        refineLandmarks: true,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+      });
+    }
+
+    function detectFaceLandmarks(imgElement) {
+      return new Promise((resolve) => {
+        try {
+          initFaceMesh();
+          if (!faceMeshInstance) {
+            resolve(null);
+            return;
+          }
+          let resolved = false;
+          const timeout = setTimeout(() => {
+            if (!resolved) {
+              resolved = true;
+              resolve(null);
+            }
+          }, 4500);
+
+          faceMeshInstance.onResults((results) => {
+            if (resolved) return;
+            resolved = true;
+            clearTimeout(timeout);
+            if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+              resolve(results.multiFaceLandmarks[0]);
+            } else {
+              resolve(null);
+            }
+          });
+
+          faceMeshInstance.send({ image: imgElement }).catch(err => {
+            console.error("FaceMesh send error:", err);
+            if (!resolved) {
+              resolved = true;
+              clearTimeout(timeout);
+              resolve(null);
+            }
+          });
+        } catch (e) {
+          console.error("FaceMesh initialization/processing error:", e);
+          resolve(null);
+        }
+      });
+    }
+
     async function processAndValidateUploadedImage(dataUrl, slotKey) {
       const metrics = await analyzeImagePixels(dataUrl);
       
       // Save data
       state.images[slotKey] = dataUrl;
+
+      // Extract FaceMesh landmarks asynchronously to avoid blocking the main thread
+      try {
+        const img = new Image();
+        img.src = dataUrl;
+        await new Promise(r => img.onload = r);
+        const landmarks = await detectFaceLandmarks(img);
+        if (landmarks) {
+          if (!state.imagesLandmarks) state.imagesLandmarks = {};
+          state.imagesLandmarks[slotKey] = landmarks;
+        }
+      } catch (err) {
+        console.error("Failed to extract face mesh landmarks:", err);
+      }
       
       // Map to brightness status
       let status = 'good';
@@ -5901,6 +5992,69 @@
       scanLine.classList.remove('scanning');
       
       if (filter === 'original') {
+        return;
+      }
+      
+      if (filter === 'mesh') {
+        const angleKey = angle === 'front' ? 'front' : (angle === 'left' ? 'left' : 'right');
+        const landmarks = state.imagesLandmarks ? state.imagesLandmarks[angleKey] : null;
+        
+        // Run scan line animation effect
+        scanLine.classList.add('scanning');
+        
+        canvas.width = canvas.clientWidth || 260;
+        canvas.height = canvas.clientHeight || 347;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        if (landmarks) {
+          // Draw connecting lines
+          ctx.strokeStyle = 'rgba(16, 185, 129, 0.45)';
+          ctx.lineWidth = 0.8;
+          
+          // Draw coordinates
+          landmarks.forEach((pt, i) => {
+            const px = pt.x * canvas.width;
+            const py = pt.y * canvas.height;
+            
+            // Draw a tiny glowing dot
+            ctx.fillStyle = '#10b981';
+            ctx.beginPath();
+            ctx.arc(px, py, 1.2, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Connect to neighboring point for mesh web look
+            if (i % 8 === 0 && i < landmarks.length - 8) {
+              const nextPt = landmarks[i + 8];
+              ctx.beginPath();
+              ctx.moveTo(px, py);
+              ctx.lineTo(nextPt.x * canvas.width, nextPt.y * canvas.height);
+              ctx.stroke();
+            }
+          });
+        } else {
+          // Fallback simple grid scanning if face mesh failed or timed out
+          ctx.strokeStyle = 'rgba(16, 185, 129, 0.2)';
+          ctx.lineWidth = 1.0;
+          const step = 20;
+          for (let x = 0; x < canvas.width; x += step) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, canvas.height);
+            ctx.stroke();
+          }
+          for (let y = 0; y < canvas.height; y += step) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(canvas.width, y);
+            ctx.stroke();
+          }
+        }
+        
+        // Keep scan line scanning for 800ms then fade in the overlay spots
+        setTimeout(() => {
+          canvas.classList.add('active');
+          scanLine.classList.remove('scanning');
+        }, 800);
         return;
       }
       
