@@ -4871,7 +4871,7 @@
       </div>
       
       <button type="button" class="btn full" id="verifyPaymentBtn">Tôi đã thanh toán thành công →</button>
-      <p class="payment-hint">Sau khi quét mã và chuyển khoản thành công, hệ thống 3C Studio sẽ đối soát tự động để mở khóa tiếp tục chẩn đoán.</p>
+      <p class="payment-hint">Sau khi quét mã và chuyển khoản thành công, hệ thống sẽ đối soát tự động để mở khóa tiếp tục chẩn đoán.</p>
     </div>
   </div>
 
@@ -4910,7 +4910,7 @@
     const $ = selector => document.querySelector(selector);
     const $$ = selector => Array.from(document.querySelectorAll(selector));
 
-    // Safe storage helper to avoid crash in sandboxed environments (like 3C Studio iframe)
+    // Safe storage helper to avoid crash in sandboxed environments
     const storage = {
       getItem(key) {
         try { return localStorage.getItem(key); } catch(e) { return null; }
@@ -5923,7 +5923,7 @@
 
     // Bind click listener for pre-analysis confirmation button (Triggers Payment Modal)
     $('#preAnalysisNextBtn').addEventListener('click', () => {
-      // Generate transaction paymentCode for 3C Studio automation matching
+      // Generate transaction paymentCode for automation matching
       state.paymentCode = 'SC' + Math.floor(100000 + Math.random() * 900000);
       
       // Update details in modal
