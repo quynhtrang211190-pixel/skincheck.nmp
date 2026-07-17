@@ -4710,11 +4710,45 @@
       </div>
     </div>
   </section>
+  <!-- Deep Consult Section -->
+  <section class="section contact-section" id="contact">
+    <div class="container">
 
+      <!-- Box 1: Waiting to submit request -->
+      <div class="contact-card" id="deepConsultCard">
+        <div class="contact-details">
+          <div class="eyebrow">Tư vấn chuyên sâu</div>
+          <h2>Nhận báo cáo phân tích chi tiết & Phác đồ cá nhân hóa</h2>
+          <p>Mỗi hồ sơ chẩn đoán đều được đọc trực tiếp bởi đội ngũ chuyên gia da liễu tại thương hiệu Ngô Mai Phương. Sau khi gửi hồ
+            sơ, bạn hãy click yêu cầu nhận báo cáo chi tiết để chuyên viên liên hệ trực tiếp hỗ trợ giải pháp.</p>
+        </div>
+        <div class="contact-actions">
+          <div class="cta-glow-wrapper">
+            <div class="cta-hint">Vui lòng click nhận</div>
+            <button class="btn cta-large" type="button" id="deepConsultBtn">Liên hệ chuyên sâu ngay</button>
+          </div>
+        </div>
+      </div>
 
+      <!-- Box 2: Thank you submitted successfully -->
+      <div class="contact-card style-success" id="thankYouCard" style="display: none;">
+        <div class="contact-details" style="grid-column: 1 / -1; text-align: center;">
+          <div class="status-icon">✓</div>
+          <h2>Cảm ơn bạn đã quan tâm!</h2>
+          <p class="lead" style="margin: 0 auto 20px;">Yêu cầu nhận báo cáo chuyên sâu đã được tiếp nhận thành công.
+            Chuyên viên chuyên khoa da liễu từ thương hiệu Ngô Mai Phương sẽ nhanh chóng liên hệ với bạn thông qua Số điện thoại/Zalo để
+            hỗ trợ phân tích trực tiếp hình ảnh da và lịch sử treatment.</p>
+        </div>
+      </div>
 
-
-
+      <div class="footer-warning">
+        Lưu ý: SkinCheck là công cụ sàng lọc trực tuyến hợp tác cùng Ngô Mai Phương với mục đích hỗ trợ nâng cao nhận thức của
+        người dùng trước điều trị. Kết quả báo cáo sơ bộ không thay thế việc thăm khám y khoa trực tiếp bằng máy soi da
+        tại các cơ sở chuyên sâu. Vui lòng không sao chép, chỉnh sửa hoặc sử dụng vào mục đích thương mại khi chưa có
+        văn bản đồng ý từ Ngô Mai Phương.
+      </div>
+    </div>
+  </section>
   <!-- Camera capture Modal (Step 1) -->
   <div id="cameraModal" class="camera-modal">
     <div class="camera-modal-content">
@@ -7103,11 +7137,22 @@
     $('#resetBtn').addEventListener('click', resetAction);
     $('#resetBtn2').addEventListener('click', resetAction);
 
-    // Open consult modal directly on deepReportScrollBtn click
+    // Scroll to contact on deepReportScrollBtn click
     const deepReportScrollBtn = $('#deepReportScrollBtn');
-    const consultModal = document.getElementById('consultModal');
-    if (deepReportScrollBtn && consultModal) {
+    if (deepReportScrollBtn) {
       deepReportScrollBtn.addEventListener('click', () => {
+        const contactSection = $('#contact');
+        if (contactSection) {
+          contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
+
+    // Handle Deep Consult CTA Click & Modal Form
+    const deepConsultBtn = document.getElementById('deepConsultBtn');
+    const consultModal = document.getElementById('consultModal');
+    if (deepConsultBtn && consultModal) {
+      deepConsultBtn.addEventListener('click', () => {
         // Pre-fill fields from main form if available
         const mainName = document.querySelector('[name="name"]')?.value || '';
         const mainPhone = document.querySelector('[name="phone"]')?.value || '';
